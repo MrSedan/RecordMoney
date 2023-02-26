@@ -33,6 +33,15 @@ git checkout -b branch_name origin/branch_name
 ```
 Либо делаем те же действия при помощи средств **Visual Studio Code**.
 
+Если же вам *вдруг* понадобилось локально удалить ветку, то сначала переключитесь на другую (например `master`):
+```bash
+git checkout master
+```
+Затем удалите ветку:
+```bash
+git branch -d branch_name
+```
+
 ---
 
 ## Запуск проекта
