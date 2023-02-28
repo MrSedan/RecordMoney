@@ -5,6 +5,7 @@ import Home from './views/home/Home';
 import PiggyBank from './views/piggybanks/PiggyBank';
 import Calendar from './views/calendar/Calendar';
 import Account from './views/accounts/Account';
+import Advice from './views/advices/Advice';
 
 const Tab = createBottomTabNavigator();
 
@@ -20,6 +21,7 @@ export default function App() {
           <Tab.Screen name='Debt' component={Debt} />
           <Tab.Screen name='PiggyBank' component={PiggyBank} />
           <Tab.Screen name='Account' component={Account} />
+          <Tab.Screen name='Advices' component={Advice} />
         </Tab.Navigator>
       </NavigationContainer>
   );
