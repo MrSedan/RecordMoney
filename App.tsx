@@ -11,6 +11,7 @@ import PiggyBank from './views/piggybanks/PiggyBank';
 import Calendar from './views/calendar/Calendar';
 import Account from './views/accounts/Account';
 import Advice from './views/advices/Advice';
+import { View } from 'react-native';
 
 const Tab = createBottomTabNavigator();
 
@@ -31,6 +32,7 @@ export default function App() {
   }
 
   return (
+    <View style={{ flex: 1, backgroundColor: "#C9C9C9" }} onLayout={onLayoutRootView}>
       <NavigationContainer>
         <Tab.Navigator
           screenOptions={{
@@ -44,5 +46,6 @@ export default function App() {
           <Tab.Screen name='Advices' component={Advice} />
         </Tab.Navigator>
       </NavigationContainer>
+    </View>
   );
 }
