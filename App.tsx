@@ -1,5 +1,10 @@
+import { useCallback } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { useFonts } from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen';
+import styled from 'styled-components/native'
+
 import Debt from './views/debts/Debt';
 import Home from './views/home/Home';
 import PiggyBank from './views/piggybanks/PiggyBank';
@@ -10,6 +15,21 @@ import Advice from './views/advices/Advice';
 const Tab = createBottomTabNavigator();
 
 export default function App() {
+
+  const [fonstsLoaded] = useFonts({
+    'Montserrat': require('./assets/font/Montserrat-VariableFont_wght.ttf')
+  })
+
+  const onLayoutRootView = useCallback(async () => {
+    if (fonstsLoaded) {
+      await SplashScreen.hideAsync();
+    }
+  }, [fonstsLoaded]);
+
+  if (!fonstsLoaded) {
+    return null;
+  }
+
   return (
       <NavigationContainer>
         <Tab.Navigator
