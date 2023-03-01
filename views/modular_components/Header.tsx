@@ -22,6 +22,8 @@ const IconHeader = styled.Image``;
 
 const ButtonHeader = styled.TouchableOpacity`
   display: flex;
+  justify-content: center;
+  align-items: center;
   height: 40px;
   width: 40px;
   background-color: #FDFDFD;
@@ -29,26 +31,23 @@ const ButtonHeader = styled.TouchableOpacity`
   border: 1px solid #ABA5A5;
 `;
 
-const ButtonText = styled.Text`
-  text-align: center;
-  font-family: 'Montserrat';
-  font-size: 30px;
-  color: #625E5E;
-`;
-
-export default function Header (props: {name: string}) {
+export default function Header (props: {name: string, style:string}) {
   return (
     <View>
       <ViewHeader>
         <IconHeader source={require('../../assets/icon/IconHeader.png')}/>
         <TextHeader>{props.name}</TextHeader>
+        {(props.style == '1') ?
         <ButtonHeader 
           onPress={() => {}} 
           style={{shadowColor: '#625E5E',
             elevation: 10, 
-        }} >
-          <ButtonText>+</ButtonText>
+        }}>
+          <IconHeader source={require('../../assets/icon/plus.png')}/>
         </ButtonHeader>
+        :
+          <IconHeader source={require('../../assets/icon/Arrow.png')}/>
+      }
       </ViewHeader>
     </View>
   );
