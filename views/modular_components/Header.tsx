@@ -33,7 +33,10 @@ const ButtonText = styled.Text`
   text-align: center;
   font-family: 'Montserrat';
   font-size: 30px;
+  font-weight: 400;
   color: #625E5E;
+  margin-top: auto;
+  margin-bottom: auto;
 `;
 
 export default function Header (props: {name: string}) {
