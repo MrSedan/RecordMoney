@@ -5,6 +5,7 @@ import styled from 'styled-components/native';
 
 const Scroll = styled.ScrollView`
     margin: 0;
+    height: 100%;
     max-height: 100%;
 `
 const Container = styled.View`
