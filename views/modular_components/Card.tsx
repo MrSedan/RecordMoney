@@ -14,11 +14,11 @@ const CardView = styled.View`
     border-radius: 10px;
 `;
 
-export default function Card () {
+export default function Card ({children}: {children: React.ReactNode}) {
   return (
     <View>
       <CardView>
-        
+        {children}
       </CardView>
     </View>
   );
