@@ -41,7 +41,7 @@ export default function App() {
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#C9C9C9" }} onLayout={onLayoutRootView}>
+    <View style={{flex: 1}} onLayout={onLayoutRootView}>
       <NavigationContainer>
         <Tab.Navigator
           screenOptions={({route}) => ({
