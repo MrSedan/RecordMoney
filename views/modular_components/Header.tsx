@@ -1,9 +1,8 @@
 import { StatusBar, Text, View } from 'react-native';
-// import { StatusBar } from 'expo-status-bar';
 import styled from 'styled-components/native';
 
 const ViewHeader = styled.View`
-  margin: 40px 35px;
+  margin: 40px 35px 0;
   max-width: 100%;
   height: 50px;
   display: flex;
@@ -32,15 +31,6 @@ const ButtonHeader = styled.TouchableOpacity`
 `;
 
 export default function Header (props: {name: string, style:string}) {
-  const ButtonText = styled.Text`
-    text-align: center;
-    font-family: 'Montserrat';
-    font-size: 30px;
-    font-weight: 400;
-    color: #625E5E;
-    margin-top: auto;
-    margin-bottom: auto;
-  `;
   return (
     <View>
       <ViewHeader>
