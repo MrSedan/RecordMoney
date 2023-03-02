@@ -41,9 +41,9 @@ export default function App() {
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#C9C9C9" }} onLayout={onLayoutRootView}>
+    <View style={{flex: 1}} onLayout={onLayoutRootView}>
       <NavigationContainer>
-        <Tab.Navigator
+        <Tab.Navigator 
           screenOptions={({route}) => ({
             headerShown: false,
             title: '',
@@ -59,8 +59,12 @@ export default function App() {
               } else {
                 return !focused ? <WalletSvg width={size} height={size} /> : <WalletFocusedSvg width={size} height={size} />
               }
-            }
-          })} initialRouteName='Home'>
+            },
+            tabBarStyle : {
+              height : '8%',
+              display : 'flex',
+            }, lazy: true
+          })} initialRouteName='Home' >
           <Tab.Screen name='Home' component={Home} />
           <Tab.Screen name='Calendar' component={Calendar} />
           <Tab.Screen name='Debt' component={Debt} />
