@@ -3,7 +3,7 @@ import { StatusBar, Text, View } from 'react-native';
 import styled from 'styled-components/native';
 
 const ViewHeader = styled.View`
-  margin: 40px 35px;
+  margin: 40px 35px 0;
   max-width: 100%;
   height: 50px;
   display: flex;
