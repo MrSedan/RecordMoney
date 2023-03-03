@@ -1,5 +1,8 @@
 import { StatusBar, Text, View } from 'react-native';
 import styled from 'styled-components/native';
+import PlusSvg from '../../assets/icon/plus.svg';
+import BurgerSvg from '../../assets/icon/Burger.svg';
+import ArrowSvg from '../../assets/icon/Arrow.svg';
 
 const ViewHeader = styled.View`
   margin: 40px 35px 0;
@@ -23,8 +26,8 @@ const ButtonHeader = styled.TouchableOpacity`
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 40px;
-  width: 40px;
+  height: 35px;
+  width: 35px;
   background-color: #FDFDFD;
   border-radius: 100px;
   border: 1px solid #ABA5A5;
@@ -34,7 +37,7 @@ export default function Header (props: {name: string, style:string}) {
   return (
     <View>
       <ViewHeader>
-        <IconHeader source={require('../../assets/icon/IconHeader.png')}/>
+        <BurgerSvg width={25} height={25} />
         <TextHeader>{props.name}</TextHeader>
         {(props.style == '1') ?
         <ButtonHeader 
@@ -42,10 +45,10 @@ export default function Header (props: {name: string, style:string}) {
           style={{shadowColor: '#625E5E',
             elevation: 10, 
         }}>
-          <IconHeader source={require('../../assets/icon/plus.png')}/>
+          <PlusSvg width={15} height={15} />
         </ButtonHeader>
         :
-          <IconHeader source={require('../../assets/icon/Arrow.png')}/>
+          <ArrowSvg width={25} height={25} />
       }
       </ViewHeader>
     </View>
