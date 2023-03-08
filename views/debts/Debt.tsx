@@ -2,6 +2,10 @@ import { Text, View } from 'react-native';
 import Card from '../modular_components/Card';
 import Header from '../modular_components/Header';
 import styled from 'styled-components/native';
+import { useCallback, useState } from 'react';
+import { debt, emptyDebt } from '../../models/interfaces';
+import { useFocusEffect } from '@react-navigation/native';
+import { getData, setData } from '../tools/iosys';
 
 const Scroll = styled.ScrollView`
     margin: 0;
@@ -37,144 +41,77 @@ const DebtFromMe = styled.TouchableOpacity`
 
 
 export default function Debt() {
+    const [state, setState] = useState(emptyDebt())
+    const [counter, setCounter] = useState(0)
+
+    const curData = {
+        id: 1,
+        id_account: 1,
+        name: 'Денис',
+        contact: '88005553535',
+        type: '1',
+        sum: 2000,
+        date: '12.01.2001',
+        comment: ''
+    }
+
+    useFocusEffect(
+        useCallback(()=>{
+            const onStart = async () => {
+                let data: debt = await getData({fileName: 'Debt'});
+                if (data === null) {
+                    data = emptyDebt()
+                    await setData({fileName: 'Debt', data: data})
+                }
+                setState(data)
+                setCounter(data.debts.length)
+            }
+            onStart()
+        },[])
+    )
+    
+    const onClick = async () => {
+        let newDat: debt = JSON.parse(JSON.stringify(state))
+        let dat = curData
+        dat.id = counter
+        newDat.debts.push(dat)
+        
+        await setData({fileName: 'Debt', data: newDat})
+        setState(newDat)
+        setCounter(counter+1)
+    }
+
+    const del = async (index: number) => {
+        let newDat: debt = JSON.parse(JSON.stringify(state))
+        newDat.debts.splice(index, 1)
+        
+        await setData({fileName: 'Debt', data: newDat})
+        setState(newDat)
+    }
     return (
         <View style={{ backgroundColor: '#FFF', height: '100%' }}>
-            <Header name='Debt' style='1' />
+            <Header name='Debt' style='1' functionLeft={()=>{}} functionRight={onClick}/>
             <View style={{margin: 5, flex: 1, flexDirection: 'row', marginBottom: 40, justifyContent: 'space-around'}}>
                 <DebtToMe><Text style={{color: '#3FDEAE', fontSize: 19}}>Должны мне</Text></DebtToMe>
                 <DebtFromMe><Text style={{color: '#C9C9C9', fontSize: 19}}>Должен я</Text></DebtFromMe>
             </View>
             <Scroll>
                 <Container>
-                <Card>
-                    <View style={{flex: 1, flexDirection: 'column'}}>
-                        <View style={{flex:1, justifyContent: 'space-between', flexDirection: 'row'}}>
-                            <Text>Денис!</Text>
-                            <Text>05.03.2023</Text>
-                            <Text>5000 руб.</Text>
-                        </View>
-                        <Text>88005553535</Text>
-                    </View>
-                </Card>
-                <Card>
-                    <View style={{flex: 1, flexDirection: 'column'}}>
-                        <View style={{flex:1, justifyContent: 'space-between', flexDirection: 'row'}}>
-                            <Text>Денис!</Text>
-                            <Text>05.03.2023</Text>
-                            <Text>5000 руб.</Text>
-                        </View>
-                        <Text>88005553535</Text>
-                    </View>
-                </Card>
-
-                <Card>
-                    <View style={{flex: 1, flexDirection: 'column'}}>
-                        <View style={{flex:1, justifyContent: 'space-between', flexDirection: 'row'}}>
-                            <Text>Денис!</Text>
-                            <Text>05.03.2023</Text>
-                            <Text>5000 руб.</Text>
-                        </View>
-                        <Text>88005553535</Text>
-                    </View>
-                </Card>
-                <Card>
-                    <View style={{flex: 1, flexDirection: 'column'}}>
-                        <View style={{flex:1, justifyContent: 'space-between', flexDirection: 'row'}}>
-                            <Text>Денис!</Text>
-                            <Text>05.03.2023</Text>
-                            <Text>5000 руб.</Text>
-                        </View>
-                        <Text>88005553535</Text>
-                    </View>
-                </Card>
-                <Card>
-                    <View style={{flex: 1, flexDirection: 'column'}}>
-                        <View style={{flex:1, justifyContent: 'space-between', flexDirection: 'row'}}>
-                            <Text>Денис!</Text>
-                            <Text>05.03.2023</Text>
-                            <Text>5000 руб.</Text>
-                        </View>
-                        <Text>88005553535</Text>
-                    </View>
-                </Card>
-                <Card>
-                    <View style={{flex: 1, flexDirection: 'column'}}>
-                        <View style={{flex:1, justifyContent: 'space-between', flexDirection: 'row'}}>
-                            <Text>Денис!</Text>
-                            <Text>05.03.2023</Text>
-                            <Text>5000 руб.</Text>
-                        </View>
-                        <Text>88005553535</Text>
-                    </View>
-                </Card>
-                <Card>
-                    <View style={{flex: 1, flexDirection: 'column'}}>
-                        <View style={{flex:1, justifyContent: 'space-between', flexDirection: 'row'}}>
-                            <Text>Денис!</Text>
-                            <Text>05.03.2023</Text>
-                            <Text>5000 руб.</Text>
-                        </View>
-                        <Text>88005553535</Text>
-                    </View>
-                </Card>
-                <Card>
-                    <View style={{flex: 1, flexDirection: 'column'}}>
-                        <View style={{flex:1, justifyContent: 'space-between', flexDirection: 'row'}}>
-                            <Text>Денис!</Text>
-                            <Text>05.03.2023</Text>
-                            <Text>5000 руб.</Text>
-                        </View>
-                        <Text>88005553535</Text>
-                    </View>
-                </Card>
-                <Card>
-                    <View style={{flex: 1, flexDirection: 'column'}}>
-                        <View style={{flex:1, justifyContent: 'space-between', flexDirection: 'row'}}>
-                            <Text>Денис!</Text>
-                            <Text>05.03.2023</Text>
-                            <Text>5000 руб.</Text>
-                        </View>
-                        <Text>88005553535</Text>
-                    </View>
-                </Card>
-                <Card>
-                    <View style={{flex: 1, flexDirection: 'column'}}>
-                        
-                    </View>
-                </Card>
-                <Card>
-                    <View style={{flex: 1, flexDirection: 'column'}}>
-                        <View style={{flex:1, justifyContent: 'space-between', flexDirection: 'row'}}>
-                            <Text>Денис!</Text>
-                            <Text>05.03.2023</Text>
-                            <Text>5000 руб.</Text>
-                        </View>
-                        <Text>88005553535</Text>
-                    </View>
-                </Card>
-                <Card>
-                    <View style={{flex: 1, flexDirection: 'column'}}>
-                        <View style={{flex:1, justifyContent: 'space-between', flexDirection: 'row'}}>
-                            <Text>Денис!</Text>
-                            <Text>05.03.2023</Text>
-                            <Text>5000 руб.</Text>
-                        </View>
-                        <Text>500</Text>
-                    </View>
-                </Card>
-                <Card>
-                    <View style={{flex: 1, flexDirection: 'column'}}>
-                        <View style={{flex:1, justifyContent: 'space-between', flexDirection: 'row'}}>
-                            <Text>Руслан!</Text>
-                            <Text>05.03.2023</Text>
-                            <Text>5000 руб.</Text>
-                        </View>
-                        <Text>500</Text>
-                    </View>
-                </Card>
+                    {state.debts.map((item,index)=>{
+                        return (
+                            <Card key={index} onPress={()=>{del(index)}}>
+                                <View style={{flex: 1, flexDirection: 'column'}}>
+                                    <View style={{flex:1, justifyContent: 'space-between', flexDirection: 'row'}}>
+                                        <Text>{item.name} {`${item.id}`}</Text>
+                                        <Text>{item.date}</Text>
+                                        <Text>{`${item.sum}`} руб.</Text>
+                                    </View>
+                                    <Text>{item.contact}</Text>
+                                </View>
+                            </Card>
+                        )
+                    })}
                 </Container>
-                
-
             </Scroll>
         </View>
     )
