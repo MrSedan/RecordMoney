@@ -1,4 +1,4 @@
-import { View, Text } from 'react-native';
+import { TouchableOpacity } from 'react-native';
 import styled from 'styled-components/native'
 
 const CardView = styled.View`
@@ -14,12 +14,12 @@ const CardView = styled.View`
     border-radius: 10px;
 `;
 
-export default function Card ({children}: {children: React.ReactNode}) {
+export default function Card (props: {onPress: Function, children: React.ReactNode}) {
   return (
-    <View>
+    <TouchableOpacity onPress={()=>{props.onPress()}}>
       <CardView>
-        {children}
+        {props.children}
       </CardView>
-    </View>
+    </TouchableOpacity>
   );
 }
