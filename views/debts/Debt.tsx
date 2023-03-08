@@ -19,7 +19,8 @@ const Container = styled.View`
     justify-content: flex-start;
 `
 const DebtToMe = styled.TouchableOpacity`
-    border: 1px solid #3FDEAE;
+    border-width: 1px;
+    border-style: solid;
     height: 35px;
     display: flex;
     justify-content: center;
@@ -29,7 +30,8 @@ const DebtToMe = styled.TouchableOpacity`
     border-radius: 5px;
 `
 const DebtFromMe = styled.TouchableOpacity`
-    border: 1px solid #C9C9C9;
+    border-width: 1px;
+    border-style: solid;
     height: 35px;
     display: flex;
     justify-content: center;
@@ -39,17 +41,17 @@ const DebtFromMe = styled.TouchableOpacity`
     border-radius: 5px;
 `
 
-
 export default function Debt() {
     const [state, setState] = useState(emptyDebt())
     const [counter, setCounter] = useState(0)
+    const [debtTome, setDebt] = useState(true)
 
     const curData = {
         id: 1,
         id_account: 1,
         name: 'Денис',
         contact: '88005553535',
-        type: '1',
+        type: '2',
         sum: 2000,
         date: '12.01.2001',
         comment: ''
@@ -74,6 +76,7 @@ export default function Debt() {
         let newDat: debt = JSON.parse(JSON.stringify(state))
         let dat = curData
         dat.id = counter
+        dat.type = debtTome ? '1' : '2'
         newDat.debts.push(dat)
         
         await setData({fileName: 'Debt', data: newDat})
@@ -88,17 +91,19 @@ export default function Debt() {
         await setData({fileName: 'Debt', data: newDat})
         setState(newDat)
     }
+
     return (
         <View style={{ backgroundColor: '#FFF', height: '100%' }}>
             <Header name='Debt' style='1' functionLeft={()=>{}} functionRight={onClick}/>
             <View style={{margin: 5, flex: 1, flexDirection: 'row', marginBottom: 40, justifyContent: 'space-around'}}>
-                <DebtToMe><Text style={{color: '#3FDEAE', fontSize: 19}}>Должны мне</Text></DebtToMe>
-                <DebtFromMe><Text style={{color: '#C9C9C9', fontSize: 19}}>Должен я</Text></DebtFromMe>
+                <DebtToMe onPress={()=>{setDebt(true)}} style={{borderColor: debtTome? '#3FDEAE': '#C9C9C9'}}><Text style={{color: debtTome? '#3FDEAE': '#C9C9C9', fontSize: 19}}>Должны мне</Text></DebtToMe>
+                <DebtFromMe onPress={()=>{setDebt(false)}} style={{borderColor: !debtTome? '#3FDEAE': '#C9C9C9'}}><Text style={{color: !debtTome? '#3FDEAE': '#C9C9C9', fontSize: 19}}>Должен я</Text></DebtFromMe>
             </View>
             <Scroll>
                 <Container>
                     {state.debts.map((item,index)=>{
-                        return (
+                        if (debtTome && item.type == '1' || item.type == '2' && !debtTome)
+                        {return (
                             <Card key={index} onPress={()=>{del(index)}}>
                                 <View style={{flex: 1, flexDirection: 'column'}}>
                                     <View style={{flex:1, justifyContent: 'space-between', flexDirection: 'row'}}>
@@ -109,7 +114,7 @@ export default function Debt() {
                                     <Text>{item.contact}</Text>
                                 </View>
                             </Card>
-                        )
+                        )}
                     })}
                 </Container>
             </Scroll>
