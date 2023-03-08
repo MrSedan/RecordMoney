@@ -101,8 +101,9 @@ export default function Debt() {
             </View>
             <Scroll>
                 <Container>
-                    {state.debts.map((item,index)=>{
-                        if (debtTome && item.type == '1' || item.type == '2' && !debtTome)
+                    {state.debts.filter((item)=>{
+                        return debtTome && item.type == '1' || item.type == '2' && !debtTome
+                    }).map((item,index)=>{
                         {return (
                             <Card key={index} onPress={()=>{del(index)}}>
                                 <View style={{flex: 1, flexDirection: 'column'}}>
