@@ -20,8 +20,6 @@ const TextHeader = styled.Text`
   font-weight: 700;
 `;
 
-const IconHeader = styled.Image``;
-
 const ButtonHeader = styled.TouchableOpacity`
   display: flex;
   justify-content: center;
@@ -33,22 +31,30 @@ const ButtonHeader = styled.TouchableOpacity`
   border: 1px solid #ABA5A5;
 `;
 
-export default function Header (props: {name: string, style:string}) {
+/** 
+ * Компонент для отрисовки шапки с функционированием левой и правой кнопки
+ * @param props - name - название, style - стиль отображения (1 - стрелка, 2 - плюсик), functionLeft - функционирование левой кнопки шапки, functionRight - функционирование правой кнопки шапки
+ * @example ```ts
+ * <Header name='Debt' style='1' functionLeft={() => {click()}} functionRight={() => {}}/>
+ * ```
+*/
+
+export default function Header (props: {name: string, style:string, functionLeft: Function, functionRight: Function}) {
   return (
     <View>
       <ViewHeader>
-        <BurgerSvg width={25} height={25} />
+        <BurgerSvg width={25} height={25} onPress={() => {props.functionRight()}}/>
         <TextHeader>{props.name}</TextHeader>
         {(props.style == '1') ?
         <ButtonHeader 
-          onPress={() => {}} 
+          onPress={() => {props.functionLeft()}} 
           style={{shadowColor: '#625E5E',
             elevation: 10, 
         }}>
-          <PlusSvg width={15} height={15} />
+          <PlusSvg width={15} height={15}/>
         </ButtonHeader>
         :
-          <ArrowSvg width={25} height={25} />
+          <ArrowSvg width={25} height={25} onPress={() => {props.functionLeft()}}/>
       }
       </ViewHeader>
     </View>
