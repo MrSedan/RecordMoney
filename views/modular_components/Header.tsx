@@ -43,18 +43,18 @@ export default function Header (props: {name: string, style:string, functionLeft
   return (
     <View>
       <ViewHeader>
-        <BurgerSvg width={25} height={25} onPress={() => {props.functionRight()}}/>
+        <BurgerSvg width={25} height={25} onPress={() => {props.functionLeft()}}/>
         <TextHeader>{props.name}</TextHeader>
         {(props.style == '1') ?
         <ButtonHeader 
-          onPress={() => {props.functionLeft()}} 
+          onPress={() => {props.functionRight()}} 
           style={{shadowColor: '#625E5E',
             elevation: 10, 
         }}>
           <PlusSvg width={15} height={15}/>
         </ButtonHeader>
         :
-          <ArrowSvg width={25} height={25} onPress={() => {props.functionLeft()}}/>
+          <ArrowSvg width={25} height={25} onPress={() => {props.functionRight()}}/>
       }
       </ViewHeader>
     </View>
