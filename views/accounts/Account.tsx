@@ -3,6 +3,10 @@ import styled from "styled-components/native";
 
 import Header from "../modular_components/Header";
 import Card from "../modular_components/Card";
+import { useCallback, useEffect, useState } from "react";
+import { account, emptyAccount } from "../../models/interfaces";
+import { useFocusEffect } from "@react-navigation/native";
+import { getData, setData } from "../tools/iosys";
 
 
 const ActiveIndicator = styled.View`
@@ -29,120 +33,67 @@ const Container = styled.View`
 `
 
 export default function Account(){
+    const [state, setState] = useState(emptyAccount())
+    const [counter, setCounter] = useState(0)
+
+    const curData = {
+        id: 1,
+        name: 'Account name',
+        sum: 123
+    }
+
+    useFocusEffect(
+        useCallback(()=>{
+            const onStart = async () => {
+                let data: account = await getData({fileName: 'Account'});
+                if (data === null) {
+                    data = emptyAccount()
+                    await setData({fileName: 'Account', data: data})
+                }
+                setState(data)
+                setCounter(data.accounts.length)
+            }
+            onStart()
+        },[])
+    )
+    
+    const onClick = async () => {
+        let newDat: account = JSON.parse(JSON.stringify(state))
+        let dat = curData
+        dat.id = counter
+        newDat.accounts.push(dat)
+        
+        await setData({fileName: 'Account', data: newDat})
+        setState(newDat)
+        setCounter(counter+1)
+    }
+
+    const del = async (index: number) => {
+        let newDat: account = JSON.parse(JSON.stringify(state))
+        newDat.accounts.splice(index, 1)
+        
+        await setData({fileName: 'Account', data: newDat})
+        setState(newDat)
+    }
     return (
         <View style={{ backgroundColor: '#FFF', height: '100%' }}>
-            <Header name="Accounts" style="1"/>
+            <Header name="Accounts" style="1" functionLeft={()=>{}} functionRight={onClick}/>
             <Scroll>
                 <Container>
-                    <Card>
-                        <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-between'}}>
-                            <View style={{flex: 1, flexDirection: 'row', alignItems: 'center'}}>
-                                <ActiveIndicator/>
-                                <Text style={{marginLeft: 10}}>Active</Text>
-                            </View>
-                            <Text>5000 руб.</Text>
-                        </View>
-                    </Card>
-
-                    <Card>
-                        <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-between'}}>
-                            <View style={{flex: 1, flexDirection: 'row', alignItems: 'center'}}>
-                                <InactiveIndicator/>
-                                <Text style={{marginLeft: 10}}>Active</Text>
-                            </View>
-                            <Text>5000 руб.</Text>
-                        </View>
-                    </Card>
-                    <Card>
-                        <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-between'}}>
-                            <View style={{flex: 1, flexDirection: 'row', alignItems: 'center'}}>
-                                <InactiveIndicator/>
-                                <Text style={{marginLeft: 10}}>Active</Text>
-                            </View>
-                            <Text>5000 руб.</Text>
-                        </View>
-                    </Card>
-                    <Card>
-                        <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-between'}}>
-                            <View style={{flex: 1, flexDirection: 'row', alignItems: 'center'}}>
-                                <InactiveIndicator/>
-                                <Text style={{marginLeft: 10}}>Active</Text>
-                            </View>
-                            <Text>5000 руб.</Text>
-                        </View>
-                    </Card>
-                    <Card>
-                        <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-between'}}>
-                            <View style={{flex: 1, flexDirection: 'row', alignItems: 'center'}}>
-                                <InactiveIndicator/>
-                                <Text style={{marginLeft: 10}}>Active</Text>
-                            </View>
-                            <Text>5000 руб.</Text>
-                        </View>
-                    </Card>
-                    <Card>
-                        <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-between'}}>
-                            <View style={{flex: 1, flexDirection: 'row', alignItems: 'center'}}>
-                                <InactiveIndicator/>
-                                <Text style={{marginLeft: 10}}>Active</Text>
-                            </View>
-                            <Text>5000 руб.</Text>
-                        </View>
-                    </Card>
-                    <Card>
-                        <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-between'}}>
-                            <View style={{flex: 1, flexDirection: 'row', alignItems: 'center'}}>
-                                <InactiveIndicator/>
-                                <Text style={{marginLeft: 10}}>Active</Text>
-                            </View>
-                            <Text>5000 руб.</Text>
-                        </View>
-                    </Card>
-                    <Card>
-                        <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-between'}}>
-                            <View style={{flex: 1, flexDirection: 'row', alignItems: 'center'}}>
-                                <InactiveIndicator/>
-                                <Text style={{marginLeft: 10}}>Active</Text>
-                            </View>
-                            <Text>5000 руб.</Text>
-                        </View>
-                    </Card>
-                    <Card>
-                        <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-between'}}>
-                            <View style={{flex: 1, flexDirection: 'row', alignItems: 'center'}}>
-                                <InactiveIndicator/>
-                                <Text style={{marginLeft: 10}}>Active</Text>
-                            </View>
-                            <Text>5000 руб.</Text>
-                        </View>
-                    </Card>
-                    <Card>
-                        <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-between'}}>
-                            <View style={{flex: 1, flexDirection: 'row', alignItems: 'center'}}>
-                                <InactiveIndicator/>
-                                <Text style={{marginLeft: 10}}>Active</Text>
-                            </View>
-                            <Text>5000 руб.</Text>
-                        </View>
-                    </Card>
-                    <Card>
-                        <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-between'}}>
-                            <View style={{flex: 1, flexDirection: 'row', alignItems: 'center'}}>
-                                <InactiveIndicator/>
-                                <Text style={{marginLeft: 10}}>Active</Text>
-                            </View>
-                            <Text>5000 руб.</Text>
-                        </View>
-                    </Card>
-                    <Card>
-                        <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-between'}}>
-                            <View style={{flex: 1, flexDirection: 'row', alignItems: 'center'}}>
-                                <InactiveIndicator/>
-                                <Text style={{marginLeft: 10}}>Active</Text>
-                            </View>
-                            <Text>5000 руб.</Text>
-                        </View>
-                    </Card>
+                    {state.accounts.map((item, index)=>{
+                        let c = counter
+                        return (
+                            <Card key={index} onPress={()=>{del(index)}}>
+                                <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-between'}}>
+                                    <View style={{flex: 1, flexDirection: 'row', alignItems: 'center'}}>
+                                        <ActiveIndicator/>
+                                        <Text style={{marginLeft: 10}}>{item.name} {`${item.id}`}</Text>
+                                    </View>
+                                    <Text>{`${item.sum}`} руб.</Text>
+                                </View>
+                            </Card>
+                        )
+                    })}
                 </Container>
             </Scroll>
         </View>
