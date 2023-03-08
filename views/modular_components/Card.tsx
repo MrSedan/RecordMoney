@@ -14,9 +14,9 @@ const CardView = styled.View`
     border-radius: 10px;
 `;
 
-export default function Card (props: {onPress: Function, children: React.ReactNode}) {
+export default function Card (props: {onPress?: Function, children: React.ReactNode}) {
   return (
-    <TouchableOpacity onPress={()=>{props.onPress()}}>
+    <TouchableOpacity onPress={()=>{props.onPress && props.onPress()}}>
       <CardView>
         {props.children}
       </CardView>
