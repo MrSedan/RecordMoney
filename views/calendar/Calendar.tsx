@@ -84,7 +84,7 @@ export default function Calendar() {
         useCallback(()=>{
             const search = async () => {
                 let data: calendar = await getData({fileName: path});           
-                if (data !== null) {
+                if (data === null) {
                     
                     await setData({fileName: path, data: data})
                     data = emptyCalendar()
@@ -244,9 +244,7 @@ export default function Calendar() {
                 enableSwipeMonths={true}
             />
         </View>
-            {activeindex.map((item, index) => {
-                console.log(state.cards[item]);
-                
+            {activeindex && activeindex.map((item, index) => {                
                 if (active && state.cards.length >0)
                 {return (
                     <Card onPress={()=>{}} key={index}>
