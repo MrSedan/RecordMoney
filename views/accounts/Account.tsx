@@ -54,13 +54,14 @@ export default function Account(){
                 setCounter(data.accounts.length)
             }
             onStart()
+
         },[])
     )
     
     const onClick = async () => {
         let newDat: account = JSON.parse(JSON.stringify(state))
         let dat = curData
-        dat.id = counter
+        dat.id = newDat.accounts.length > 0 ? newDat.accounts[newDat.accounts.length-1].id+1 : counter
         newDat.accounts.push(dat)
         
         await setData({fileName: 'Account', data: newDat})
