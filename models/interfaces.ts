@@ -1,20 +1,20 @@
 export interface category {
     categories: 
         {
-            category_id: Number,
-            category_name: String,
-            category_icon: Number,
-            category_type: String
+            category_id: number,
+            category_name: string,
+            category_icon: number,
+            category_type: string
         }[]
     ,
     history: 
         {
-            id: Number,
-            id_account: Number,
-            category: Number,
-            date: String,
-            sum: Number,
-            comment: String
+            id: number,
+            id_account: number,
+            category: number,
+            date: string,
+            sum: number,
+            comment: string
         }[]
     
 }
@@ -29,9 +29,9 @@ export function emptyCategories():category {
 export interface account {
     accounts: 
         {
-            id: Number,
-            name: String,
-            sum: Number
+            id: number,
+            name: string,
+            sum: number
         }[]
 }
 
@@ -45,12 +45,12 @@ export function emptyAccount(): account {
 export interface piggyBank {
     piggyBanks: 
         {
-            id: Number,
-            id_account: Number,
-            name: String,
-            sum_max: Number,
-            sum_cur: Number,
-            status: Boolean
+            id: number,
+            id_account: number,
+            name: string,
+            sum_max: number,
+            sum_cur: number,
+            status: boolean
         }[]
 }
 
@@ -65,14 +65,14 @@ export function emptyPiggyBank(): piggyBank {
 export interface debt {
     debts: 
         {
-            id: Number,
-            id_account: Number,
-            name: String,
-            contact: String,
-            type: String,
-            sum: Number,
-            date: String,
-            comment: String
+            id: number,
+            id_account: number,
+            name: string,
+            contact: string,
+            type: string,
+            sum: number,
+            date: string,
+            comment: string
         }[]
 }
 
