@@ -101,7 +101,7 @@ export default function Debt() {
             </View>
             <Scroll>
                 <Container>
-                    {state.debts.filter((item)=>{
+                    {state.debts && (state.debts.filter((item)=>{
                         return debtTome && item.type == '1' || item.type == '2' && !debtTome
                     }).map((item,index)=>{
                         {return (
@@ -116,7 +116,7 @@ export default function Debt() {
                                 </View>
                             </Card>
                         )}
-                    })}
+                    }))}
                 </Container>
             </Scroll>
         </View>
