@@ -1,12 +1,15 @@
 export interface category {
     categories: 
         {
-            category_id: number,
-            category_name: string,
+            id: number,
+            name: string,
             category_icon: number,
-            category_type: string
+            category_type: string,
+            color: string,
+            value: number,
         }[]
-    ,
+}
+export interface history {
     history: 
         {
             id: number,
@@ -20,10 +23,14 @@ export interface category {
 }
 
 export function emptyCategories():category {
-    let newData: category = {categories:[], history:[]};
+    let newData: category = {categories:[]};
     return newData
 }
 
+export function emptyHistory():history  {
+    let newData: history= { history:[]};
+    return newData
+}
 
 
 export interface account {
