@@ -83,8 +83,7 @@ export default function Calendar() {
     useFocusEffect(
         useCallback(()=>{
             const search = async () => {
-                let data: calendar = await getData({fileName: path});
-
+                let data: calendar = await getData({fileName: path});           
                 if (data !== null) {
                     
                     await setData({fileName: path, data: data})
@@ -122,7 +121,7 @@ export default function Calendar() {
             dat.type = types ? '1' : '2';
             dat.date = date;
             dat.id = 1;
-            newDat.cards.push(dat);
+            newDat.cards = [dat];
             await setData({fileName: path, data: newDat});
             setState(newDat);
             setCounter(JSON.parse(JSON.stringify(reformat(newDat))))
@@ -154,8 +153,8 @@ export default function Calendar() {
         let datas: DatasType = {}
         for (let index = 0; index < item.cards.length; index++)
         {
-            const itemType = item.cards[index].type == '1' ? income : expense;
-            (datas[item.cards[index].date] == null) ? datas[item.cards[index].date] = {dots: [itemType]} : datas[item.cards[index].date].dots.push(itemType)
+            const itemType=  item.cards[index].type == '1' ? {key: `${item.cards[index].id}`, color: 'green'} : {key: `${item.cards[index].id}`, color: 'red'};
+            datas[item.cards[index].date] == null ? datas[item.cards[index].date] = {dots: [itemType]} : datas[item.cards[index].date].dots.push(itemType)
         }
         // console.log('datas', datas);
         
@@ -245,10 +244,12 @@ export default function Calendar() {
                 enableSwipeMonths={true}
             />
         </View>
-            {activeindex.map((item) => {
-                if (active)
+            {activeindex.map((item, index) => {
+                console.log(state.cards[item]);
+                
+                if (active && state.cards.length >0)
                 {return (
-                    <Card onPress={()=>{}}>
+                    <Card onPress={()=>{}} key={index}>
                         <CardText>{state.cards[item].id}</CardText>
                         <CardText>{state.cards[item].date}</CardText>
                         <CardText>{state.cards[item].type}</CardText>
