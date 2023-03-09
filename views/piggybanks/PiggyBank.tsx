@@ -145,7 +145,7 @@ export default function PiggyBank() {
             <Header name='PyggyBank' style='1' functionLeft={()=>{}} functionRight={click}/>
               <Scroll>
                 <Container>
-                  {state.piggyBanks.map((item, index)=> { 
+                  {state.piggyBanks && (state.piggyBanks.map((item, index)=> { 
                     let c = counter 
                     return (
                         <TouchableOpacity  key={index} onPress={()=>{del(index)}}>
@@ -155,7 +155,7 @@ export default function PiggyBank() {
                             <Text style = {{textAlign: 'center', marginTop:8,}}>До цели осталось {+item.sum_max-+item.sum_cur} средств</Text>
                         </Kopilka>
                         </TouchableOpacity>
-                      )})}  
+                      )}))}  
                 </Container> 
               </Scroll>  
           </View>

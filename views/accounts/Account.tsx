@@ -81,7 +81,7 @@ export default function Account(){
             <Header name="Accounts" style="1" functionLeft={()=>{}} functionRight={onClick}/>
             <Scroll>
                 <Container>
-                    {state.accounts.map((item, index)=>{
+                    {state.accounts && (state.accounts.map((item, index)=>{
                         let c = counter
                         return (
                             <Card key={index} onPress={()=>{del(index)}}>
@@ -94,7 +94,7 @@ export default function Account(){
                                 </View>
                             </Card>
                         )
-                    })}
+                    }))}
                 </Container>
             </Scroll>
         </View>
