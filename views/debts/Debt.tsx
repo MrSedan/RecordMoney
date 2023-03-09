@@ -75,7 +75,7 @@ export default function Debt() {
     const onClick = async () => {
         let newDat: debt = JSON.parse(JSON.stringify(state))
         let dat = curData
-        dat.id = counter
+        dat.id = state.debts.length > 0 ? state.debts[state.debts.length-1].id+1 : counter
         dat.type = debtTome ? '1' : '2'
         newDat.debts.push(dat)
         
