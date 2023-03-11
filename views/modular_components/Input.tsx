@@ -1,5 +1,5 @@
 import React, { useState, Dispatch, SetStateAction } from 'react';
-import { Keyboard, KeyboardTypeOptions, TouchableWithoutFeedback } from 'react-native';
+import { KeyboardTypeOptions } from 'react-native';
 import styled from 'styled-components/native';
 
 const BoxView = styled.View`
@@ -58,7 +58,6 @@ const Input = (props: {textName: string, value: string, index: number, placehold
   };
 
   return (
-    <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
       <BoxView>
         <TextName>{props.textName}</TextName>
         <BoxInput
@@ -83,7 +82,6 @@ const Input = (props: {textName: string, value: string, index: number, placehold
           />
         </BoxInput>
       </BoxView>
-    </TouchableWithoutFeedback>
   );
 };
 
