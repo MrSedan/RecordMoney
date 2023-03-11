@@ -2,14 +2,19 @@ import { View } from 'react-native';
 import { useCallback, useState } from 'react';
 import { calendar, emptyCalendar } from '../../models/interfaces';
 import { useFocusEffect } from '@react-navigation/native';
-
+import React from 'react'
+import { LocaleConfig, Calendar as Cal } from 'react-native-calendars';
 import { getData, setData } from '../tools/iosys';
 
 import styled from 'styled-components/native';
 import Header from '../modular_components/Header';
 import Card from '../modular_components/Card';
-import React from 'react'
-import { LocaleConfig, Calendar as Cal } from 'react-native-calendars';
+import Input from '../modular_components/Input';
+import InputDate from './additionally/InputDate';
+import ModalWindow from '../modular_components/ModalWindow';
+import DateTimePicker from 'react-native-modal-datetime-picker';
+
+
 
 interface DataType {
     cards: {
@@ -36,9 +41,26 @@ function emptyDatasType(): DatasType {
     return datas
 }
 
+const CardView = styled.View`
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    max-width: 100%;
+    height: 100%;
+    width: 100%;
+`;
+
+const HeaderCardView = styled.View`
+    display: flex;  
+    flex-direction: row;
+    justify-content: space-evenly;
+`;
+
 const CardText = styled.Text`
+    text-align: center;
     font-size: 13px;
     font-weight: 400;
+    
 `;
 
 export default function Calendar() {
@@ -47,6 +69,12 @@ export default function Calendar() {
     const [active, setActive] = useState(false)
     const [types, setTypes] = useState(false)
     const [activeindex, setActiveindex] = useState([])
+    const [visible, setVisible] = useState(false)
+    const [activeModalButton, setActiveModalButton] = useState(true)
+    const [text, setText] = useState(['','','',''])
+    const [isDatePickerVisible, setDatePickerVisible] = useState(false);
+    const [selectedDate, setSelectedDate] = useState('');
+    const monthNames = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря']
 
     const path = 'Calendar'
 
@@ -60,25 +88,6 @@ export default function Calendar() {
         comment: ''
     }
 
-    const curData2 = {
-        id: 1,
-        id_account: 1,
-        date: '2023-03-01',
-        name: 'Зарплата',
-        type: '2',
-        sum: 22000,
-        comment: ''
-    }
-
-    const curData3 = {
-        id: 1,
-        id_account: 1,
-        date: '2023-03-02',
-        name: 'Зарплата',
-        type: '2',
-        sum: 22000,
-        comment: ''
-    }
 
     useFocusEffect(
         useCallback(()=>{
@@ -88,7 +97,7 @@ export default function Calendar() {
                     
                     await setData({fileName: path, data: data})
                     data = emptyCalendar()
-                }
+                }                
                 setState(JSON.parse(JSON.stringify(data)))
                 setCounter(JSON.parse(JSON.stringify(reformat(data))))              
             }
@@ -96,36 +105,37 @@ export default function Calendar() {
         },[])
     )
 
-    const onClick = async (date:string) => {
+    const onClick = async () => {
         let newDat: calendar = JSON.parse(JSON.stringify(state));
-        let dat = curData3;
+        let dat = curData;
 
         if (newDat.cards.length !== 0)
         {
-            dat.type = types ? '1' : '2';
-            dat.date = date;
+            dat.name = text[0]
+            dat.date = text[1];
+            dat.sum = +text[2]
+            dat.comment = text[3]
+            dat.type = activeModalButton ? '1' : '2';
             dat.id = newDat.cards[newDat.cards.length - 1].id + 1;
             newDat.cards.push(dat);
             await setData({fileName: path, data: newDat});
-            // setCounter(reformat(JSON.parse(JSON.stringify(newDat))));
-
+            setSelectedDate('')
+            setText(['', '', '', ''])
             setState(newDat);
             setCounter(JSON.parse(JSON.stringify(reformat(newDat))))
-            console.log(date);
-            
-            // console.log(newDat);
-            
-
         } else {
-            console.log('Ошибка');
-            dat.type = types ? '1' : '2';
-            dat.date = date;
+            dat.name = text[0]
+            dat.date = text[1];
+            dat.sum = +text[2]
+            dat.comment = text[3]
+            dat.type = activeModalButton ? '1' : '2';
             dat.id = 1;
             newDat.cards = [dat];
             await setData({fileName: path, data: newDat});
+            setSelectedDate('')
+            setText(['', '', '', ''])
             setState(newDat);
             setCounter(JSON.parse(JSON.stringify(reformat(newDat))))
-            // console.log(newDat);
         }
     }
 
@@ -141,22 +151,16 @@ export default function Calendar() {
             }
         })
         setActiveindex(mas)
-        console.log(date);
-        
-        console.log('mas = ', mas);
-        console.log('active', active);
-        
-        
     }
 
     function reformat(item: DataType) {
+        
         let datas: DatasType = {}
         for (let index = 0; index < item.cards.length; index++)
         {
             const itemType=  item.cards[index].type == '1' ? {key: `${item.cards[index].id}`, color: 'green'} : {key: `${item.cards[index].id}`, color: 'red'};
             datas[item.cards[index].date] == null ? datas[item.cards[index].date] = {dots: [itemType]} : datas[item.cards[index].date].dots.push(itemType)
         }
-        // console.log('datas', datas);
         
         return datas
     }
@@ -182,12 +186,33 @@ export default function Calendar() {
         today: "Сегодня"
       };
     
-      LocaleConfig.defaultLocale = 'ru';
-
-    const x = 0
+    LocaleConfig.defaultLocale = 'ru';
+    
+    const dateConfirm = (date: Date) => {
+        const monthNames = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+        const dates = `${date.getFullYear()}-${(date.getMonth()+1).toString().padStart(2,'0')}-${date.getDate().toString().padStart(2,'0')}`
+        setText(prevState => {
+            const newText = [...prevState];
+            newText[1] = dates;
+            return newText
+        });
+        setSelectedDate(`${date.getDate()} ${monthNames[date.getMonth()]} ${date.getFullYear()}`);
+        setDatePickerVisible(false)
+    }
+    
+    const dateCencel = () => { setDatePickerVisible(false)}    
     return (
         <View style={{ backgroundColor:'#FFF', height: '100%'}}>
-            <Header name='Calendar' style='1' functionLeft={() => {(types) ? setTypes(false) : setTypes(true)}} functionRight={() => {}}/>
+            <ModalWindow functionCancelButton={() => {setText(['','','','']); setSelectedDate('')}} functionSaveButton={() => {onClick()}} visible={visible} setVisible={setVisible} buttonTextLeft='Доход' buttonTextRight='Платеж' activeModalButton={activeModalButton} setActiveModalButton={setActiveModalButton} colorActiveLeft='#3EA2FF' colorActiveRight='#FF6E6E'>
+                <Input textName='Название' value={text[0].toString()} setItems={setText} index={0} placeholder='Введите название операции' keyboardType="default" colorActiveInput={(activeModalButton) ? '#3EA2FF' : '#FF6E6E'}/>
+                <InputDate functionDate={() => {setDatePickerVisible(true)}} textName='Дата' value={selectedDate.toString()} setValue={() => {setSelectedDate}} placeholder='Введите дату' keyboardType="default" colorActiveInput={(activeModalButton) ? '#3EA2FF' : '#FF6E6E'}/>
+                <Input textName='Сумма' value={text[2].toString()} setItems={setText} index={2} placeholder='Введите сумму' keyboardType="numeric" colorActiveInput={(activeModalButton) ? '#3EA2FF' : '#FF6E6E'}/>
+                <Input textName='Комментарий' value={text[3].toString()} setItems={setText} index={3} placeholder='Введите комментарий' keyboardType="default" colorActiveInput={(activeModalButton) ? '#3EA2FF' : '#FF6E6E'}/>
+                {isDatePickerVisible && (
+                    <DateTimePicker style={{flex: 1, position: 'relative'}} isVisible={isDatePickerVisible} mode='date' onConfirm={dateConfirm} onCancel={dateCencel}/>
+                )}
+            </ModalWindow>
+            <Header name='Calendar' style='1' functionLeft={() => {}} functionRight={() => {setVisible(true); setActiveModalButton(true)}}/>
             <View>
             <Cal
                 markingType={'multi-dot'}
@@ -209,10 +234,13 @@ export default function Calendar() {
                 }}
                 // Действие при долгом нажатии на дату
                 onDayLongPress={day => {
-                    onClick(day.dateString);
+                    searchData(day.dateString);
+                    if (activeindex.length !== 0){
+                        (active) ? setActive(false) : setActive(true)
+                    };
                 }}
                 // Month format in calendar title. Formatting values: http://arshaw.com/xdate/#Formatting
-                monthFormat={'yyyy MM'}
+                monthFormat={monthNames[+'MM']}
                 // Можно отловить на каком месяце находится юзер
                 onMonthChange={month => {
                     console.log('month changed', month);
@@ -243,15 +271,24 @@ export default function Calendar() {
                 // Enable the option to swipe between months. Default = false
                 enableSwipeMonths={true}
             />
-        </View>
-            {activeindex && activeindex.map((item, index) => {                
+            </View>
+            {activeindex && activeindex.map((item, index) => {
+                                
                 if (active && state.cards.length >0)
-                {return (
+                {
+                    const [year, month, day] = state.cards[item].date.split("-").map(Number);
+                    const date = new Date(year, month - 1, day);
+                    const type = (state.cards[item].type === '1') ? true : false                    
+                    return (
                     <Card onPress={()=>{}} key={index}>
-                        <CardText>{state.cards[item].id}</CardText>
-                        <CardText>{state.cards[item].date}</CardText>
-                        <CardText>{state.cards[item].type}</CardText>
-                        <CardText>{state.cards[item].sum} руб.</CardText>
+                        <CardView>
+                            <CardText style={type ? {color:'#3EA2FF'} : {color:'#FF6E6E'}}>{(state.cards[item].type === '1') ? 'Доход' : 'Платеж'}</CardText>
+                            <HeaderCardView>
+                                <CardText>{state.cards[item].name}</CardText>
+                                <CardText>{`${date.getDate()}  ${monthNames[date.getMonth()]}  ${date.getFullYear()}`}</CardText>
+                                <CardText>{state.cards[item].sum} руб.</CardText>
+                            </HeaderCardView>
+                        </CardView>
                     </Card>
                 )}
             })}
