@@ -1,5 +1,9 @@
+
+// импорт необходимых библиотек и компонентов
+
+
 import { Text, View, StyleSheet,FlatList, useWindowDimensions,Image} from 'react-native';
-import { DonutChart } from "react-native-circular-chart";
+import { DonutChart } from "./DonutChart";
 import Header from '../modular_components/Header';
 import styled from 'styled-components/native';
 import Item from './Item';
@@ -8,6 +12,10 @@ import { useFocusEffect } from '@react-navigation/native';
 import { category, emptyCategories, emptyHistory, history} from '../../models/interfaces';
 import { getData, setData } from '../tools/iosys';
 
+
+//////////////////////////////////////////////////////////////////////
+
+//   стили
 const ButtonView = styled.View`
   display: flex;
   margin: 0px 20px 0px;
@@ -59,10 +67,10 @@ const styles = StyleSheet.create({
   const newCategory = {
     category_icon: 1,
     category_type: '1',
-    value: 100,
+    value: 0.1,
     color: '#123311',
     id: 1,
-    name : 'Новая категория',
+    name : 'красота',
   };
 
 
@@ -74,14 +82,14 @@ const styles = StyleSheet.create({
     sum: 100,
     comment: ""
     }
-  interface categoryItem{
-    category_id : number
-    category_name : string
-    category_icon : number
-    category_type : string
-    color : string
-    value : number
-  }
+
+//////////////////////////////// 
+
+
+// render item 
+
+
+
 
     const renderItem = ({ item }: { item: {id : number
         name : string
@@ -101,12 +109,18 @@ const styles = StyleSheet.create({
       );
 
 
+//////////////////////////////// 
+
+
+
+// summation of transactions by category
+
   function calculateValues(categories: category , history: history): category {
     if (!categories.categories) return emptyCategories();
     if (categories.categories.length == 0) return emptyCategories(); 
 
     return {categories : [...categories.categories.map((categ) => {
-        console.log("asdasd");
+        
         let sum = 0.1
         if (history.history.length > 0){
           history.history.forEach((item)=> {
@@ -131,6 +145,12 @@ const styles = StyleSheet.create({
       }
     }
 
+
+////////////////////////////////
+
+
+
+// basic function 
 export default function Home() {
     const [numColumns, setNumColumns] = useState(2);
     const [dataItems, setDataItems] = useState(emptyCategories());
@@ -143,18 +163,22 @@ export default function Home() {
     const size = width < height ? width - 32 : height - 16;
     const strokeWidth = 25;
     const radius = (size - strokeWidth) / 2;
+    const data = [0];
 
+
+
+    // при загрузге раздела 
     useFocusEffect(
         useCallback(()=>{
             const onStart = async () => {
                 let dataC: category = await getData({fileName: 'category'});
                 let dataH: history = await getData({fileName: 'history'}); 
-                if (dataC === null) {
+                if (dataC !== null) {
                     dataC = emptyCategories()
                    
                     await setData({fileName: 'category', data: dataC})
                 }
-                if (dataH === null) {
+                if (dataH !== null) {
                     dataH = emptyHistory()
                    
                     await setData({fileName: 'history', data: dataH})
@@ -168,14 +192,22 @@ export default function Home() {
             onStart()
         },[])
       )
-      
+////////////////////////////////
+
+
+// кнопки для присвоения       
       const handleAddCategory = async() => {
-        
+        const maxid = 10
         let mama: category = JSON.parse(JSON.stringify(dataItems));
         let dat = newCategory;
+
+        if (dat.id > maxid) {
+          alert(`Cannot add category with ID greater than ${maxid}`);
+          return;
+      }
+
         if (mama.categories.length !==0) {
             dat.id = mama.categories[mama.categories.length - 1].id + 1;
-            console.log("ADDCATEHORY",dat.id);
             mama.categories.push(dat)
 
             await setData({fileName: "category", data: mama})
@@ -190,6 +222,8 @@ export default function Home() {
             setDataItems(mama)
             
         } 
+  
+        
         }; 
 
         const handleADDHistory = async() => {
@@ -198,10 +232,9 @@ export default function Home() {
             let dat = newHistory;
             if (mama.history.length !==0) {
                 dat.id = mama.history[mama.history.length - 1].id + 1;
-                console.log("ADD_dat.id",dat.id);
+
                 
-                dat.category = dataItems.categories[dataItems.categories.length - 1].id
-                console.log("ADDHISTORY",dat.category);
+               
                 
                 mama.history.push(dat)
     
@@ -217,11 +250,16 @@ export default function Home() {
                 setDatahistory(mama)
                 
             } 
+            
+            
             setDataItems(calculateValues(dataItems,mama))
             let sum = 0
                 mama.history.forEach((item)=>{sum += item.sum})
                 setTotalValue(sum)
             };
+
+
+
 
             return (
       
@@ -250,7 +288,7 @@ export default function Home() {
                               Текущий счет
                           </Text>
                             <Text style={styles.TextInDiagramsSecond}>
-                              {totalValue}
+                              {totalValue} руб
                           </Text> 
                         </View>
                     </View>
@@ -279,6 +317,7 @@ export default function Home() {
                      renderItem={renderItem}
                      numColumns={numColumns}
                      keyExtractor={(item)=>{return item.id.toString()}}
+                
                     />
                     
                 </View>
