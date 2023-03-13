@@ -1,4 +1,4 @@
-import { Text, View } from "react-native";
+import { Alert, Text, View } from "react-native";
 import styled from "styled-components/native";
 
 import Header from "../modular_components/Header";
@@ -7,6 +7,8 @@ import { useCallback, useEffect, useState } from "react";
 import { account, emptyAccount } from "../../models/interfaces";
 import { useFocusEffect } from "@react-navigation/native";
 import { getData, setData } from "../tools/iosys";
+import ModalWindowOneButton from "../modular_components/ModalWindowOneButton";
+import Input from "../modular_components/Input";
 
 
 const ActiveIndicator = styled.View`
@@ -34,7 +36,9 @@ const Container = styled.View`
 
 export default function Account(){
     const [state, setState] = useState(emptyAccount())
-    const [counter, setCounter] = useState(0)
+    const [visible, setVisible] = useState(false)
+    const [activeModalButton, setActiveModalButton] = useState(true)
+    const [text, setText] = useState(['',''])
 
     const curData = {
         id: 1,
@@ -51,7 +55,6 @@ export default function Account(){
                     await setData({fileName: 'Account', data: data})
                 }
                 setState(data)
-                setCounter(data.accounts.length)
             }
             onStart()
 
@@ -60,13 +63,30 @@ export default function Account(){
     
     const onClick = async () => {
         let newDat: account = JSON.parse(JSON.stringify(state))
-        let dat = curData
-        dat.id = newDat.accounts.length > 0 ? newDat.accounts[newDat.accounts.length-1].id+1 : counter
+        let dat = {
+            id: 0,
+            name: text[0],
+            sum: Number(text[1]!=''?text[1]:'')
+        }
+        dat.id = newDat.accounts.length > 0 ? newDat.accounts[newDat.accounts.length-1].id+1 : 0
         newDat.accounts.push(dat)
-        
         await setData({fileName: 'Account', data: newDat})
         setState(newDat)
-        setCounter(counter+1)
+        setText(['',''])
+    }
+
+    const tryToSave = () => {
+        if (text[0] == '') {
+            Alert.alert('Ошибка!', 'Пожалуйста, заполните все обязательные поля.', [
+                {
+                    text: 'OK',
+                    onPress: () => {}
+                }
+            ])
+        } else {
+            onClick()
+            setVisible(false)
+        }
     }
 
     const del = async (index: number) => {
@@ -78,16 +98,19 @@ export default function Account(){
     }
     return (
         <View style={{ backgroundColor: '#FFF', height: '100%' }}>
-            <Header name="Accounts" style="1" functionLeft={()=>{}} functionRight={onClick}/>
+            <ModalWindowOneButton visible={visible} setVisible={setVisible} windowName="Добавить новый счёт" functionCancelButton={()=>{setText(['',''])}} functionSaveButton={tryToSave}>
+                <Input textName="Название" value={text[0].toString()} index={0} setItems={setText} placeholder='Введите название счета' keyboardType="default" colorActiveInput='#3EA2FF'/>
+                <Input textName="Начальная сумма" value={text[1].toString()} index={1} setItems={setText} placeholder='Введите начальную сумму' keyboardType="numeric" colorActiveInput='#3EA2FF'/>
+            </ModalWindowOneButton>
+            <Header name="Accounts" style="1" functionLeft={()=>{}} functionRight={()=>{setVisible(true); setActiveModalButton(true)}}/>
             <Scroll>
                 <Container>
                     {state.accounts && (state.accounts.map((item, index)=>{
-                        let c = counter
                         return (
                             <Card key={index} onPress={()=>{del(index)}}>
                                 <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-between'}}>
                                     <View style={{flex: 1, flexDirection: 'row', alignItems: 'center'}}>
-                                        <ActiveIndicator/>
+                                        {index==0? <ActiveIndicator/> : <InactiveIndicator/>}
                                         <Text style={{marginLeft: 10}}>{item.name} {`${item.id}`}</Text>
                                     </View>
                                     <Text>{`${item.sum}`} руб.</Text>
