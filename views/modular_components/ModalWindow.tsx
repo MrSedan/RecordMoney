@@ -136,7 +136,7 @@ const ModalWindow = memo((props:
                     </InputView>
                     <View style={{borderBottomColor: '#C6C3C3', borderBottomWidth: 1}}/> 
                     <ButtonLow>
-                        <ButtonLowLeft onPress={() => {props.setVisible(false); props.functionSaveButton()}} style={(props.activeModalButton) ? {backgroundColor: `${props.colorActiveLeft}`} : {backgroundColor: `${props.colorActiveRight}`}}>
+                        <ButtonLowLeft onPress={() => {props.functionSaveButton()}} style={(props.activeModalButton) ? {backgroundColor: `${props.colorActiveLeft}`} : {backgroundColor: `${props.colorActiveRight}`}}>
                             <ButtonTypeText style={{color: 'white'}}>Сохранить</ButtonTypeText>
                         </ButtonLowLeft>
                         <ButtonLowRight onPress={() => {props.setVisible(false); props.functionCancelButton()}}>
