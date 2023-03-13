@@ -27,7 +27,8 @@ const ButtonTypeText = styled.Text`
 const InputView = styled.View`
     display: flex;
     justify-content: center;
-    height: 58%;   
+    height: auto;
+    padding: 5% 0;   
 `;
 
 const ButtonLow = styled.View`
@@ -84,7 +85,7 @@ const ModalWindowOneButton = memo((props:
                     </InputView>
                     <View style={{borderBottomColor: '#C6C3C3', borderBottomWidth: 1}}/> 
                     <ButtonLow>
-                        <ButtonLowLeft onPress={() => {props.setVisible(false); props.functionSaveButton()}} style={{backgroundColor: '#3EA2FF'}}>
+                        <ButtonLowLeft onPress={() => {props.functionSaveButton()}} style={{backgroundColor: '#3EA2FF'}}>
                             <ButtonTypeText style={{color: 'white'}}>Сохранить</ButtonTypeText>
                         </ButtonLowLeft>
                         <ButtonLowRight onPress={() => {props.setVisible(false); props.functionCancelButton()}}>
