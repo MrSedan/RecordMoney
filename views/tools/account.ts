@@ -15,9 +15,11 @@ export async function getAccounts() {
 
 /**
  * Функция работы с деньгами на счете. При невозможности операции (недостаточно средств) вызовет ошибку,
- * которую нужно обрабатывать при помощи `try` и `catch` конструкций
+ * которую нужно обрабатывать при помощи `try` и `catch` конструкций.
  * @param count - количество денег, что поступят на счет
  * @param id_account - идентификатор счета, с которым происходит операция
+ * @returns Возвращает тип `Boolean`, который равен `true`, если счет был найден и была проведена операция
+ * и возвращает `false`, если счет не был найден.
  * @example ```ts
  * try {
  *  addMoney(-900, 0)
@@ -33,8 +35,9 @@ export async function addMoney(count: number, id_account: string | number) {
             if (item.id == Number(id_account)) {
                 if (item.sum + count < 0) throw Error('Не хватает средств!');
                 item.sum += count;
-                return;
+                return true; // Нашел счет и обработал запрос
             }
         }
     });
+    return false; // Не нашел счет
 }
