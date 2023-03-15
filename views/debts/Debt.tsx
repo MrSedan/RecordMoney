@@ -5,11 +5,11 @@ import styled from 'styled-components/native';
 import { useCallback, useState } from 'react';
 import { account, debt, emptyAccount, emptyDebt } from '../../models/interfaces';
 import { useFocusEffect } from '@react-navigation/native';
-import { getData, setData } from '../tools/iosys';
+import { addItem, delItem, getData, setData } from '../tools/iosys';
 import ModalWindow from '../modular_components/ModalWindow';
 import Input from '../modular_components/Input';
 import DropDownPicker from 'react-native-dropdown-picker';
-import { getAccounts } from '../tools/account';
+import { addMoney, getAccounts } from '../tools/account';
 import InputDate from '../calendar/additionally/InputDate';
 import DateTimePicker from 'react-native-modal-datetime-picker';
 import InputContact from '../modular_components/InputContact';
@@ -85,12 +85,13 @@ export default function Debt() {
     const [isDatePickerVisible, setDatePickerVisible] = useState(false);
     const [selectedDate, setSelectedDate] = useState('');
     const [selectedContact, setSelectedContact] = useState('');
+    const [accs, setAccs] = useState(emptyAccount().accounts);
     const [editScreenName, setEditScreenName] = useState('');
 
     function getItems(accounts: account['accounts']) {
         let data: { label: string; value: string }[] = [];
         accounts.map((item) => {
-            data.push({ label: item.name, value: item.id.toString() });
+            data.push({ label: `${item.name} ${item.sum}`, value: item.id.toString() });
         });
         setItems(data);
     }
@@ -103,11 +104,12 @@ export default function Debt() {
                     data = emptyDebt();
                     await setData({ fileName: 'Debt', data: data });
                 }
+                setAccs(await getAccounts());
                 await getItems(await getAccounts());
                 data.debts.map((item) => {
                     if (item.date != '') {
                         const [year, month, day] = item.date.split('-').map(Number);
-                        const date = new Date(year + 1, month - 1, day);
+                        const date = new Date(year, month - 1, day);
                         item.date = `${date.getDate()}  ${
                             monthNames[date.getMonth()]
                         }  ${date.getFullYear()}`;
@@ -131,7 +133,8 @@ export default function Debt() {
             dateS = `${year}-${month.toString().padStart(2, '0')}-${day
                 .toString()
                 .padStart(2, '0')}`;
-            dateP = `${date.getDate()}  ${monthNames[date.getMonth()]}  ${date.getFullYear()}`;
+
+            dateP = selectedDate;
         }
         let dat = {
             id: 0,
@@ -146,11 +149,12 @@ export default function Debt() {
         dat.id = state.debts.length > 0 ? state.debts[state.debts.length - 1].id + 1 : 0;
         dat.id_account = Number(pickerValue);
         newDat.debts.push(dat);
-        await setData({ fileName: 'Debt', data: newDat });
+        await addItem('debts', 'Debt', dat);
         newDat.debts[newDat.debts.length - 1].date = dateS != '' ? dateP : '';
         setState(newDat);
         setText(['', '', '', '', '']);
         setPickerValue('');
+        setSelectedContact('');
         setSelectedDate('');
     };
 
@@ -171,7 +175,7 @@ export default function Debt() {
     const del = async (index: number) => {
         let newDat: debt = JSON.parse(JSON.stringify(state));
         newDat.debts.splice(index, 1);
-        await setData({ fileName: 'Debt', data: newDat });
+        delItem('debts', 'Debt', index);
         setState(newDat);
     };
 
@@ -185,7 +189,6 @@ export default function Debt() {
             });
             if (data.length > 0) {
                 const contact = data[0];
-                console.log(contact);
             }
         }
     };
@@ -358,15 +361,12 @@ export default function Debt() {
             <Scroll>
                 <Container>
                     {state.debts &&
-                        state.debts
-                            .filter((item) => {
-                                return (
+                        state.debts.map((item, index) => {
+                            {
+                                if (
                                     (debtTome && item.type == '1') ||
                                     (item.type == '2' && !debtTome)
-                                );
-                            })
-                            .map((item, index) => {
-                                {
+                                )
                                     return (
                                         <Card
                                             key={index}
@@ -393,12 +393,11 @@ export default function Debt() {
                                                     <Text>{item.date}</Text>
                                                     <Text>
                                                         {
-                                                            items.filter((account) => {
+                                                            accs.filter((account) => {
                                                                 return (
-                                                                    account.value ==
-                                                                    item.id_account.toString()
+                                                                    account.id == item.id_account
                                                                 );
-                                                            })[0].label
+                                                            })[0].name
                                                         }
                                                     </Text>
                                                     <Text>{`${item.sum}`} руб.</Text>
@@ -408,8 +407,8 @@ export default function Debt() {
                                             </View>
                                         </Card>
                                     );
-                                }
-                            })}
+                            }
+                        })}
                 </Container>
             </Scroll>
         </View>
