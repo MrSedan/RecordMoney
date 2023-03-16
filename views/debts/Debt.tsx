@@ -1,11 +1,10 @@
 import { Text, View, Alert } from 'react-native';
-import Card from '../modular_components/Card';
 import Header from '../modular_components/Header';
 import styled from 'styled-components/native';
 import { useCallback, useState } from 'react';
 import { account, debt, emptyAccount, emptyDebt } from '../../models/interfaces';
 import { useFocusEffect } from '@react-navigation/native';
-import { addItem, delItem, getData, setData } from '../tools/iosys';
+import { addItem, delItem, editItem, getData, setData } from '../tools/iosys';
 import ModalWindow from '../modular_components/ModalWindow';
 import Input from '../modular_components/Input';
 import DropDownPicker from 'react-native-dropdown-picker';
@@ -14,6 +13,7 @@ import InputDate from '../calendar/additionally/InputDate';
 import DateTimePicker from 'react-native-modal-datetime-picker';
 import InputContact from '../modular_components/InputContact';
 import * as Contacts from 'expo-contacts';
+import CardSwipe from '../modular_components/CardSwipe';
 
 const Scroll = styled.ScrollView`
     margin: 0;
@@ -86,19 +86,23 @@ export default function Debt() {
     const [selectedDate, setSelectedDate] = useState('');
     const [selectedContact, setSelectedContact] = useState('');
     const [accs, setAccs] = useState(emptyAccount().accounts);
-    const [editScreenName, setEditScreenName] = useState('');
+    const [editing, setEditing] = useState({ editing: false, index: 0 });
 
     function getItems(accounts: account['accounts']) {
-        let data: { label: string; value: string }[] = [];
-        accounts.map((item) => {
-            data.push({ label: `${item.name} ${item.sum}`, value: item.id.toString() });
-        });
-        setItems(data);
+        if (accounts.length > 0) {
+            let data: { label: string; value: string }[] = [];
+            accounts.map((item) => {
+                data.push({ label: `${item.name} ${item.sum}`, value: item.id.toString() });
+            });
+            setItems(data);
+        }
     }
 
     useFocusEffect(
         useCallback(() => {
             const onStart = async () => {
+                setItems([]);
+                setState(emptyDebt());
                 let data: debt = await getData({ fileName: 'Debt' });
                 if (data === null) {
                     data = emptyDebt();
@@ -123,6 +127,8 @@ export default function Debt() {
 
     const onClick = async () => {
         let newDat: debt = JSON.parse(JSON.stringify(state));
+        console.log(pickerValue);
+
         let dateS: string = '';
         let dateP: string = '';
         if (selectedDate == '') {
@@ -142,20 +148,28 @@ export default function Debt() {
             name: text[0],
             type: activeModalButton ? '1' : '2',
             sum: Number(text[1]),
-            contact: text[2],
+            contact: selectedContact,
             date: dateS,
             comment: text[3],
         };
-        dat.id = state.debts.length > 0 ? state.debts[state.debts.length - 1].id + 1 : 0;
-        dat.id_account = Number(pickerValue);
-        newDat.debts.push(dat);
-        await addItem('debts', 'Debt', dat);
+        if (editing.editing) {
+            dat.id = state.debts[editing.index].id;
+            dat.id_account = Number(pickerValue);
+            newDat.debts[editing.index] = dat;
+            await editItem('debts', 'Debt', editing.index, dat);
+        } else {
+            dat.id = state.debts.length > 0 ? state.debts[state.debts.length - 1].id + 1 : 0;
+            newDat.debts.push(dat);
+            await addItem('debts', 'Debt', dat);
+        }
         newDat.debts[newDat.debts.length - 1].date = dateS != '' ? dateP : '';
         setState(newDat);
         setText(['', '', '', '', '']);
         setPickerValue('');
         setSelectedContact('');
         setSelectedDate('');
+        setOpenPicker(false);
+        setEditing({ editing: false, index: 0 });
     };
 
     const tryToSave = () => {
@@ -193,6 +207,33 @@ export default function Debt() {
         }
     };
 
+    const getAcc = (id_account: string | number) => {
+        try {
+            return accs.filter((account) => {
+                return account.id == id_account;
+            })[0].name;
+        } catch {
+            return '';
+        }
+    };
+
+    const openEditModal = async (index: number) => {
+        const data: debt = await getData({ fileName: 'Debt' });
+        setSelectedDate(state.debts[index].date);
+        setText([
+            state.debts[index].name,
+            `${state.debts[index].sum}`,
+            state.debts[index].contact,
+            state.debts[index].comment,
+            data.debts[index].date,
+        ]);
+        setSelectedContact(state.debts[index].contact);
+        setPickerValue(`${state.debts[index].id_account}`);
+        setEditing({ editing: true, index: index });
+        setActiveModalButton(debtTome);
+        setVisible(true);
+    };
+
     return (
         <View style={{ backgroundColor: '#FFF', height: '100%' }}>
             <ModalWindow
@@ -206,6 +247,9 @@ export default function Debt() {
                 colorActiveRight='#3FDEAE'
                 functionCancelButton={() => {
                     setText(['', '', '', '']);
+                    setSelectedContact('');
+                    setSelectedDate('');
+                    setPickerValue('');
                 }}
                 functionSaveButton={tryToSave}
             >
@@ -368,16 +412,23 @@ export default function Debt() {
                                     (item.type == '2' && !debtTome)
                                 )
                                     return (
-                                        <Card
+                                        <CardSwipe
                                             key={index}
-                                            onPress={() => {
+                                            onDelete={() => {
                                                 del(index);
+                                            }}
+                                            onEdit={() => {
+                                                openEditModal(index);
+                                            }}
+                                            onDoubleClick={() => {
+                                                console.log('Aboba');
                                             }}
                                         >
                                             <View
                                                 style={{
                                                     flex: 1,
                                                     flexDirection: 'column',
+                                                    padding: 10,
                                                 }}
                                             >
                                                 <View
@@ -391,21 +442,13 @@ export default function Debt() {
                                                         {item.name} {`${item.id}`}
                                                     </Text>
                                                     <Text>{item.date}</Text>
-                                                    <Text>
-                                                        {
-                                                            accs.filter((account) => {
-                                                                return (
-                                                                    account.id == item.id_account
-                                                                );
-                                                            })[0].name
-                                                        }
-                                                    </Text>
+                                                    <Text>{getAcc(item.id_account)}</Text>
                                                     <Text>{`${item.sum}`} руб.</Text>
                                                 </View>
                                                 <Text>{item.contact}</Text>
                                                 <Text>{item.comment}</Text>
                                             </View>
-                                        </Card>
+                                        </CardSwipe>
                                     );
                             }
                         })}
