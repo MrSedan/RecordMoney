@@ -91,3 +91,17 @@ export async function delItem<
     data[key].splice(index, 1);
     await setData({ fileName: fileName, data: data });
 }
+
+export async function editItem<
+    K extends
+        | keyof category
+        | keyof debt
+        | keyof calendar
+        | keyof account
+        | keyof piggyBank
+        | keyof history,
+>(key: K, fileName: string, index: number, item: object) {
+    const data = await getData({ fileName: fileName });
+    data[key][index] = item;
+    await setData({ fileName: fileName, data: data });
+}
