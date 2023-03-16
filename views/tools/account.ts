@@ -11,7 +11,7 @@ import {
     history,
     piggyBank,
 } from '../../models/interfaces';
-import { delItem, getData, setData } from './iosys';
+import { delItem, editItem, getData, setData } from './iosys';
 
 /**
  * Функция получения списка доступных счетов
@@ -26,12 +26,10 @@ export async function getAccounts() {
 }
 
 /**
- * Функция работы с деньгами на счете. При невозможности операции (недостаточно средств) вызовет ошибку,
- * которую нужно обрабатывать при помощи `try` и `catch` конструкций.
+ * Функция работы с деньгами на счете.
  * @param count - количество денег, что поступят на счет
  * @param id_account - идентификатор счета, с которым происходит операция
- * @returns Возвращает тип `Boolean`, который равен `true`, если счет был найден и была проведена операция
- * и возвращает `false`, если счет не был найден.
+ * @returns Возвращает строку, которая содержит `ok` (операция проведена), либо `not-found` (счет не найден), либо `no-money` (недостаточно средств).
  * @example ```ts
  * try {
  *  addMoney(-900, 0)
@@ -40,18 +38,27 @@ export async function getAccounts() {
  * }
  * ```
  */
-export async function addMoney(count: number, id_account: string | number) {
+export async function addMoney(
+    count: number,
+    id_account: string | number,
+): Promise<'not-found' | 'ok' | 'no-money'> {
     let data: account = await getData({ fileName: 'Account' });
-    data.accounts.map((item) => {
+    let status: 'not-found' | 'ok' | 'no-money' = 'not-found';
+    data.accounts.map(async (item, index) => {
         if (item.id == Number(id_account)) {
             if (item.id == Number(id_account)) {
-                if (item.sum + count < 0) throw Error('Не хватает средств!');
+                if (item.sum + count < 0) {
+                    status = 'no-money';
+                    return;
+                }
                 item.sum += count;
-                return true; // Нашел счет и обработал запрос
+                await editItem('accounts', 'Account', index, item);
+                status = 'ok';
+                return; // Нашел счет и обработал запрос
             }
         }
     });
-    return false; // Не нашел счет
+    return status; // Не нашел счет
 }
 
 export async function removeAccount(id_account: string | number) {
