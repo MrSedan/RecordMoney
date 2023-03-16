@@ -38,23 +38,15 @@ const ButtonTypeView = styled.View`
 `;
 
 const KTitle = styled.Text`
-    margin-top: 15px;
-    margin-left: 25px;
     font-weight: 400;
     font-size: 15px;
-    line-height: 16px;
-    text-align: center;
-    letter-spacing: 1px;
     color: #000000;
+    letter-spacing: 1px;
 `;
 
 const KMoney = styled.Text`
-    margin-top: 15px;
-    margin-right: 25px;
     font-weight: 400;
     font-size: 15px;
-    line-height: 16px;
-    text-align: center;
     letter-spacing: 1px;
     color: #000000;
 `;
@@ -75,28 +67,23 @@ const Container = styled.View`
     height: 100%;
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
 `;
 
 const KDetails = styled.View`
-    width: 311px;
-    height: 30px;
+    flex: 1;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    margin: 0 auto;
+    margin: 10px 10px 10px 10px;
 `;
 
 const FullBar = styled.View`
-    // margin: 10px 1px 0;
-    margin-top: 10px;
     width: 100%;
     border-radius: 16px;
     align-items: flex-start;
     justify-content: center;
     height: 20px;
     background-color: #7d85fd;
-    /* padding-horizontal: 3px;*/
 `;
 
 const Content = styled.View`
@@ -120,8 +107,11 @@ export default function PiggyBank() {
     const [active, setActive] = useState(false);
     const [visible, setVisible] = useState(false);
     const [activeModalButton, setActiveModalButton] = useState(true);
-    const [text, setText] = useState(['', '', '', ' ']);
+    const [text, setText] = useState(['', '', '0']);
+    const [sumcar, setSumcar] = useState([' ']);
     const [editing, setEditing] = useState({ editing: false, index: 0 });
+    const [editsum, setEditsum] = useState({ editsum: false, index: 0 });
+    const [svisible, setSVisible] = useState(false);
 
     const curData = {
         id: 1,
@@ -167,7 +157,7 @@ export default function PiggyBank() {
             let dat = curData;
             dat.name = text[0];
             dat.sum_max = +text[1];
-            dat.sum_cur = 0;
+            dat.sum_cur = +text[2];
             dat.status = false;
             if (editing.editing) {
                 dat.id = editing.index;
@@ -180,10 +170,73 @@ export default function PiggyBank() {
                 NewDat.piggyBanks.push(curData);
             }
             await setData({ fileName: 'PiggyBank', data: NewDat });
-            setText(['', '']);
+            setText(['', '', ' ']);
             setState(NewDat);
             setCounter(counter + 1);
             setVisible(false);
+        }
+    };
+
+    const clicksum = async () => {
+        if (text[2] == '') {
+            Alert.alert('Ошибка!', 'Пожалуйста, заполните все обязательные поля.', [
+                {
+                    text: 'OK',
+                    onPress: () => {},
+                },
+            ]);
+        } else {
+            let NewDat: piggyBank = await getData({ fileName: 'PiggyBank' });
+            let dat = curData;
+            dat.name = text[0];
+            dat.sum_max = +text[1];
+            dat.sum_cur = +(state.piggyBanks[editsum.index].sum_cur + +text[2]);
+            if (dat.sum_cur > dat.sum_max) {
+                Alert.alert(
+                    'Ошибка!',
+                    'Вы ввели сумму больше оставшейся, пожалуйста заполните корректную сумму',
+                    [
+                        {
+                            text: 'OK',
+                            onPress: () => {},
+                        },
+                    ],
+                );
+
+                dat.status = false;
+                editsum.editsum = false;
+            } else {
+                if (dat.sum_cur === dat.sum_max) {
+                    Alert.alert(
+                        'Поздравляю!',
+                        'Вы закрыли свою цель! Вы можете отслеживать свои закрытые цели в разделе "закрытые". Вы можете удалить их в любое время',
+                        [
+                            {
+                                text: 'OK',
+                                onPress: () => {},
+                            },
+                        ],
+                    );
+                    dat.status = true;
+                } else {
+                    dat.status = false;
+                }
+                if (editsum.editsum) {
+                    dat.id = editsum.index;
+                    NewDat.piggyBanks[editsum.index] = dat;
+                } else {
+                    dat.id =
+                        NewDat.piggyBanks.length > 0
+                            ? NewDat.piggyBanks[NewDat.piggyBanks.length - 1].id + 1
+                            : 0;
+                    NewDat.piggyBanks.push(curData);
+                }
+                await setData({ fileName: 'PiggyBank', data: NewDat });
+                setText(['', '', ' ']);
+                setState(NewDat);
+                setCounter(counter + 1);
+                setVisible(false);
+            }
         }
     };
 
@@ -206,7 +259,11 @@ export default function PiggyBank() {
                 }}
                 visible={visible}
                 setVisible={setVisible}
-                windowName='Создание долга'
+                windowName={
+                    editing.editing
+                        ? `Редактирование цели "${state.piggyBanks[editing.index].name}"`
+                        : 'Добавить новую цель'
+                }
             >
                 <Input
                     textName='Название'
@@ -224,6 +281,28 @@ export default function PiggyBank() {
                     index={1}
                     placeholder='Введите сумму'
                     keyboardType='numeric'
+                    colorActiveInput={activeModalButton ? '#3EA2FF' : '#FF6E6E'}
+                />
+            </ModalWindowOneButton>
+            <ModalWindowOneButton
+                functionCancelButton={() => {
+                    setText(['', '', ' ']);
+                    setEditsum({ editsum: false, index: 0 });
+                }}
+                functionSaveButton={() => {
+                    clicksum(), setSVisible(false);
+                }}
+                visible={svisible}
+                setVisible={setSVisible}
+                windowName='Редактирование суммы'
+            >
+                <Input
+                    textName='Текущая сумма'
+                    value={text[2].toString()}
+                    setItems={setText}
+                    index={2}
+                    placeholder='Введите сумму'
+                    keyboardType='default'
                     colorActiveInput={activeModalButton ? '#3EA2FF' : '#FF6E6E'}
                 />
             </ModalWindowOneButton>
@@ -261,20 +340,15 @@ export default function PiggyBank() {
                         </ButtonType>
                     </ButtonTypeView>
                     {state.piggyBanks &&
-                        state.piggyBanks
-                            .filter((item) => {
-                                return (
-                                    (active && item.status == true) ||
-                                    (item.status == false && !active)
-                                );
-                            })
-                            .map((item, index) => {
+                        state.piggyBanks.map((item, index) => {
+                            if (
+                                (active && item.status == true) ||
+                                (item.status == false && !active)
+                            )
                                 return (
                                     <Kopilka key={index}>
                                         <KDetails>
-                                            <KTitle>
-                                                {item.name} {index}
-                                            </KTitle>
+                                            <KTitle>{item.name}</KTitle>
                                             <KMoney>
                                                 {`${item.sum_cur}`}/{`${item.sum_max}`}
                                             </KMoney>
@@ -287,18 +361,26 @@ export default function PiggyBank() {
                                         </Text>
                                         <KDetails>
                                             <TouchableOpacity
-                                                key={index}
                                                 onPress={() => {
                                                     del(index);
                                                 }}
                                             >
                                                 <Text>УДАЛИТЬ</Text>
                                             </TouchableOpacity>
-                                            <TouchableOpacity key={index} onPress={() => {}}>
+                                            <TouchableOpacity
+                                                onPress={() => {
+                                                    setText([
+                                                        state.piggyBanks[index].name,
+                                                        state.piggyBanks[index].sum_max.toString(),
+                                                        state.piggyBanks[index].sum_cur.toString(),
+                                                    ]);
+                                                    setSVisible(true);
+                                                    setEditsum({ editsum: true, index: index });
+                                                }}
+                                            >
                                                 <Text>ДОБАВИТЬ</Text>
                                             </TouchableOpacity>
                                             <TouchableOpacity
-                                                key={index}
                                                 onPress={() => {
                                                     setText([
                                                         state.piggyBanks[index].name,
@@ -313,7 +395,7 @@ export default function PiggyBank() {
                                         </KDetails>
                                     </Kopilka>
                                 );
-                            })}
+                        })}
                 </Container>
             </Scroll>
         </View>
