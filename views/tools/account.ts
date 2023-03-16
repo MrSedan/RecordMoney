@@ -1,5 +1,13 @@
-import { account, emptyAccount } from '../../models/interfaces';
-import { getData } from './iosys';
+import {
+    account,
+    calendar,
+    category,
+    debt,
+    emptyAccount,
+    history,
+    piggyBank,
+} from '../../models/interfaces';
+import { delItem, getData, setData } from './iosys';
 
 /**
  * Функция получения списка доступных счетов
@@ -40,4 +48,32 @@ export async function addMoney(count: number, id_account: string | number) {
         }
     });
     return false; // Не нашел счет
+}
+
+// FIXME: неправильно удаляет
+export async function removeAccount(id_account: string | number) {
+    delItem('accounts', 'Account', +id_account);
+    const hist: history = await getData({ fileName: 'history' });
+    hist.history = hist.history.filter((item) => {
+        return item.id_account != id_account;
+    });
+    await setData({ fileName: 'history', data: hist });
+
+    const calend: calendar = await getData({ fileName: 'Calendar' });
+    calend.cards = calend.cards.filter((item) => {
+        return item.id_account != id_account;
+    });
+    await setData({ fileName: 'Calendar', data: calend });
+
+    const deb: debt = await getData({ fileName: 'Debt' });
+    deb.debts = deb.debts.filter((item) => {
+        return item.id_account != id_account;
+    });
+    await setData({ fileName: 'Debt', data: deb });
+
+    const pig: piggyBank = await getData({ fileName: 'PiggyBank' });
+    pig.piggyBanks = pig.piggyBanks.filter((item) => {
+        return item.id_account != id_account;
+    });
+    await setData({ fileName: 'PiggyBank', data: pig });
 }
