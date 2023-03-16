@@ -44,20 +44,19 @@ export async function addMoney(
 ): Promise<'not-found' | 'ok' | 'no-money'> {
     let data: account = await getData({ fileName: 'Account' });
     let status: 'not-found' | 'ok' | 'no-money' = 'not-found';
-    data.accounts.map(async (item, index) => {
+    for (let index = 0; index < data.accounts.length; index++) {
+        const item = data.accounts[index];
         if (item.id == Number(id_account)) {
-            if (item.id == Number(id_account)) {
-                if (item.sum + count < 0) {
-                    status = 'no-money';
-                    return;
-                }
-                item.sum += count;
-                await editItem('accounts', 'Account', index, item);
-                status = 'ok';
-                return; // Нашел счет и обработал запрос
+            if (item.sum + count < 0) {
+                status = 'no-money';
+                break;
             }
+            item.sum += count;
+            await editItem('accounts', 'Account', index, item);
+            status = 'ok';
+            break;
         }
-    });
+    }
     return status; // Не нашел счет
 }
 
