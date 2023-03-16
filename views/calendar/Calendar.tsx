@@ -4,9 +4,9 @@ import { account, calendar, emptyCalendar } from '../../models/interfaces';
 import { useFocusEffect } from '@react-navigation/native';
 import React from 'react';
 import { LocaleConfig, Calendar as Cal } from 'react-native-calendars';
-import { getData, setData } from '../tools/iosys';
+import { getData, setData, addItem, delItem, editItem } from '../tools/iosys';
 import DropDownPicker from 'react-native-dropdown-picker';
-import { getAccounts } from '../tools/account';
+import { getAccounts, addMoney } from '../tools/account';
 
 import styled from 'styled-components/native';
 import Header from '../modular_components/Header';
@@ -39,6 +39,29 @@ interface DatasType {
 function emptyDatasType(): DatasType {
     let datas: DatasType = { key: { dots: [] } };
     return datas;
+}
+
+function reformat(item: DataType) {
+    let datas: DatasType = {};
+    for (let index = 0; index < item.cards.length; index++) {
+        const itemType =
+            item.cards[index].type == '1'
+                ? { key: `${item.cards[index].id}`, color: '#3EA2FF' }
+                : { key: `${item.cards[index].id}`, color: '#FF6E6E' };
+        datas[item.cards[index].date] == null
+            ? (datas[item.cards[index].date] = { dots: [itemType] })
+            : datas[item.cards[index].date].dots.push(itemType);
+    }
+
+    return datas;
+}
+
+function PeopleDate(date: string) {
+    const [year, month, day] = date.split('-').map(Number);
+    const normalDate = new Date(year, month - 1, day);
+    return `${normalDate.getDate()}  ${
+        monthNames[normalDate.getMonth()]
+    }  ${normalDate.getFullYear()}`;
 }
 
 const CardView = styled.View`
@@ -89,7 +112,7 @@ const ModalInfo = styled.View`
     background-color: #fff;
     width: 70%;
     height: 50%;
-    border: 1px solid #000;
+    // border: 1px solid #000;
     margin: 15%;
     border-radius: 10px;
     padding: 20px;
@@ -118,9 +141,10 @@ const AlertMessage = styled.Text`
 const AlertButton = styled.Text`
     color: #000;
     text-align: center;
-    border: 1px solid #000;
+    border: 1px solid rgba(0, 0, 0, 0.2);
     border-radius: 5px;
     padding: 2% 15%;
+    background-color: rgba(0, 0, 0, 0.1);
 `;
 
 const monthNames = [
@@ -158,7 +182,7 @@ export default function Calendar() {
     function getItems(accounts: account['accounts']) {
         let data: { label: string; value: string }[] = [];
         accounts.map((item) => {
-            data.push({ label: item.name, value: item.id.toString() });
+            data.push({ label: `${item.name}     ${item.sum} руб.`, value: item.id.toString() });
         });
         setItems(data);
     }
@@ -168,8 +192,8 @@ export default function Calendar() {
             const search = async () => {
                 let data: calendar = await getData({ fileName: path });
                 if (data === null) {
-                    await setData({ fileName: path, data: data });
                     data = emptyCalendar();
+                    await setData({ fileName: path, data: data });
                 }
                 await getItems(await getAccounts());
                 setState(JSON.parse(JSON.stringify(data)));
@@ -192,7 +216,7 @@ export default function Calendar() {
         };
 
         if (editing.edit) {
-            data.id = state.cards[editing.index].id;
+            data.id = newData.cards[editing.index].id;
             newData.cards[editing.index] = data;
         } else {
             if (newData.cards.length !== 0) {
@@ -204,7 +228,9 @@ export default function Calendar() {
             }
         }
 
-        await setData({ fileName: path, data: newData });
+        editing.edit
+            ? editItem('cards', path, editing.index, data)
+            : await addItem('cards', path, data);
         setSelectedDate('');
         setPickerValue('');
         setText(['', '', '', '']);
@@ -217,6 +243,10 @@ export default function Calendar() {
         if (!text[2].match(/^\d+$/)) {
             Alert.alert('Не верные данных!', 'Вы ввели неверную сумму');
             return;
+        } else if (pickerValue == '') {
+            Alert.alert('Не верные данных!', 'Вы не ввели счет');
+        } else if (text[1] == '') {
+            Alert.alert('Не верные данных!', 'Вы не ввели дату');
         } else {
             onClick();
             setVisible(false);
@@ -237,26 +267,22 @@ export default function Calendar() {
     const deleteCard = async (index: number) => {
         let data: calendar = JSON.parse(JSON.stringify(state));
         data.cards.splice(index, 1);
-
-        await setData({ fileName: path, data: data });
+        await delItem('cards', path, index);
         setState(data);
         setCounter(JSON.parse(JSON.stringify(reformat(data))));
     };
 
-    function reformat(item: DataType) {
-        let datas: DatasType = {};
-        for (let index = 0; index < item.cards.length; index++) {
-            const itemType =
-                item.cards[index].type == '1'
-                    ? { key: `${item.cards[index].id}`, color: '#3EA2FF' }
-                    : { key: `${item.cards[index].id}`, color: '#FF6E6E' };
-            datas[item.cards[index].date] == null
-                ? (datas[item.cards[index].date] = { dots: [itemType] })
-                : datas[item.cards[index].date].dots.push(itemType);
-        }
+    const addMoneyAccount = async (value: number, type: string, id_acc: number) => {
+        let res = '';
+        type === '1'
+            ? (res = await addMoney(value, id_acc))
+            : (res = await addMoney(value * -1, id_acc));
 
-        return datas;
-    }
+        if (res === 'not-found') Alert.alert('Ошибка!', 'Счет не найден');
+        if (res === 'no-money') Alert.alert('Ошибка', 'Недостаточно средств');
+        setIdCard(-1);
+        setWinInfo(false);
+    };
 
     LocaleConfig.locales['ru'] = {
         monthNames: [
@@ -406,57 +432,74 @@ export default function Calendar() {
                     setWinInfo(false);
                 }}
             >
-                <ModalInfo>
-                    <AlertTitle>Дополнительная информация</AlertTitle>
-                    <AlertInView>
-                        <AlertMessage style={{ textDecorationLine: 'underline' }}>
-                            Тип операции:
-                        </AlertMessage>
-                        <AlertMessage>
-                            {idCard !== -1
-                                ? state.cards[0].type === '1'
-                                    ? 'Доход'
-                                    : 'Платеж'
-                                : ''}
-                        </AlertMessage>
-                    </AlertInView>
-                    <AlertInView>
-                        <AlertMessage style={{ textDecorationLine: 'underline' }}>
-                            Название:
-                        </AlertMessage>
-                        <AlertMessage>{idCard !== -1 ? state.cards[idCard].name : ''}</AlertMessage>
-                    </AlertInView>
-                    <AlertInView>
-                        <AlertMessage style={{ textDecorationLine: 'underline' }}>
-                            Дата:
-                        </AlertMessage>
-                        <AlertMessage>{idCard !== -1 ? state.cards[idCard].date : ''}</AlertMessage>
-                    </AlertInView>
-                    <AlertInView>
-                        <AlertMessage style={{ textDecorationLine: 'underline' }}>
-                            Сумма:
-                        </AlertMessage>
-                        <AlertMessage>
-                            {idCard !== -1 ? state.cards[idCard].sum : ''} руб.
-                        </AlertMessage>
-                    </AlertInView>
-                    <AlertInView>
-                        <AlertMessage style={{ textDecorationLine: 'underline' }}>
-                            Комментарий:
-                        </AlertMessage>
-                        <AlertMessage>
-                            {idCard !== -1 ? state.cards[idCard].comment : ''}
-                        </AlertMessage>
-                    </AlertInView>
-                    <AlertButton
-                        onPress={() => {
-                            setIdCard(-1);
-                            setWinInfo(false);
-                        }}
-                    >
-                        Ok
-                    </AlertButton>
-                </ModalInfo>
+                <View style={{ flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.3)' }}>
+                    <ModalInfo>
+                        <AlertTitle>Дополнительная информация</AlertTitle>
+                        <AlertInView>
+                            <AlertMessage style={{ textDecorationLine: 'underline' }}>
+                                Тип операции:
+                            </AlertMessage>
+                            <AlertMessage>
+                                {idCard !== -1
+                                    ? state.cards[0].type === '1'
+                                        ? 'Доход'
+                                        : 'Платеж'
+                                    : ''}
+                            </AlertMessage>
+                        </AlertInView>
+                        <AlertInView>
+                            <AlertMessage style={{ textDecorationLine: 'underline' }}>
+                                Название:
+                            </AlertMessage>
+                            <AlertMessage>
+                                {idCard !== -1 ? state.cards[idCard].name : ''}
+                            </AlertMessage>
+                        </AlertInView>
+                        <AlertInView>
+                            <AlertMessage style={{ textDecorationLine: 'underline' }}>
+                                Дата:
+                            </AlertMessage>
+                            <AlertMessage>
+                                {idCard !== -1 ? PeopleDate(state.cards[idCard].date) : ''}
+                            </AlertMessage>
+                        </AlertInView>
+                        <AlertInView>
+                            <AlertMessage style={{ textDecorationLine: 'underline' }}>
+                                Сумма:
+                            </AlertMessage>
+                            <AlertMessage>
+                                {idCard !== -1 ? state.cards[idCard].sum : ''} руб.
+                            </AlertMessage>
+                        </AlertInView>
+                        <AlertInView>
+                            <AlertMessage style={{ textDecorationLine: 'underline' }}>
+                                Комментарий:
+                            </AlertMessage>
+                            <AlertMessage>
+                                {idCard !== -1 ? state.cards[idCard].comment : ''}
+                            </AlertMessage>
+                        </AlertInView>
+                        <AlertButton
+                            onPress={() => {
+                                setIdCard(-1);
+                                setWinInfo(false);
+                            }}
+                        >
+                            Ok
+                        </AlertButton>
+                        <AlertButton
+                            onPress={() => {
+                                addMoneyAccount(
+                                    state.cards[idCard].sum,
+                                    state.cards[idCard].type,
+                                    state.cards[idCard].id_account,
+                                );
+                            }}
+                        >
+                            Провести операцию
+                        </AlertButton>
+                    </ModalInfo>
+                </View>
             </Modal>
             <Header
                 name='Calendar'
@@ -523,17 +566,11 @@ export default function Calendar() {
 
             <ScrollView>
                 {state.cards &&
-                    state.cards
-                        .filter((item) => {
-                            return item.date == cardDate;
-                        })
-                        .map((item, index) => {
-                            // const [year, month, day] = item.date
-                            //     .split("-")
-                            //     .map(Number);
-                            // const date = new Date(year, month - 1, day);
-                            const type = item.type === '1' ? true : false;
-                            {
+                    state.cards.map((item, index) => {
+                        {
+                            if (item.date == cardDate) {
+                                const type = item.type === '1' ? true : false;
+
                                 return (
                                     <CardSwipe
                                         key={index}
@@ -570,7 +607,8 @@ export default function Calendar() {
                                     </CardSwipe>
                                 );
                             }
-                        })}
+                        }
+                    })}
             </ScrollView>
         </View>
     );
