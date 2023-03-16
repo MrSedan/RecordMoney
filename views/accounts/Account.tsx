@@ -2,11 +2,10 @@ import { Alert, Text, View } from 'react-native';
 import styled from 'styled-components/native';
 
 import Header from '../modular_components/Header';
-import Card from '../modular_components/Card';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { account, emptyAccount } from '../../models/interfaces';
 import { useFocusEffect } from '@react-navigation/native';
-import { delItem, getData, setData } from '../tools/iosys';
+import { addItem, editItem, getData, setData } from '../tools/iosys';
 import ModalWindowOneButton from '../modular_components/ModalWindowOneButton';
 import Input from '../modular_components/Input';
 import CardSwipe from '../modular_components/CardSwipe';
@@ -41,12 +40,6 @@ export default function Account() {
     const [text, setText] = useState(['', '']);
     const [editing, setEditing] = useState({ editing: false, index: 0 });
 
-    const curData = {
-        id: 1,
-        name: 'Account name',
-        sum: 123,
-    };
-
     useFocusEffect(
         useCallback(() => {
             const onStart = async () => {
@@ -69,14 +62,15 @@ export default function Account() {
             sum: Number(text[1] != '' ? text[1] : ''),
         };
         if (editing.editing) {
-            dat.id = editing.index;
+            dat.id = newDat.accounts[editing.index].id;
             newDat.accounts[editing.index] = dat;
+            editItem('accounts', 'Account', editing.index, dat);
         } else {
             dat.id =
                 newDat.accounts.length > 0 ? newDat.accounts[newDat.accounts.length - 1].id + 1 : 0;
             newDat.accounts.push(dat);
+            addItem('accounts', 'Account', dat);
         }
-        await setData({ fileName: 'Account', data: newDat });
         setState(newDat);
         setText(['', '']);
         setEditing({ editing: false, index: 0 });
@@ -102,18 +96,19 @@ export default function Account() {
             'При удалении счета будет удалена вся с ним связанная история! Удалить?',
             [
                 {
+                    text: 'Нет',
+                    onPress: () => {},
+                    style: 'cancel',
+                },
+                {
                     text: 'Да',
-                    onPress: () => {
+                    onPress: async () => {
                         let newDat: account = JSON.parse(JSON.stringify(state));
                         const id_acc = newDat.accounts[index].id;
                         newDat.accounts.splice(index, 1);
-                        removeAccount(id_acc);
+                        await removeAccount(id_acc);
                         setState(newDat);
                     },
-                },
-                {
-                    text: 'Нет',
-                    onPress: () => {},
                 },
             ],
         );
