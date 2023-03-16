@@ -14,6 +14,7 @@ import InputDate from '../calendar/additionally/InputDate';
 import DateTimePicker from 'react-native-modal-datetime-picker';
 import InputContact from '../modular_components/InputContact';
 import * as Contacts from 'expo-contacts';
+import CardSwipe from '../modular_components/CardSwipe';
 
 const Scroll = styled.ScrollView`
     margin: 0;
@@ -89,16 +90,20 @@ export default function Debt() {
     const [editScreenName, setEditScreenName] = useState('');
 
     function getItems(accounts: account['accounts']) {
-        let data: { label: string; value: string }[] = [];
-        accounts.map((item) => {
-            data.push({ label: `${item.name} ${item.sum}`, value: item.id.toString() });
-        });
-        setItems(data);
+        if (accounts.length > 0) {
+            let data: { label: string; value: string }[] = [];
+            accounts.map((item) => {
+                data.push({ label: `${item.name} ${item.sum}`, value: item.id.toString() });
+            });
+            setItems(data);
+        }
     }
 
     useFocusEffect(
         useCallback(() => {
             const onStart = async () => {
+                setItems([]);
+                setState(emptyDebt());
                 let data: debt = await getData({ fileName: 'Debt' });
                 if (data === null) {
                     data = emptyDebt();
@@ -193,6 +198,16 @@ export default function Debt() {
         }
     };
 
+    const getAcc = (id_account: string | number) => {
+        try {
+            return accs.filter((account) => {
+                return account.id == id_account;
+            })[0].name;
+        } catch {
+            return '';
+        }
+    };
+
     return (
         <View style={{ backgroundColor: '#FFF', height: '100%' }}>
             <ModalWindow
@@ -206,6 +221,9 @@ export default function Debt() {
                 colorActiveRight='#3FDEAE'
                 functionCancelButton={() => {
                     setText(['', '', '', '']);
+                    setSelectedContact('');
+                    setSelectedDate('');
+                    setPickerValue('');
                 }}
                 functionSaveButton={tryToSave}
             >
@@ -368,16 +386,21 @@ export default function Debt() {
                                     (item.type == '2' && !debtTome)
                                 )
                                     return (
-                                        <Card
+                                        <CardSwipe
                                             key={index}
-                                            onPress={() => {
+                                            onDelete={() => {
                                                 del(index);
+                                            }}
+                                            onEdit={() => {}}
+                                            onDoubleClick={() => {
+                                                console.log('Aboba');
                                             }}
                                         >
                                             <View
                                                 style={{
                                                     flex: 1,
                                                     flexDirection: 'column',
+                                                    padding: 10,
                                                 }}
                                             >
                                                 <View
@@ -391,21 +414,13 @@ export default function Debt() {
                                                         {item.name} {`${item.id}`}
                                                     </Text>
                                                     <Text>{item.date}</Text>
-                                                    <Text>
-                                                        {
-                                                            accs.filter((account) => {
-                                                                return (
-                                                                    account.id == item.id_account
-                                                                );
-                                                            })[0].name
-                                                        }
-                                                    </Text>
+                                                    <Text>{getAcc(item.id_account)}</Text>
                                                     <Text>{`${item.sum}`} руб.</Text>
                                                 </View>
                                                 <Text>{item.contact}</Text>
                                                 <Text>{item.comment}</Text>
                                             </View>
-                                        </Card>
+                                        </CardSwipe>
                                     );
                             }
                         })}
