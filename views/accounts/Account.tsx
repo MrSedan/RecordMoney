@@ -2,13 +2,14 @@ import { Alert, Text, View } from 'react-native';
 import styled from 'styled-components/native';
 
 import Header from '../modular_components/Header';
-import Card from '../modular_components/Card';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { account, emptyAccount } from '../../models/interfaces';
 import { useFocusEffect } from '@react-navigation/native';
-import { getData, setData } from '../tools/iosys';
+import { addItem, editItem, getData, setData } from '../tools/iosys';
 import ModalWindowOneButton from '../modular_components/ModalWindowOneButton';
 import Input from '../modular_components/Input';
+import CardSwipe from '../modular_components/CardSwipe';
+import { removeAccount } from '../tools/account';
 
 const ActiveIndicator = styled.View`
     background-color: #6fe6c2;
@@ -39,12 +40,6 @@ export default function Account() {
     const [text, setText] = useState(['', '']);
     const [editing, setEditing] = useState({ editing: false, index: 0 });
 
-    const curData = {
-        id: 1,
-        name: 'Account name',
-        sum: 123,
-    };
-
     useFocusEffect(
         useCallback(() => {
             const onStart = async () => {
@@ -67,14 +62,15 @@ export default function Account() {
             sum: Number(text[1] != '' ? text[1] : ''),
         };
         if (editing.editing) {
-            dat.id = editing.index;
+            dat.id = newDat.accounts[editing.index].id;
             newDat.accounts[editing.index] = dat;
+            editItem('accounts', 'Account', editing.index, dat);
         } else {
             dat.id =
                 newDat.accounts.length > 0 ? newDat.accounts[newDat.accounts.length - 1].id + 1 : 0;
             newDat.accounts.push(dat);
+            addItem('accounts', 'Account', dat);
         }
-        await setData({ fileName: 'Account', data: newDat });
         setState(newDat);
         setText(['', '']);
         setEditing({ editing: false, index: 0 });
@@ -95,11 +91,27 @@ export default function Account() {
     };
 
     const del = async (index: number) => {
-        let newDat: account = JSON.parse(JSON.stringify(state));
-        newDat.accounts.splice(index, 1);
-
-        await setData({ fileName: 'Account', data: newDat });
-        setState(newDat);
+        Alert.alert(
+            'Внимание!',
+            'При удалении счета будет удалена вся с ним связанная история! Удалить?',
+            [
+                {
+                    text: 'Нет',
+                    onPress: () => {},
+                    style: 'cancel',
+                },
+                {
+                    text: 'Да',
+                    onPress: async () => {
+                        let newDat: account = JSON.parse(JSON.stringify(state));
+                        const id_acc = newDat.accounts[index].id;
+                        newDat.accounts.splice(index, 1);
+                        await removeAccount(id_acc);
+                        setState(newDat);
+                    },
+                },
+            ],
+        );
     };
 
     const openEditModal = (index: number) => {
@@ -155,10 +167,13 @@ export default function Account() {
                     {state.accounts &&
                         state.accounts.map((item, index) => {
                             return (
-                                <Card
+                                <CardSwipe
                                     key={index}
-                                    onPress={() => {
+                                    onEdit={() => {
                                         openEditModal(index);
+                                    }}
+                                    onDelete={() => {
+                                        del(index);
                                     }}
                                 >
                                     <View
@@ -166,6 +181,7 @@ export default function Account() {
                                             flex: 1,
                                             flexDirection: 'row',
                                             justifyContent: 'space-between',
+                                            margin: 10,
                                         }}
                                     >
                                         <View
@@ -186,7 +202,7 @@ export default function Account() {
                                         </View>
                                         <Text>{`${item.sum}`} руб.</Text>
                                     </View>
-                                </Card>
+                                </CardSwipe>
                             );
                         })}
                 </Container>
