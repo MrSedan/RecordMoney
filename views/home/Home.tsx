@@ -237,6 +237,7 @@ export default function Home() {
     const [pickerValue, setPickerValue] = useState('')
     const EXPENSE_CATEGORY_TYPE = 'Расход';
     const category_type= '';
+    const [debtTome, setDebt] = useState(true);
     const [openPickerAccounts, setOpenPickerAccounts] = useState(false);
     const [pickerValueAccounts, setPickerValueAccounts] = useState('');
     const [items, setItems] = useState<{label: string, value: string}[]>([])
@@ -298,8 +299,10 @@ export default function Home() {
                     await setData({fileName: 'history', data: dataH})
                 }
                 setDataItems(calculateValues((JSON.parse(JSON.stringify(dataC))),(JSON.parse(JSON.stringify(dataH)))));
-                setDatahistory(JSON.parse(JSON.stringify(dataH)))              
+                setDatahistory(JSON.parse(JSON.stringify(dataH)))  
+                            
                 let sum = 0
+                if (dataH.history.length > 0){
                 dataH.history.forEach((item) => {
                   if (dataC.categories[item.category].category_type === 'Доход') {
                     sum += item.sum;
@@ -307,7 +310,7 @@ export default function Home() {
                     sum -= item.sum;
                     }
                     });
-                    setTotalValue(sum);
+                    setTotalValue(sum);}
 
 
             }
@@ -366,8 +369,9 @@ export default function Home() {
 
         const handleADDHistory = async() => {
           
-          if (texthistory[2] === '' || texthistory[3] === ''|| pickerValue === ''){
+          if (texthistory[2] === '' || pickerValue === ''){
             Alert.alert('Ошибка','Введите корректные данные')
+            return;
           }
           let mama: history = JSON.parse(JSON.stringify(datahistory));
           let dateS: string = ''
@@ -401,8 +405,9 @@ export default function Home() {
               
               dataItems.categories.map((item) => {
                 console.log(item.category_type);
-                if (item.id === dat.id_account) {
-                  if (item.category_type) {
+                
+                if (item.id === dat.category) {
+                  if (item.category_type === 'Расход') {
                     sumAccounts = (dat.sum * (-1));
                     
                     
@@ -413,16 +418,15 @@ export default function Home() {
                 }
               });
               const res = await addMoney(sumAccounts, dat.id_account)
-              if (res === 'not-found') Alert.alert('ошибка', 'счет не найден') 
+              if (res === 'not-found') Alert.alert('ошибка', 'счет не найден') ;else{
               if (res === 'no-money') Alert.alert('ошибка', 'недостаточно средств') 
-              mama.history.push(dat)
-              await addMoney(sumAccounts, dat.id_account)
-              await setData({fileName: "history", data: mama})
-              setDatahistory(mama)
+              else {mama.history.push(dat) ;await setData({fileName: "history", data: mama}) ;setDatahistory(mama)}}
               setPickerValue('')
               setSelectedDate('')
               settexthistory(['','','','',''])
               setPickerValueAccounts('')
+              setOpenPickerAccounts(false)
+              setOpenPicker(false)
               
 
   
@@ -433,10 +437,13 @@ export default function Home() {
               dat.id_account = Number(pickerValueAccounts)
               let sumAccounts = 0
               dataItems.categories.map((item) => {
-                console.log(item.category_type);
-                if (item.id === dat.id_account) {
+                if (item.id === dat.category) {
+                  console.log(item.category_type);
+                  
                   if (item.category_type === 'Расход') {
                     sumAccounts = dat.sum * -1;
+                    console.log('я тута ');
+                    
                   } else {
                     sumAccounts = dat.sum;
                   }
@@ -444,15 +451,14 @@ export default function Home() {
                 }
               });
               const res = await addMoney(sumAccounts, dat.id_account)
-              if (res === 'not-found') Alert.alert('ошибка', 'счет не найден') 
-              if (res === 'no-money') Alert.alert('ошибка', 'недостаточно средств') 
-              mama.history.push(dat)
-              
-              await setData({fileName: "history", data: mama})
-              setDatahistory(mama)
+              if (res === 'not-found') Alert.alert('ошибка', 'счет не найден') ;else{
+                if (res === 'no-money') Alert.alert('ошибка', 'недостаточно средств') 
+                else {mama.history.push(dat) ;await setData({fileName: "history", data: mama}) ;setDatahistory(mama)}}
               setPickerValue('')
               setSelectedDate('')
               settexthistory(['','','','',''])
+              setOpenPickerAccounts(false)
+              setOpenPicker(false)
           } 
           
           console.log(datahistory, dataItems);
@@ -570,7 +576,7 @@ export default function Home() {
 
 
 
-                    <ModalWindowCategoryList  functionRightPlus={() => {setVisibleAddCategory(true); setActiveModalButtonAddCategory(true)}} visible={visible} setVisible={setVisible} buttonTextLeft='Доход' buttonTextRight='Расход' activeModalButton={activeModalButton} setActiveModalButton={setActiveModalButton} colorActiveLeft='#3EA2FF' colorActiveRight='#FF6E6E'>
+                    <ModalWindowCategoryList  functionRightPlus={() => {setVisibleAddCategory(true); setActiveModalButtonAddCategory(activeModalButton)}} visible={visible} setVisible={setVisible} buttonTextLeft='Доход' buttonTextRight='Расход' activeModalButton={activeModalButton} setActiveModalButton={setActiveModalButton} colorActiveLeft='#3EA2FF' colorActiveRight='#FF6E6E'>
                     {activeModalButton ? (
                       // Вкладка "Доход"
                       <View>
