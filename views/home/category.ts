@@ -7,4 +7,5 @@ export async function getCategory(){
         data = emptyCategories()
     }
     return data.categories
+    
 }

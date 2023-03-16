@@ -2,14 +2,14 @@
 // импорт необходимых библиотек и компонентов
 
 
-import { Text, View, StyleSheet,FlatList, useWindowDimensions,Image, Animated, ScrollView, Button, Modal, TouchableOpacity} from 'react-native';
+import { Text, View, StyleSheet,FlatList, useWindowDimensions,Image, Animated, ScrollView, Button, Modal, TouchableOpacity, Alert} from 'react-native';
 import DonutChart from './CustomDonutChart';
 import Header from '../modular_components/Header';
 import styled from 'styled-components/native';
 import Item from './Item';
 import React, { useState, useCallback, useRef } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { category, emptyCategories, emptyHistory, history} from '../../models/interfaces';
+import { account, category, emptyCategories, emptyHistory, history} from '../../models/interfaces';
 import { getData, setData } from '../tools/iosys';
 import ModalWindowCategoryList from './ModalWindowCategory';
 import Input from '../modular_components/Input';
@@ -21,6 +21,7 @@ import DropDownPicker from 'react-native-dropdown-picker';
 import DateTimePicker from 'react-native-modal-datetime-picker';
 import { getCategory } from './category';
 import ModalWindowOneButton from '../modular_components/ModalWindowOneButton';
+import { addMoney, getAccounts } from '../tools/account';
 //////////////////////////////////////////////////////////////////////
 
 //   стили
@@ -57,6 +58,9 @@ const HeaderView = styled.View`
   margin-left: 10%;
   marginBottom: 5%;
 `;
+const ButtonColor = styled.Button`
+  
+`
 const CardZAD = styled.View`
   display: flex;
   align-content: flex-start;
@@ -88,11 +92,7 @@ const PickerBlock = styled.View`
     flex-direction: row;
     margin-bottom: 20px;
 `
-const Scroll = styled.ScrollView`
-    margin: 0;
-    height: 100%;
-    max-height: 100%;
-`
+
 
 const styles = StyleSheet.create({
     image: {
@@ -140,22 +140,13 @@ const styles = StyleSheet.create({
   
   const newCategory = {
     category_icon: 1,
-    category_type: 'Расход',
+    category_type: '',
     value: 0,
-    color: '#6623',
+    color: '',
     id: 1,
-    name : 'ляпота',
+    name : '',
   };
 
-
-  const newHistory = {
-    id: 1,
-    id_account: 1,
-    category: 3,
-    date: "2023-03-03",
-    sum: 100,
-    comment: ""
-    }
 
 //////////////////////////////// 
 
@@ -246,7 +237,10 @@ export default function Home() {
     const [pickerValue, setPickerValue] = useState('')
     const EXPENSE_CATEGORY_TYPE = 'Расход';
     const category_type= '';
+    const [openPickerAccounts, setOpenPickerAccounts] = useState(false);
+    const [pickerValueAccounts, setPickerValueAccounts] = useState('');
     const [items, setItems] = useState<{label: string, value: string}[]>([])
+    const [itemsAccounts, setitemsAccounts] = useState<{label: string, value: string}[]>([])
     const monthNames = [
       "января",
       "февраля",
@@ -270,6 +264,14 @@ export default function Home() {
           setItems(data)
       }
 
+      function getAccount(accounts: account['accounts']) {
+        let data: { label: string; value: string }[] = [];
+        accounts.map((item) => {
+            data.push({ label: `${item.name} ${item.sum}`, value: item.id.toString() });
+        });
+        setitemsAccounts(data);
+    }
+
 
     // при загрузге раздела 
     useFocusEffect(
@@ -288,27 +290,26 @@ export default function Home() {
                    
                     await setData({fileName: 'category', data: dataC})
                 }
-                await getItems(await getCategory())
+                await getItems(await getCategory());
+                await getAccount(await await getAccounts());
                 if (dataH === null) {
                     dataH = emptyHistory()
                    
                     await setData({fileName: 'history', data: dataH})
                 }
                 setDataItems(calculateValues((JSON.parse(JSON.stringify(dataC))),(JSON.parse(JSON.stringify(dataH)))));
-                setDatahistory(JSON.parse(JSON.stringify(dataH)))
-                const sumValue = async () => {
-                  await setData({fileName: 'history', data: dataH})
-                  let sum = 0
+                setDatahistory(JSON.parse(JSON.stringify(dataH)))              
+                let sum = 0
                 dataH.history.forEach((item) => {
-                  if (dataItems.categories[item.category].category_type === 'Доход') {
+                  if (dataC.categories[item.category].category_type === 'Доход') {
                     sum += item.sum;
                     } else {
                     sum -= item.sum;
                     }
                     });
                     setTotalValue(sum);
-                  }
-                  sumValue()
+
+
             }
             onStart()
             
@@ -326,8 +327,11 @@ export default function Home() {
         if (dat.id > maxid) {
           alert(`Cannot add category with ID greater than 11`);
           return;
-      }
-
+        }
+        if (text[0] === '' || text[1] === '') {
+          alert('Неправильный ввод название или выбор цвета')
+          return;
+        }
         if (mama.categories.length !==0) {
             dat.id = mama.categories[mama.categories.length - 1].id + 1;
             dat.color = text[0];
@@ -361,11 +365,14 @@ export default function Home() {
         }; 
 
         const handleADDHistory = async() => {
-          console.log(datahistory);
           
+          if (texthistory[2] === '' || texthistory[3] === ''|| pickerValue === ''){
+            Alert.alert('Ошибка','Введите корректные данные')
+          }
           let mama: history = JSON.parse(JSON.stringify(datahistory));
           let dateS: string = ''
           let dateP: string = ''
+          
           if (selectedDate == '') {
             dateS = ''
           } else {
@@ -380,25 +387,67 @@ export default function Home() {
             category: 0,
             date: dateS,
             sum: Number(texthistory[2]),
-            comment: text[3]
+            comment: texthistory[3]
           }
 
-
+          
+          
           if (mama.history.length !==0) {
               dat.id = mama.history[mama.history.length - 1].id + 1;
               dat.category = Number(pickerValue)
+              dat.id_account = Number(pickerValueAccounts)
+              let sumAccounts=0;
+              console.log(dat.sum);
+              
+              dataItems.categories.map((item) => {
+                console.log(item.category_type);
+                if (item.id === dat.id_account) {
+                  if (item.category_type) {
+                    sumAccounts = (dat.sum * (-1));
+                    
+                    
+                  } else {
+                    sumAccounts = dat.sum;
+                  }
+                  console.log(sumAccounts);
+                }
+              });
+              const res = await addMoney(sumAccounts, dat.id_account)
+              if (res === 'not-found') Alert.alert('ошибка', 'счет не найден') 
+              if (res === 'no-money') Alert.alert('ошибка', 'недостаточно средств') 
               mama.history.push(dat)
+              await addMoney(sumAccounts, dat.id_account)
               await setData({fileName: "history", data: mama})
               setDatahistory(mama)
               setPickerValue('')
               setSelectedDate('')
               settexthistory(['','','','',''])
+              setPickerValueAccounts('')
+              
+
   
           }
           else {
               dat.id = 1;
               dat.category = Number(pickerValue)
+              dat.id_account = Number(pickerValueAccounts)
+              let sumAccounts = 0
+              dataItems.categories.map((item) => {
+                console.log(item.category_type);
+                if (item.id === dat.id_account) {
+                  if (item.category_type === 'Расход') {
+                    sumAccounts = dat.sum * -1;
+                  } else {
+                    sumAccounts = dat.sum;
+                  }
+                  console.log(sumAccounts);
+                }
+              });
+              const res = await addMoney(sumAccounts, dat.id_account)
+              if (res === 'not-found') Alert.alert('ошибка', 'счет не найден') 
+              if (res === 'no-money') Alert.alert('ошибка', 'недостаточно средств') 
               mama.history.push(dat)
+              
               await setData({fileName: "history", data: mama})
               setDatahistory(mama)
               setPickerValue('')
@@ -419,6 +468,7 @@ export default function Home() {
                 }
                 });
                 setTotalValue(sum);
+          setVisibleAddHistory(false);
           };
 
             
@@ -461,22 +511,23 @@ export default function Home() {
                             ))}
                           </View>
                           <Button title="Добавить цвет" onPress={handleAddColor} />
-                        </Modal>
+                  </Modal>
 
 
                 <ModalWindow functionCancelButton={() => {setText(['','','',''])}} functionSaveButton={() => {handleAddCategory ()}} visible={VisibleAddCategory} setVisible={setVisibleAddCategory} buttonTextLeft='Доход' buttonTextRight='Расход' activeModalButton={activeModalButtonAddCategory} setActiveModalButton={setActiveModalButtonAddCategory} colorActiveLeft='#3EA2FF' colorActiveRight='#FF6E6E'>
                   <PickerBlock>
                     <Text style={{fontSize: 15, textAlign: 'center', width: 'auto', marginLeft: 40, textAlignVertical: 'center'}}>Цвет</Text>
-                     <Button title='выбери цвет' onPress={() =>setVisible2(true)}></Button>
+                      <View style={{ marginRight : "37%"}}>
+                        <ButtonColor title='выбери цвет' onPress={() =>setVisible2(true)}  ></ButtonColor>
+                     </View>
                   </PickerBlock>
                   <Input textName='Название' value={text[1].toString()} setItems={setText} index={1} placeholder='Введите название категории' keyboardType="default" colorActiveInput={(activeModalButtonAddCategory) ? '#3EA2FF' : '#FF6E6E'}/>
                 </ModalWindow>
-                <ModalWindowHistory visible={visibleHistory} setVisible={setVisibleHistory}>
-                <View style={{ height: '100%' }}>
-                    <ScrollView>
+                
+
+                <ModalWindowHistory visible={visibleHistory} setVisible={setVisibleHistory}  type={false} >
                         {datahistory.history.map((item) => (
-                          <View key={item.id}>
-                            <CardZAD>
+                            <CardZAD key={item.id}>
                               <FlatListsss>
                                 <Circle radius={10} color={dataItems.categories[item.category].color}/>
                                 <View style={{position: 'absolute', marginTop: '3%' }}>
@@ -486,16 +537,16 @@ export default function Home() {
                                 <Text style= {{color: "#94C3F6", marginTop: "4%", marginLeft: '60%' , fontSize: 20 }} >{item.sum} руб</Text>
                               </FlatListsss>
                             </CardZAD>
-                          </View>
+                          
                         ))}
-                    </ScrollView>
-                  </View>
+                    
+                
                 </ModalWindowHistory>
                 <ModalWindowOneButton functionCancelButton={() => {settexthistory(['','','',''])}} functionSaveButton={handleADDHistory} visible={visibleAddHistory} setVisible={setVisibleAddHistory} windowName='Добавление Расхода'>
                   <InputDate functionDate={()=>{setDatePickerVisible(true)}} textName='Дата' value={selectedDate.toString()} setValue={() => {setSelectedDate}} placeholder='Введите дату' keyboardType="default"  colorActiveInput={(activeModalButtonAddCategory) ? '#3EA2FF' : '#FF6E6E'}/>
                   <PickerBlock>
                     <Text style={{fontSize: 15, textAlign: 'center', width: 'auto', marginLeft: 20, textAlignVertical: 'center'}}>Категория</Text>
-                    <DropDownPicker open={openPicker} value={pickerValue} setOpen={setOpenPicker} setValue={setPickerValue} items={items} setItems={setItems} containerStyle={{width: '66%', alignSelf: 'flex-end'}} placeholder="Выберите категорию" dropDownDirection='TOP'/>
+                    <DropDownPicker open={openPicker} value={pickerValue} setOpen={setOpenPicker} setValue={setPickerValue} items={items} setItems={setItems} containerStyle={{width: '66%', alignSelf: 'flex-end' , zIndex: 9999}} placeholder="Выберите категорию" dropDownDirection='DEFAULT'/>
                   </PickerBlock>
                   {isDatePickerVisible && (
                       <DateTimePicker style={{flex: 1, position: 'relative'}} isVisible={isDatePickerVisible} mode='date' onConfirm={(date: Date) => {
@@ -509,6 +560,10 @@ export default function Home() {
                   )}
                   <Input textName='Сумма' value={texthistory[2].toString()} setItems={settexthistory}  index={2} placeholder='Введите сумму ' keyboardType='numeric' colorActiveInput={(activeModalButtonAddCategory) ? '#3EA2FF' : '#FF6E6E'}/>
                   <Input textName='Комментарий' value={texthistory[3].toString()} setItems={settexthistory} index={3} placeholder='Введите комментарий' keyboardType='default' colorActiveInput={(activeModalButtonAddCategory) ? '#3EA2FF' : '#FF6E6E'} />
+                  <PickerBlock>
+                    <Text style={{fontSize: 15, textAlign: 'center', width: 'auto', marginLeft: 20, textAlignVertical: 'center'}}>Счет</Text>
+                    <DropDownPicker open={openPickerAccounts} value={pickerValueAccounts} setOpen={setOpenPickerAccounts} setValue={setPickerValueAccounts} items={itemsAccounts} setItems={setitemsAccounts} containerStyle={{width: '66%', alignSelf: 'flex-end'}} placeholder="Выберите аккаунт" dropDownDirection='TOP'/>
+                  </PickerBlock>
                  </ModalWindowOneButton>
                 
                

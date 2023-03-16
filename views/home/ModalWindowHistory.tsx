@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { Keyboard, Modal, TouchableWithoutFeedback, View } from "react-native";
+import { Keyboard, Modal, ScrollView, TouchableWithoutFeedback, View } from "react-native";
 import BackArrowSvg from '../../assets/icon/BackArrow.svg'
 import styled from "styled-components/native";
 import PlusSvg from '../../assets/icon/plus.svg';
@@ -98,24 +98,31 @@ const ButtonHeader = styled.TouchableOpacity`
 const ModalWindowHistory= memo((props: 
     {children: React.ReactNode, 
     visible: boolean, 
+    type: boolean, 
     setVisible: React.Dispatch<React.SetStateAction<boolean>>, 
     }) => {
     return (
         <Modal animationType="slide" transparent={false} visible={props.visible} onRequestClose={() => props.setVisible(false)}>
-            <TouchableWithoutFeedback onPress={() => {Keyboard.dismiss()}}>
+            
                 <View>
                     <HeaderView>
                         <BackArrowSvg width={25} height={25} onPress={() => {props.setVisible(false)}}/>
                         <HeaderText>Statistics</HeaderText>
  
                     </HeaderView>
- 
-                    <InputView>
+                    {(props.type) ? 
+                    
+                        <InputView>
+                            {props.children}
+                        </InputView>
+                     
+                :
+                    <ScrollView style = {{height: "100%"}}>
                         {props.children}
-                    </InputView>
- 
+                    </ScrollView>
+                }
                 </View>
-            </TouchableWithoutFeedback>
+            
         </Modal>
     )
 })
