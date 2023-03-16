@@ -20,6 +20,7 @@ import InputDate from '../calendar/additionally/InputDate';
 import DropDownPicker from 'react-native-dropdown-picker';
 import DateTimePicker from 'react-native-modal-datetime-picker';
 import { getCategory } from './category';
+import ModalWindowOneButton from '../modular_components/ModalWindowOneButton';
 //////////////////////////////////////////////////////////////////////
 
 //   стили
@@ -295,11 +296,22 @@ export default function Home() {
                 }
                 setDataItems(calculateValues((JSON.parse(JSON.stringify(dataC))),(JSON.parse(JSON.stringify(dataH)))));
                 setDatahistory(JSON.parse(JSON.stringify(dataH)))
-                let sum = 0
-                dataH.history.forEach((item)=>{sum += item.sum})
-                setTotalValue(sum)
+                const sumValue = async () => {
+                  await setData({fileName: 'history', data: dataH})
+                  let sum = 0
+                dataH.history.forEach((item) => {
+                  if (dataItems.categories[item.category].category_type === 'Доход') {
+                    sum += item.sum;
+                    } else {
+                    sum -= item.sum;
+                    }
+                    });
+                    setTotalValue(sum);
+                  }
+                  sumValue()
             }
             onStart()
+            
         },[])
       )
 ////////////////////////////////
@@ -399,8 +411,14 @@ export default function Home() {
           setDataItems(calculateValues(dataItems,mama), )
           let sum = 0
               
-                mama.history.forEach((item)=>{sum += item.sum})
-                setTotalValue(sum)
+            mama.history.forEach((item) => {
+              if (dataItems.categories[item.category].category_type === 'Доход') {
+                sum += item.sum;
+                } else {
+                sum -= item.sum;
+                }
+                });
+                setTotalValue(sum);
           };
 
             
@@ -473,14 +491,13 @@ export default function Home() {
                     </ScrollView>
                   </View>
                 </ModalWindowHistory>
-                  
-                <ModalWindow functionCancelButton={() => {settexthistory(['','','',''])}} functionSaveButton={handleADDHistory} visible={visibleAddHistory} setVisible={setVisibleAddHistory} buttonTextLeft="Доход" buttonTextRight='Расход' activeModalButton={activeModalButtonHistory} setActiveModalButton={setactiveModalButtonHistory } colorActiveLeft='#3EA2FF' colorActiveRight='#FF6E6E' >
+                <ModalWindowOneButton functionCancelButton={() => {settexthistory(['','','',''])}} functionSaveButton={handleADDHistory} visible={visibleAddHistory} setVisible={setVisibleAddHistory} windowName='Добавление Расхода'>
                   <InputDate functionDate={()=>{setDatePickerVisible(true)}} textName='Дата' value={selectedDate.toString()} setValue={() => {setSelectedDate}} placeholder='Введите дату' keyboardType="default"  colorActiveInput={(activeModalButtonAddCategory) ? '#3EA2FF' : '#FF6E6E'}/>
                   <PickerBlock>
                     <Text style={{fontSize: 15, textAlign: 'center', width: 'auto', marginLeft: 20, textAlignVertical: 'center'}}>Категория</Text>
                     <DropDownPicker open={openPicker} value={pickerValue} setOpen={setOpenPicker} setValue={setPickerValue} items={items} setItems={setItems} containerStyle={{width: '66%', alignSelf: 'flex-end'}} placeholder="Выберите категорию" dropDownDirection='TOP'/>
                   </PickerBlock>
-                    {isDatePickerVisible && (
+                  {isDatePickerVisible && (
                       <DateTimePicker style={{flex: 1, position: 'relative'}} isVisible={isDatePickerVisible} mode='date' onConfirm={(date: Date) => {
                           setSelectedDate(`${date.getDate()} ${monthNames[date.getMonth()]} ${date.getFullYear()}`);
                           const newText = [...texthistory]
@@ -488,10 +505,13 @@ export default function Home() {
                           settexthistory(newText)
                           setDatePickerVisible(false)
                       }} onCancel={()=>{setDatePickerVisible(false)}}/>
+
                   )}
                   <Input textName='Сумма' value={texthistory[2].toString()} setItems={settexthistory}  index={2} placeholder='Введите сумму ' keyboardType='numeric' colorActiveInput={(activeModalButtonAddCategory) ? '#3EA2FF' : '#FF6E6E'}/>
                   <Input textName='Комментарий' value={texthistory[3].toString()} setItems={settexthistory} index={3} placeholder='Введите комментарий' keyboardType='default' colorActiveInput={(activeModalButtonAddCategory) ? '#3EA2FF' : '#FF6E6E'} />
-                </ModalWindow>
+                 </ModalWindowOneButton>
+                
+               
 
 
 
