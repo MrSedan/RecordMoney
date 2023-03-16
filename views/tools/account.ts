@@ -11,7 +11,7 @@ import {
     history,
     piggyBank,
 } from '../../models/interfaces';
-import { delItem, getData, setData } from './iosys';
+import { delItem, editItem, getData, setData } from './iosys';
 
 /**
  * Функция получения списка доступных счетов
@@ -42,11 +42,12 @@ export async function getAccounts() {
  */
 export async function addMoney(count: number, id_account: string | number) {
     let data: account = await getData({ fileName: 'Account' });
-    data.accounts.map((item) => {
+    data.accounts.map(async (item, index) => {
         if (item.id == Number(id_account)) {
             if (item.id == Number(id_account)) {
                 if (item.sum + count < 0) throw Error('Не хватает средств!');
                 item.sum += count;
+                await editItem('accounts', 'Account', index, item);
                 return true; // Нашел счет и обработал запрос
             }
         }
