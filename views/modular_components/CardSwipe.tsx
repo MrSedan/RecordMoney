@@ -108,6 +108,13 @@ export default function CardSwipe(props: {
                         }).start();
                     }
                 }
+                setTimeout(() => {
+                    Animated.timing(pan, {
+                        toValue: { x: 0, y: 0 },
+                        duration: 200,
+                        useNativeDriver: false,
+                    }).start();
+                }, 1000);
             },
         }),
     ).current;
