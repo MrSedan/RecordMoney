@@ -40,13 +40,13 @@ margin: 5px;
 
 const Item = ({ category_id, category_name,value, color}: ItemProps) => {
   return (
-    <TouchableOpacity onPress={() => console.log(category_id)}>
+    <TouchableOpacity onPress={() => console.log(category_name, category_id, value, color)}>
     <CardZAD>
        <FlatListsss>
         <Circle radius={10} color={color}/>
         <View style={{position: 'absolute', marginTop: '6%' }}>
           <Text style= {{color: "#303841", marginLeft: '30%'}}>{category_name}, {category_id}</Text>
-          <Text style= {{color: "#94C3F6", marginTop: "8%", marginLeft: '11%'}} >{value-0.1} руб</Text>
+          <Text style= {{color: "#94C3F6", marginTop: "8%", marginLeft: '11%'}} >{value} руб</Text>
           <Text style= {{color: "#7D8895", marginTop: "5%", marginLeft: '8%'}}> Прочее</Text>
         </View>
       </FlatListsss>
