@@ -6,9 +6,11 @@ import Card from '../modular_components/Card';
 import { useCallback, useEffect, useState } from 'react';
 import { account, emptyAccount } from '../../models/interfaces';
 import { useFocusEffect } from '@react-navigation/native';
-import { getData, setData } from '../tools/iosys';
+import { delItem, getData, setData } from '../tools/iosys';
 import ModalWindowOneButton from '../modular_components/ModalWindowOneButton';
 import Input from '../modular_components/Input';
+import CardSwipe from '../modular_components/CardSwipe';
+import { removeAccount } from '../tools/account';
 
 const ActiveIndicator = styled.View`
     background-color: #6fe6c2;
@@ -95,11 +97,26 @@ export default function Account() {
     };
 
     const del = async (index: number) => {
-        let newDat: account = JSON.parse(JSON.stringify(state));
-        newDat.accounts.splice(index, 1);
-
-        await setData({ fileName: 'Account', data: newDat });
-        setState(newDat);
+        Alert.alert(
+            'Внимание!',
+            'При удалении счета будет удалена вся с ним связанная история! Удалить?',
+            [
+                {
+                    text: 'Да',
+                    onPress: () => {
+                        let newDat: account = JSON.parse(JSON.stringify(state));
+                        const id_acc = newDat.accounts[index].id;
+                        newDat.accounts.splice(index, 1);
+                        removeAccount(id_acc);
+                        setState(newDat);
+                    },
+                },
+                {
+                    text: 'Нет',
+                    onPress: () => {},
+                },
+            ],
+        );
     };
 
     const openEditModal = (index: number) => {
@@ -155,10 +172,13 @@ export default function Account() {
                     {state.accounts &&
                         state.accounts.map((item, index) => {
                             return (
-                                <Card
+                                <CardSwipe
                                     key={index}
-                                    onPress={() => {
+                                    onEdit={() => {
                                         openEditModal(index);
+                                    }}
+                                    onDelete={() => {
+                                        del(index);
                                     }}
                                 >
                                     <View
@@ -166,6 +186,7 @@ export default function Account() {
                                             flex: 1,
                                             flexDirection: 'row',
                                             justifyContent: 'space-between',
+                                            margin: 10,
                                         }}
                                     >
                                         <View
@@ -186,7 +207,7 @@ export default function Account() {
                                         </View>
                                         <Text>{`${item.sum}`} руб.</Text>
                                     </View>
-                                </Card>
+                                </CardSwipe>
                             );
                         })}
                 </Container>
