@@ -1,4 +1,4 @@
-import { Text, View, Alert } from 'react-native';
+import { Text, View, Alert, Button, TouchableOpacity } from 'react-native';
 import Header from '../modular_components/Header';
 import styled from 'styled-components/native';
 import { useCallback, useState } from 'react';
@@ -169,6 +169,7 @@ export default function Debt() {
         setSelectedContact('');
         setSelectedDate('');
         setOpenPicker(false);
+        setDebt(activeModalButton);
         setEditing({ editing: false, index: 0 });
     };
 
@@ -232,6 +233,35 @@ export default function Debt() {
         setEditing({ editing: true, index: index });
         setActiveModalButton(debtTome);
         setVisible(true);
+    };
+
+    const submit = async (index: number) => {
+        Alert.alert('Внимание', 'Вы уверены, что хотите закрыть долг?', [
+            {
+                text: 'Да',
+                onPress: async () => {
+                    const item = state.debts[index];
+                    if (item.type == '2') item.sum = -item.sum;
+                    const res = await addMoney(item.sum, item.id_account);
+                    if (res == 'no-money') {
+                        Alert.alert('Ошибка!', 'Недостаточно средств');
+                        return;
+                    } else if (res == 'not-found') {
+                        Alert.alert('Ошибка!', 'Счет не был найден!');
+                        return;
+                    }
+                    await delItem('debts', 'Debt', index);
+                    const newDebt: debt = JSON.parse(JSON.stringify(state));
+                    newDebt.debts.splice(index, 1);
+                    setState(newDebt);
+                    Alert.alert('Долг был успешно закрыт!');
+                },
+            },
+            {
+                text: 'Нет',
+                onPress: () => {},
+            },
+        ]);
     };
 
     return (
@@ -424,30 +454,38 @@ export default function Debt() {
                                                 console.log('Aboba');
                                             }}
                                         >
-                                            <View
-                                                style={{
-                                                    flex: 1,
-                                                    flexDirection: 'column',
-                                                    padding: 10,
+                                            <TouchableOpacity
+                                                activeOpacity={1}
+                                                onPress={() => {
+                                                    submit(index);
                                                 }}
+                                                style={{ width: '100%' }}
                                             >
                                                 <View
                                                     style={{
                                                         flex: 1,
-                                                        justifyContent: 'space-between',
-                                                        flexDirection: 'row',
+                                                        flexDirection: 'column',
+                                                        padding: 10,
                                                     }}
                                                 >
-                                                    <Text>
-                                                        {item.name} {`${item.id}`}
-                                                    </Text>
-                                                    <Text>{item.date}</Text>
-                                                    <Text>{getAcc(item.id_account)}</Text>
-                                                    <Text>{`${item.sum}`} руб.</Text>
+                                                    <View
+                                                        style={{
+                                                            flex: 1,
+                                                            justifyContent: 'space-between',
+                                                            flexDirection: 'row',
+                                                        }}
+                                                    >
+                                                        <Text>
+                                                            {item.name} {`${item.id}`}
+                                                        </Text>
+                                                        <Text>{item.date}</Text>
+                                                        <Text>{getAcc(item.id_account)}</Text>
+                                                        <Text>{`${item.sum}`} руб.</Text>
+                                                    </View>
+                                                    <Text>{item.contact}</Text>
+                                                    <Text>{item.comment}</Text>
                                                 </View>
-                                                <Text>{item.contact}</Text>
-                                                <Text>{item.comment}</Text>
-                                            </View>
+                                            </TouchableOpacity>
                                         </CardSwipe>
                                     );
                             }
