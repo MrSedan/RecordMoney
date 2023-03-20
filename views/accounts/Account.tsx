@@ -196,9 +196,7 @@ export default function Account() {
                                             ) : (
                                                 <InactiveIndicator />
                                             )}
-                                            <Text style={{ marginLeft: 10 }}>
-                                                {item.name} {`${item.id}`}
-                                            </Text>
+                                            <Text style={{ marginLeft: 10 }}>{item.name}</Text>
                                         </View>
                                         <Text>{`${item.sum}`} руб.</Text>
                                     </View>
