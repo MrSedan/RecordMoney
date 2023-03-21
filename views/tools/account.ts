@@ -10,6 +10,8 @@ import {
     emptyPiggyBank,
     history,
     piggyBank,
+    accountHistory,
+    emptyAccHistory
 } from '../../models/interfaces';
 import { delItem, editItem, getData, setData } from './iosys';
 
@@ -40,19 +42,53 @@ export async function getAccounts() {
  */
 export async function addMoney(
     count: number,
-    id_account: string | number,
+    id_operat: string | number,
+    id_acc: string | number,
+    pageEvent: 'home' | 'calendar' | 'debt' | 'piggyBank',
+    onDelete: boolean = false,
+    onEdit: boolean = false
 ): Promise<'not-found' | 'ok' | 'no-money'> {
-    let data: account = await getData({ fileName: 'Account' });
+    let data: account = JSON.parse(JSON.stringify(await getData({ fileName: 'Account' }))) 
+    let historyAcc: accountHistory = await getData({ fileName: 'AccountHistory' });
+    console.log(historyAcc);
+    
     let status: 'not-found' | 'ok' | 'no-money' = 'not-found';
     for (let index = 0; index < data.accounts.length; index++) {
         const item = data.accounts[index];
-        if (item.id == Number(id_account)) {
+        if (item.id == Number(id_acc)) {
             if (item.sum + count < 0) {
                 status = 'no-money';
                 break;
             }
             item.sum += count;
             await editItem('accounts', 'Account', index, item);
+
+            if (historyAcc === null) (await setData({fileName: 'AccountHistory', data: emptyAccHistory()}))
+            else {
+                const typeEvent = (count > 0) ? '1' : '2';
+                if (historyAcc.accHistory.length !== 0) {
+                    if (onDelete) {
+                        const ind = historyAcc.accHistory.findIndex((item) => item.page === pageEvent && item.id_operation === id_operat)
+                        console.log("delete", ind);
+                        
+                        historyAcc.accHistory.splice(ind, 1);
+                    } else {
+                        if (onEdit) {
+                            historyAcc.accHistory[historyAcc.accHistory.findIndex((item) => item.page === pageEvent && item.id_operation === id_operat)].id_account = +id_acc;
+                            historyAcc.accHistory[historyAcc.accHistory.findIndex((item) => item.page === pageEvent && item.id_operation === id_operat)].sum = +count;
+                            historyAcc.accHistory[historyAcc.accHistory.findIndex((item) => item.page === pageEvent && item.id_operation === id_operat)].type = typeEvent;
+                        } else {
+                            let newDar = {id: historyAcc.accHistory[historyAcc.accHistory.length - 1].id + 1, id_operation: +id_operat, id_account: +id_acc, date: new Date().getTime().toString(), sum: count, type: typeEvent, page: pageEvent}
+                            historyAcc.accHistory.push(newDar)
+                        }
+                    }
+                } else {
+                    let newDar = {id: 1, id_operation: +id_operat, id_account: +id_acc, date: new Date().getTime().toString(), sum: count, type: typeEvent, page: pageEvent}
+                    historyAcc.accHistory = [newDar]
+                }
+                await setData({fileName: 'AccountHistory', data: historyAcc})
+            }
+            console.log(await getData({ fileName: 'AccountHistory' }));
             status = 'ok';
             break;
         }
@@ -108,5 +144,15 @@ export async function removeAccount(id_account: string | number) {
         await setData({ fileName: 'PiggyBank', data: pig });
     } catch {
         await setData({ fileName: 'PiggyBank', data: emptyPiggyBank() });
+    }
+
+    try {
+        const accHist: accountHistory = await getData({ fileName: 'AccountHistory' });
+        accHist.accHistory = accHist.accHistory.filter((item) => {
+            return item.id_account != id_account;
+        });
+        await setData({ fileName: 'AccountHistory', data: accHist });
+    } catch {
+        await setData({ fileName: 'AccountHistory', data: emptyAccHistory() });
     }
 }

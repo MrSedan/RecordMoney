@@ -11,6 +11,7 @@ const BoxView = styled.View`
 `;
 
 const TextName = styled.Text`
+    font-family: 'MainFont-Regular';
     text-align: center;
     width: 33%;
     margin-right: 1%;

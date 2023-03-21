@@ -12,12 +12,13 @@ const BoxView = styled.View`
 `;
 
 const TextName = styled.Text`
+    font-family: 'MainFont-Regular';
     text-align: center;
     width: 33%;
     margin-right: 1%;
     padding-bottom: 2px;
     align-self: flex-end;
-    font-size: 15px;
+    font-size: 14px;
 `;
 
 const InputText = styled.TextInput`
