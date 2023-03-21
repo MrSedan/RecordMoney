@@ -1,8 +1,7 @@
-import { useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { useFonts } from 'expo-font';
-import * as SplashScreen from 'expo-splash-screen';
+import * as Font from 'expo-font';
 
 import Debt from './views/debts/Debt';
 import Home from './views/home/Home';
@@ -25,23 +24,29 @@ import PiggyBankFocusedSvg from './assets/icon/PiggyBankFocused.svg'
 const Tab = createBottomTabNavigator();
 
 export default function App() {
+  const [loaded, setLoaded] = useState(false)
 
-  const [fonstsLoaded] = useFonts({
-    'Montserrat': require('./assets/font/Montserrat-VariableFont_wght.ttf')
-  })
+  const loadFonts =async () => {
+    await Font.loadAsync({
+      "MainFont-Regular": require("./assets/font/Montserrat-Regular.ttf"),
+      "MainFont-Bold": require("./assets/font/Montserrat-Bold.ttf")
+    });
+  };
 
-  const onLayoutRootView = useCallback(async () => {
-    if (fonstsLoaded) {
-      await SplashScreen.hideAsync();
+  useEffect(() => {
+    async function loadApp() {
+      await loadFonts();
+      setLoaded(true)
     }
-  }, [fonstsLoaded]);
+    loadApp();
+  }, [])
 
-  if (!fonstsLoaded) {
-    return null;
+  if (!loaded) {
+    return null
   }
 
   return (
-    <View style={{flex: 1}} onLayout={onLayoutRootView}>
+    <View style={{flex: 1}}>
       <NavigationContainer>
         <Tab.Navigator 
           screenOptions={({route}) => ({
