@@ -1,25 +1,43 @@
-import { View, Text } from 'react-native';
+import { useState } from 'react';
+import { View, Text, Dimensions } from 'react-native';
 import Modal from 'react-native-modal';
 import styled from 'styled-components/native';
 import BurgerSvg from '../../assets/icon/Burger.svg';
-import Header from './Header';
+import PlusSvg from '../../assets/icon/plus.svg';
+import Account from '../accounts/Account';
 
+const deviceWidth = Dimensions.get('window').width;
+const deviceHeight = Dimensions.get('window').height;
 const ViewHeader = styled.View`
-    // margin: 40px 35px 0;
+    margin: 4px 35px 0;
     max-width: 100%;
     height: 50px;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    border: 1px solid green;
+`;
+const TextHeader = styled.Text`
+    font-family: 'Montserrat';
+    font-size: 20px;
+    font-weight: 700;
+`;
+const ButtonHeader = styled.TouchableOpacity`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 35px;
+    width: 35px;
+    background-color: #fdfdfd;
+    border-radius: 100px;
+    border: 1px solid #aba5a5;
 `;
 
-// TODO: Make it normal margin
 export default function MenuModal(props: {
     isVisible?: boolean;
     setVisible: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
+    const [accountVisible, setAccountVisible] = useState(false);
     return (
         <View>
             <Modal
@@ -27,13 +45,11 @@ export default function MenuModal(props: {
                 backdropColor='#fff'
                 backdropOpacity={1}
                 backdropTransitionInTiming={0}
-                backdropTransitionOutTiming={1000}
+                backdropTransitionOutTiming={0}
                 animationInTiming={500}
                 animationOutTiming={500}
                 animationIn='fadeInLeftBig'
                 style={{
-                    borderColor: '#000',
-                    borderWidth: 1,
                     flex: 1,
                     margin: 0,
                     flexDirection: 'column',
@@ -42,15 +58,25 @@ export default function MenuModal(props: {
                 animationOut='fadeOutLeftBig'
             >
                 <ViewHeader>
-                    <BurgerSvg
+                    <PlusSvg
                         width={25}
                         height={25}
+                        rotation={45}
                         onPress={() => {
                             props.setVisible(false);
                         }}
                     />
-                    <Text>Hello</Text>
+                    <TextHeader>Accounts</TextHeader>
+                    <ButtonHeader
+                        onPress={() => {
+                            setAccountVisible(true);
+                        }}
+                        style={{ shadowColor: '#625E5E', elevation: 10 }}
+                    >
+                        <PlusSvg width={15} height={15} />
+                    </ButtonHeader>
                 </ViewHeader>
+                <Account visible={accountVisible} setVisible={setAccountVisible} />
             </Modal>
         </View>
     );
