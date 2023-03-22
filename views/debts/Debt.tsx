@@ -242,7 +242,7 @@ export default function Debt() {
                 onPress: async () => {
                     const item = state.debts[index];
                     if (item.type == '2') item.sum = -item.sum;
-                    const res = await addMoney(item.sum, item.id_account);
+                    const res = await addMoney(item.sum, item.id, item.id_account, 'debt');
                     if (res == 'no-money') {
                         Alert.alert('Ошибка!', 'Недостаточно средств');
                         return;
