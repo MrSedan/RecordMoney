@@ -16,6 +16,7 @@
     "@types/styled-components-react-native": "^5.2.1",
     "d3-shape": "^3.2.0",
     "expo": "~47.0.12",
+    "expo-contacts": "~11.0.1",
     "expo-font": "~11.0.1",
     "expo-splash-screen": "~0.17.5",
     "expo-status-bar": "~1.4.2",
@@ -25,14 +26,14 @@
     "react-native-calendars": "^1.1293.0",
     "react-native-circular-chart": "^1.0.9",
     "react-native-dropdown-picker": "^5.4.6",
+    "react-native-modal": "^13.0.1",
     "react-native-modal-datetime-picker": "^14.0.1",
     "react-native-safe-area-context": "4.4.1",
     "react-native-screens": "~3.18.0",
     "react-native-svg": "13.4.0",
     "react-native-svg-transformer": "^1.0.0",
     "react-native-web": "~0.18.9",
-    "styled-components": "^5.3.6",
-    "expo-contacts": "~11.0.1"
+    "styled-components": "^5.3.6"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",
