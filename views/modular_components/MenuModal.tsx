@@ -6,8 +6,6 @@ import BurgerSvg from '../../assets/icon/Burger.svg';
 import PlusSvg from '../../assets/icon/plus.svg';
 import Account from '../accounts/Account';
 
-const deviceWidth = Dimensions.get('window').width;
-const deviceHeight = Dimensions.get('window').height;
 const ViewHeader = styled.View`
     margin: 4px 35px 0;
     max-width: 100%;
@@ -18,7 +16,7 @@ const ViewHeader = styled.View`
     align-items: center;
 `;
 const TextHeader = styled.Text`
-    font-family: 'Montserrat';
+    font-family: 'MainFont-Bold';
     font-size: 20px;
     font-weight: 700;
 `;
@@ -38,6 +36,7 @@ export default function MenuModal(props: {
     setVisible: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
     const [accountVisible, setAccountVisible] = useState(false);
+
     return (
         <View>
             <Modal

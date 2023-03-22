@@ -1,15 +1,14 @@
-import { Alert, Text, View } from 'react-native';
+import { Alert, Text, TouchableOpacity, View } from 'react-native';
 import styled from 'styled-components/native';
 
-import Header from '../modular_components/Header';
 import { useCallback, useState } from 'react';
 import { account, emptyAccount } from '../../models/interfaces';
 import { useFocusEffect } from '@react-navigation/native';
 import { addItem, editItem, getData, setData } from '../tools/iosys';
 import ModalWindowOneButton from '../modular_components/ModalWindowOneButton';
 import Input from '../modular_components/Input';
-import CardSwipe from '../modular_components/CardSwipe';
 import { removeAccount } from '../tools/account';
+import CardWithButtons from '../modular_components/CardWithButtons';
 
 const ActiveIndicator = styled.View`
     background-color: #6fe6c2;
@@ -39,7 +38,6 @@ export default function Account(props: {
     setVisible: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
     const [state, setState] = useState(emptyAccount());
-    // const [visible, setVisible] = useState(false);
     const [text, setText] = useState(['', '']);
     const [editing, setEditing] = useState({ editing: false, index: 0 });
 
@@ -99,11 +97,6 @@ export default function Account(props: {
             'При удалении счета будет удалена вся с ним связанная история! Удалить?',
             [
                 {
-                    text: 'Нет',
-                    onPress: () => {},
-                    style: 'cancel',
-                },
-                {
                     text: 'Да',
                     onPress: async () => {
                         let newDat: account = JSON.parse(JSON.stringify(state));
@@ -112,6 +105,11 @@ export default function Account(props: {
                         await removeAccount(id_acc);
                         setState(newDat);
                     },
+                },
+                {
+                    text: 'Нет',
+                    onPress: () => {},
+                    style: 'cancel',
                 },
             ],
         );
@@ -162,14 +160,10 @@ export default function Account(props: {
                     {state.accounts &&
                         state.accounts.map((item, index) => {
                             return (
-                                <CardSwipe
+                                <CardWithButtons
                                     key={index}
-                                    onEdit={() => {
-                                        openEditModal(index);
-                                    }}
-                                    onDelete={() => {
-                                        del(index);
-                                    }}
+                                    editModal={() => openEditModal(index)}
+                                    del={() => del(index)}
                                 >
                                     <View
                                         style={{
@@ -195,7 +189,7 @@ export default function Account(props: {
                                         </View>
                                         <Text>{`${item.sum}`} руб.</Text>
                                     </View>
-                                </CardSwipe>
+                                </CardWithButtons>
                             );
                         })}
                 </Container>
