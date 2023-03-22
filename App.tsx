@@ -69,7 +69,6 @@ export default function App() {
           <Tab.Screen name='Calendar' component={Calendar} />
           <Tab.Screen name='Debt' component={Debt} />
           <Tab.Screen name='PiggyBank' component={PiggyBank} />
-          <Tab.Screen name='Account' component={Account} />
           <Tab.Screen name='Advices' component={Advice} />
         </Tab.Navigator>
       </NavigationContainer>
