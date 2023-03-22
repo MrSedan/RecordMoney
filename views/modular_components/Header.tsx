@@ -8,7 +8,6 @@ import MenuModal from './MenuModal';
 
 const ViewHeader = styled.View`
     margin: 40px 35px 0;
-    border: 1px solid black;
     max-width: 100%;
     height: 50px;
     display: flex;
