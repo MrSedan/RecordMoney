@@ -34,9 +34,12 @@ const Container = styled.View`
     justify-content: flex-start;
 `;
 
-export default function Account() {
+export default function Account(props: {
+    visible: boolean;
+    setVisible: React.Dispatch<React.SetStateAction<boolean>>;
+}) {
     const [state, setState] = useState(emptyAccount());
-    const [visible, setVisible] = useState(false);
+    // const [visible, setVisible] = useState(false);
     const [text, setText] = useState(['', '']);
     const [editing, setEditing] = useState({ editing: false, index: 0 });
 
@@ -86,7 +89,7 @@ export default function Account() {
             ]);
         } else {
             onClick();
-            setVisible(false);
+            props.setVisible(false);
         }
     };
 
@@ -116,14 +119,14 @@ export default function Account() {
 
     const openEditModal = (index: number) => {
         setText([state.accounts[index].name, state.accounts[index].sum.toString()]);
-        setVisible(true);
+        props.setVisible(true);
         setEditing({ editing: true, index: index });
     };
     return (
         <View style={{ backgroundColor: '#FFF', height: '100%' }}>
             <ModalWindowOneButton
-                visible={visible}
-                setVisible={setVisible}
+                visible={props.visible}
+                setVisible={props.setVisible}
                 windowName={
                     editing.editing
                         ? `Редактирование счёта "${state.accounts[editing.index].name}"`
@@ -154,14 +157,6 @@ export default function Account() {
                     colorActiveInput='#3EA2FF'
                 />
             </ModalWindowOneButton>
-            <Header
-                name='Accounts'
-                style='1'
-                functionLeft={() => {}}
-                functionRight={() => {
-                    setVisible(true);
-                }}
-            />
             <Scroll>
                 <Container>
                     {state.accounts &&
@@ -208,3 +203,5 @@ export default function Account() {
         </View>
     );
 }
+
+Account.defaultProps = { visible: false };
