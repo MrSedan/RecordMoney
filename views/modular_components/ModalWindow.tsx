@@ -8,12 +8,13 @@ const HeaderView = styled.View`
     flex-direction: row;
     justify-content: flex-start;
     align-items: center;
-    margin: 0 0 0 25px;
+    margin: 20px 0 0 25px;
     max-width: 100%;
 `;
 
 const HeaderText = styled.Text`
-    font-size: 20px;
+    font-family: 'MainFont-Regular';
+    font-size: 18px;
     margin-left: 17px;
 `;
 
@@ -37,6 +38,7 @@ const ButtonType = styled.TouchableOpacity`
 `;
 
 const ButtonTypeText = styled.Text`
+    font-family: 'MainFont-Regular';
     font-size: 15px;
 `;
 

@@ -47,6 +47,24 @@ export function emptyAccount(): account {
     return newData
 }
 
+export interface accountHistory {
+    accHistory: 
+        {
+            id: number,
+            id_operation: number,
+            id_account: number,
+            date: string,
+            sum: number,
+            type: string,
+            page: "home"| "calendar" | "debt" | "piggyBank",
+        }[]
+}
+
+export function emptyAccHistory(): accountHistory {
+    let newData: accountHistory = {accHistory: []};
+    return newData
+}
+
 
 
 export interface piggyBank {
@@ -100,7 +118,8 @@ export interface calendar {
         name: string,
         type: string,
         sum: number,
-        comment: string
+        comment: string,
+        close: boolean
         }[]
 }
 

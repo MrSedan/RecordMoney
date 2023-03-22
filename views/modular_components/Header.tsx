@@ -17,9 +17,8 @@ const ViewHeader = styled.View`
 `;
 
 const TextHeader = styled.Text`
-    font-family: 'Montserrat';
-    font-size: 20px;
-    font-weight: 700;
+  font-family: 'MainFont-Bold';
+  font-size: 20px;
 `;
 
 const ButtonHeader = styled.TouchableOpacity`
