@@ -255,6 +255,7 @@ export default function Debt() {
                     newDebt.debts.splice(index, 1);
                     setState(newDebt);
                     Alert.alert('Долг был успешно закрыт!');
+                    await getItems(await getAccounts());
                 },
             },
             {
