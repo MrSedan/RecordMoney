@@ -16,6 +16,15 @@ const Scroll = styled.ScrollView`
     heigth: 100%;
 `;
 
+const TextName = styled.Text`
+    font-family: 'MainFont-Regular';
+    text-align: center;
+    width: 33%;
+    margin-right: 1%;
+    padding-bottom: 2px;
+    font-size: 15px;
+`;
+
 const ButtonType = styled.TouchableOpacity`
     display: flex;
     justify-content: center;
@@ -27,8 +36,8 @@ const ButtonType = styled.TouchableOpacity`
 `;
 
 const ButtonTypeText = styled.Text`
-    font-size: 19px;
-    font-family: 'MainFont-Bold';
+    font-size: 15px;
+    font-family: 'MainFont-Regular';
 `;
 
 const ButtonTypeView = styled.View`
@@ -91,11 +100,11 @@ const FullBar = styled.View`
 
 const PickerBlock = styled.View`
     display: flex;
-    width: 100%;
-    justify-content: space-between;
-    padding: 0 20px;
     flex-direction: row;
-    margin-bottom: 20px;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0 15px 15px;
+    max-width: 100%;
 `;
 
 const Content = styled.View`
@@ -159,19 +168,20 @@ export default function PiggyBank() {
         if (res === 'no-money') Alert.alert('Ошибка', 'Недостаточно средств');
     };
 
+    const search = async () => {
+        let data: piggyBank = await getData({ fileName: 'PiggyBank' });
+
+        if (data === null) {
+            await setData({ fileName: 'PiggyBank', data: emptyPiggyBank() });
+            data = emptyPiggyBank();
+        }
+        setState(data);
+        setCounter(data.piggyBanks.length);
+        await getItems(await getAccounts());
+    };
+
     useFocusEffect(
         useCallback(() => {
-            const search = async () => {
-                let data: piggyBank = await getData({ fileName: 'PiggyBank' });
-
-                if (data === null) {
-                    await setData({ fileName: 'PiggyBank', data: emptyPiggyBank() });
-                    data = emptyPiggyBank();
-                }
-                setState(data);
-                setCounter(data.piggyBanks.length);
-                await getItems(await getAccounts());
-            };
             search();
         }, []),
     );
@@ -372,18 +382,7 @@ export default function PiggyBank() {
                     colorActiveInput={activeModalButton ? '#3EA2FF' : '#FF6E6E'}
                 />
                 <PickerBlock>
-                    <Text
-                        style={{
-                            fontSize: 15,
-                            textAlign: 'center',
-                            width: 'auto',
-                            marginLeft: 55,
-                            textAlignVertical: 'center',
-                            fontFamily: 'MainFont-Regular',
-                        }}
-                    >
-                        Счёт
-                    </Text>
+                    <TextName>Счёт</TextName>
                     <DropDownPicker
                         open={openPicker}
                         value={pickerValue}
@@ -407,6 +406,9 @@ export default function PiggyBank() {
                 functionRight={() => {
                     setVisible(true);
                     setActiveModalButton(true);
+                }}
+                onModalHide={async () => {
+                    search();
                 }}
             />
             <Scroll>

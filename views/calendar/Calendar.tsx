@@ -16,11 +16,11 @@ import InputDate from './additionally/InputDate';
 import ModalWindow from '../modular_components/ModalWindow';
 import DateTimePicker from 'react-native-modal-datetime-picker';
 
-import PlusSvg from "../../assets/icon/plus.svg";
-import PlusBlackSvg from "../../assets/icon/PlusBlack.svg";
-import PlusWhiteSvg from "../../assets/icon/PlusWhite.svg";
-import MinusBlackSvg from "../../assets/icon/MinusBlack.svg"
-import MinusWhiteSvg from "../../assets/icon/MinusWhite.svg";
+import PlusSvg from '../../assets/icon/plus.svg';
+import PlusBlackSvg from '../../assets/icon/PlusBlack.svg';
+import PlusWhiteSvg from '../../assets/icon/PlusWhite.svg';
+import MinusBlackSvg from '../../assets/icon/MinusBlack.svg';
+import MinusWhiteSvg from '../../assets/icon/MinusWhite.svg';
 
 interface DataType {
     cards: {
@@ -206,20 +206,21 @@ export default function Calendar() {
         setItems(data);
     }
 
+    const search = async () => {
+        let data: calendar = await getData({ fileName: path });
+        console.log(data);
+
+        if (data === null) {
+            data = emptyCalendar();
+            await setData({ fileName: path, data: data });
+        }
+        await getItems(await getAccounts());
+        setState(JSON.parse(JSON.stringify(data)));
+        setCounter(JSON.parse(JSON.stringify(reformat(data))));
+    };
+
     useFocusEffect(
         useCallback(() => {
-            const search = async () => {
-                let data: calendar = await getData({ fileName: path });
-                console.log(data);
-                
-                if (data === null) {
-                    data = emptyCalendar();
-                    await setData({ fileName: path, data: data });
-                }
-                await getItems(await getAccounts());
-                setState(JSON.parse(JSON.stringify(data)));
-                setCounter(JSON.parse(JSON.stringify(reformat(data))));
-            };
             search();
         }, []),
     );
@@ -234,7 +235,7 @@ export default function Calendar() {
             sum: +text[2],
             type: activeModalButton ? '1' : '2',
             comment: text[3],
-            close: false
+            close: false,
         };
 
         if (editing.edit) {
@@ -298,19 +299,26 @@ export default function Calendar() {
         setCounter(JSON.parse(JSON.stringify(reformat(data))));
     };
 
-    const addMoneyAccount = async (id: number, value: number, type: string, id_acc: number, date: string, closed: boolean) => {
+    const addMoneyAccount = async (
+        id: number,
+        value: number,
+        type: string,
+        id_acc: number,
+        date: string,
+        closed: boolean,
+    ) => {
         let res = '';
         type === '1'
-            ? (res = await addMoney(value, id, id_acc, "calendar"))
-            : (res = await addMoney(value * -1, id, id_acc, "calendar"));
+            ? (res = await addMoney(value, id, id_acc, 'calendar'))
+            : (res = await addMoney(value * -1, id, id_acc, 'calendar'));
 
         if (res === 'not-found') Alert.alert('Ошибка!', 'Счет не найден');
         if (res === 'no-money') Alert.alert('Ошибка', 'Недостаточно средств');
         if (res === 'ok') {
             let data: calendar = JSON.parse(JSON.stringify(state));
-            data.cards[idCard].close = true
-            await editItem('cards', path, idCard, data.cards[idCard])
-            setState(data)
+            data.cards[idCard].close = true;
+            await editItem('cards', path, idCard, data.cards[idCard]);
+            setState(data);
         }
         setIdCard(-1);
         setWinInfo(false);
@@ -376,7 +384,7 @@ export default function Calendar() {
                 functionCloseButton={() => {
                     setText(['', '', '', '']);
                     setSelectedDate('');
-                    setPickerValue('');                    
+                    setPickerValue('');
                     setEditing({ edit: false, index: 0 });
                 }}
                 functionCancelButton={() => {
@@ -524,7 +532,7 @@ export default function Calendar() {
                                 Завершено:
                             </AlertMessage>
                             <AlertMessage>
-                                {idCard !== -1 ? (state.cards[idCard].close) ? 'Да' : 'Нет' : ''}
+                                {idCard !== -1 ? (state.cards[idCard].close ? 'Да' : 'Нет') : ''}
                             </AlertMessage>
                         </AlertInView>
                         <AlertButton
@@ -535,7 +543,7 @@ export default function Calendar() {
                         >
                             Ok
                         </AlertButton>
-                        {(idCard !== -1 && state.cards[idCard].close === false) ?
+                        {idCard !== -1 && state.cards[idCard].close === false ? (
                             <AlertButton
                                 onPress={() => {
                                     addMoneyAccount(
@@ -544,15 +552,15 @@ export default function Calendar() {
                                         state.cards[idCard].type,
                                         state.cards[idCard].id_account,
                                         state.cards[idCard].date,
-                                        state.cards[idCard].close
+                                        state.cards[idCard].close,
                                     );
                                 }}
                             >
                                 Провести операцию
                             </AlertButton>
-                        :
-                        <View></View>}
-
+                        ) : (
+                            <View></View>
+                        )}
                     </ModalInfo>
                 </View>
             </Modal>
@@ -561,10 +569,13 @@ export default function Calendar() {
                 style='1'
                 functionLeft={() => {}}
                 functionRight={() => {
-                    setText(['','','',''])
-                    setSelectedDate('')
+                    setText(['', '', '', '']);
+                    setSelectedDate('');
                     setVisible(true);
                     setActiveModalButton(true);
+                }}
+                onModalHide={async () => {
+                    search();
                 }}
             />
             <View>
@@ -650,23 +661,42 @@ export default function Calendar() {
                                             deleteCard(index);
                                         }}
                                         onEdit={() => {
-                                            editModal(index)
+                                            editModal(index);
                                         }}
                                         onDoubleClick={() => {
                                             setIdCard(index);
                                             setWinInfo(true);
                                         }}
                                     >
-                                        <CardView
-                                            
-                                        >
-                                            <CardTypeCircle style={
-                                                type
-                                                    ? { backgroundColor: '#3EA2FF' }
-                                                    : { backgroundColor: '#FF6E6E' }
-                                            }>{(type) ? <PlusWhiteSvg /> : <MinusWhiteSvg />}</CardTypeCircle>
+                                        <CardView>
+                                            <CardTypeCircle
+                                                style={
+                                                    type
+                                                        ? { backgroundColor: '#3EA2FF' }
+                                                        : { backgroundColor: '#FF6E6E' }
+                                                }
+                                            >
+                                                {type ? <PlusWhiteSvg /> : <MinusWhiteSvg />}
+                                            </CardTypeCircle>
                                             <MainCardView>
-                                                <CardText style={!item.close ? {textDecorationLine: 'none', fontFamily: "MainFont-Bold", fontSize: 14} : {textDecorationLine: 'line-through', fontFamily: "MainFont-Bold", fontSize: 14}}>{item.name}</CardText>
+                                                <CardText
+                                                    style={
+                                                        !item.close
+                                                            ? {
+                                                                  textDecorationLine: 'none',
+                                                                  fontFamily: 'MainFont-Bold',
+                                                                  fontSize: 14,
+                                                              }
+                                                            : {
+                                                                  textDecorationLine:
+                                                                      'line-through',
+                                                                  fontFamily: 'MainFont-Bold',
+                                                                  fontSize: 14,
+                                                              }
+                                                    }
+                                                >
+                                                    {item.name}
+                                                </CardText>
                                                 <CardText>{PeopleDate(item.date)}</CardText>
                                                 <CardText>{item.sum} руб</CardText>
                                             </MainCardView>

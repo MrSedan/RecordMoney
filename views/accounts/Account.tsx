@@ -36,6 +36,7 @@ const Container = styled.View`
 export default function Account(props: {
     visible: boolean;
     setVisible: React.Dispatch<React.SetStateAction<boolean>>;
+    onModalHide?: Function;
 }) {
     const [state, setState] = useState(emptyAccount());
     const [text, setText] = useState(['', '']);
@@ -75,6 +76,7 @@ export default function Account(props: {
         setState(newDat);
         setText(['', '']);
         setEditing({ editing: false, index: 0 });
+        props.onModalHide && props.onModalHide();
     };
 
     const tryToSave = () => {
@@ -104,6 +106,7 @@ export default function Account(props: {
                         newDat.accounts.splice(index, 1);
                         await removeAccount(id_acc);
                         setState(newDat);
+                        props.onModalHide && props.onModalHide();
                     },
                 },
                 {
@@ -162,8 +165,12 @@ export default function Account(props: {
                             return (
                                 <CardWithButtons
                                     key={index}
-                                    editModal={() => openEditModal(index)}
-                                    del={() => del(index)}
+                                    editModal={() => {
+                                        openEditModal(index);
+                                    }}
+                                    del={() => {
+                                        del(index);
+                                    }}
                                 >
                                     <View
                                         style={{
