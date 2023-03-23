@@ -116,13 +116,15 @@ const ModalWindow = memo((props:
     colorActiveLeft: string, 
     colorActiveRight: string,
     functionSaveButton: Function,
-    functionCancelButton: Function}) => {
+    functionCancelButton: Function,
+    functionCloseButton?: Function
+}) => {
     return (
-        <Modal animationType="slide" transparent={false} visible={props.visible} onRequestClose={() => props.setVisible(false)}>
+        <Modal animationType="slide" transparent={false} visible={props.visible} onRequestClose={() => {props.functionCloseButton && props.functionCloseButton(); props.setVisible(false)}}>
             <TouchableWithoutFeedback onPress={() => {Keyboard.dismiss()}}>
                 <View>
                     <HeaderView>
-                        <BackArrowSvg width={25} height={25} onPress={() => {props.setVisible(false)}}/>
+                        <BackArrowSvg width={25} height={25} onPress={() => {props.functionCloseButton && props.functionCloseButton(); props.setVisible(false)}}/>
                         <HeaderText>{(props.activeModalButton) ? `${props.buttonTextLeft}` : props.buttonTextRight}</HeaderText>
                     </HeaderView>
                     <ButtonTypeView>

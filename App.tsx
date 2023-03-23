@@ -27,12 +27,13 @@ const Tab = createBottomTabNavigator();
 export default function App() {
     const [loaded, setLoaded] = useState(false);
 
-    const loadFonts = async () => {
-        await Font.loadAsync({
-            'MainFont-Regular': require('./assets/font/Montserrat-Regular.ttf'),
-            'MainFont-Bold': require('./assets/font/Montserrat-Bold.ttf'),
-        });
-    };
+  const loadFonts =async () => {
+    await Font.loadAsync({
+      "MainFont-Regular": require("./assets/font/Montserrat-Regular.ttf"),
+      "MainFont-Bold": require("./assets/font/Montserrat-Bold.ttf"),
+      "MainFont-Light": require("./assets/font/Montserrat-Light.ttf")
+    });
+  };
 
     useEffect(() => {
         async function loadApp() {
