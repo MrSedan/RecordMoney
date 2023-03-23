@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { View, Text, Dimensions } from 'react-native';
 import Modal from 'react-native-modal';
 import styled from 'styled-components/native';
-import BurgerSvg from '../../assets/icon/Burger.svg';
 import PlusSvg from '../../assets/icon/plus.svg';
 import Account from '../accounts/Account';
 
@@ -34,6 +33,7 @@ const ButtonHeader = styled.TouchableOpacity`
 export default function MenuModal(props: {
     isVisible?: boolean;
     setVisible: React.Dispatch<React.SetStateAction<boolean>>;
+    onModalHide?: Function;
 }) {
     const [accountVisible, setAccountVisible] = useState(false);
 
@@ -75,7 +75,11 @@ export default function MenuModal(props: {
                         <PlusSvg width={15} height={15} />
                     </ButtonHeader>
                 </ViewHeader>
-                <Account visible={accountVisible} setVisible={setAccountVisible} />
+                <Account
+                    visible={accountVisible}
+                    setVisible={setAccountVisible}
+                    onModalHide={props.onModalHide}
+                />
             </Modal>
         </View>
     );

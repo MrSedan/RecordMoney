@@ -17,8 +17,8 @@ const ViewHeader = styled.View`
 `;
 
 const TextHeader = styled.Text`
-  font-family: 'MainFont-Bold';
-  font-size: 20px;
+    font-family: 'MainFont-Bold';
+    font-size: 20px;
 `;
 
 const ButtonHeader = styled.TouchableOpacity`
@@ -45,11 +45,16 @@ export default function Header(props: {
     style: string;
     functionLeft: Function;
     functionRight: Function;
+    onModalHide?: Function;
 }) {
     const [menuVisivle, setMenuVisivle] = useState(false);
     return (
         <View>
-            <MenuModal isVisible={menuVisivle} setVisible={setMenuVisivle} />
+            <MenuModal
+                isVisible={menuVisivle}
+                setVisible={setMenuVisivle}
+                onModalHide={props.onModalHide}
+            />
             <ViewHeader>
                 <BurgerSvg
                     width={25}
