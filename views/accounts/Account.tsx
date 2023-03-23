@@ -1,15 +1,14 @@
-import { Alert, Text, View } from 'react-native';
+import { Alert, Text, TouchableOpacity, View } from 'react-native';
 import styled from 'styled-components/native';
 
-import Header from '../modular_components/Header';
 import { useCallback, useState } from 'react';
 import { account, emptyAccount } from '../../models/interfaces';
 import { useFocusEffect } from '@react-navigation/native';
 import { addItem, editItem, getData, setData } from '../tools/iosys';
 import ModalWindowOneButton from '../modular_components/ModalWindowOneButton';
 import Input from '../modular_components/Input';
-import CardSwipe from '../modular_components/CardSwipe';
 import { removeAccount } from '../tools/account';
+import CardWithButtons from '../modular_components/CardWithButtons';
 
 const ActiveIndicator = styled.View`
     background-color: #6fe6c2;
@@ -34,9 +33,11 @@ const Container = styled.View`
     justify-content: flex-start;
 `;
 
-export default function Account() {
+export default function Account(props: {
+    visible: boolean;
+    setVisible: React.Dispatch<React.SetStateAction<boolean>>;
+}) {
     const [state, setState] = useState(emptyAccount());
-    const [visible, setVisible] = useState(false);
     const [text, setText] = useState(['', '']);
     const [editing, setEditing] = useState({ editing: false, index: 0 });
 
@@ -86,7 +87,7 @@ export default function Account() {
             ]);
         } else {
             onClick();
-            setVisible(false);
+            props.setVisible(false);
         }
     };
 
@@ -95,11 +96,6 @@ export default function Account() {
             'Внимание!',
             'При удалении счета будет удалена вся с ним связанная история! Удалить?',
             [
-                {
-                    text: 'Нет',
-                    onPress: () => {},
-                    style: 'cancel',
-                },
                 {
                     text: 'Да',
                     onPress: async () => {
@@ -110,20 +106,25 @@ export default function Account() {
                         setState(newDat);
                     },
                 },
+                {
+                    text: 'Нет',
+                    onPress: () => {},
+                    style: 'cancel',
+                },
             ],
         );
     };
 
     const openEditModal = (index: number) => {
         setText([state.accounts[index].name, state.accounts[index].sum.toString()]);
-        setVisible(true);
+        props.setVisible(true);
         setEditing({ editing: true, index: index });
     };
     return (
         <View style={{ backgroundColor: '#FFF', height: '100%' }}>
             <ModalWindowOneButton
-                visible={visible}
-                setVisible={setVisible}
+                visible={props.visible}
+                setVisible={props.setVisible}
                 windowName={
                     editing.editing
                         ? `Редактирование счёта "${state.accounts[editing.index].name}"`
@@ -154,27 +155,15 @@ export default function Account() {
                     colorActiveInput='#3EA2FF'
                 />
             </ModalWindowOneButton>
-            <Header
-                name='Accounts'
-                style='1'
-                functionLeft={() => {}}
-                functionRight={() => {
-                    setVisible(true);
-                }}
-            />
             <Scroll>
                 <Container>
                     {state.accounts &&
                         state.accounts.map((item, index) => {
                             return (
-                                <CardSwipe
+                                <CardWithButtons
                                     key={index}
-                                    onEdit={() => {
-                                        openEditModal(index);
-                                    }}
-                                    onDelete={() => {
-                                        del(index);
-                                    }}
+                                    editModal={() => openEditModal(index)}
+                                    del={() => del(index)}
                                 >
                                     <View
                                         style={{
@@ -200,7 +189,7 @@ export default function Account() {
                                         </View>
                                         <Text>{`${item.sum}`} руб.</Text>
                                     </View>
-                                </CardSwipe>
+                                </CardWithButtons>
                             );
                         })}
                 </Container>
@@ -208,3 +197,5 @@ export default function Account() {
         </View>
     );
 }
+
+Account.defaultProps = { visible: false };
