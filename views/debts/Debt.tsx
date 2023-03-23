@@ -15,6 +15,15 @@ import InputContact from '../modular_components/InputContact';
 import * as Contacts from 'expo-contacts';
 import CardSwipe from '../modular_components/CardSwipe';
 
+const TextName = styled.Text`
+    font-family: 'MainFont-Regular';
+    text-align: center;
+    width: 33%;
+    margin-right: 1%;
+    padding-bottom: 2px;
+    font-size: 15px;
+`;
+
 const Scroll = styled.ScrollView`
     margin: 0;
     height: 100%;
@@ -51,11 +60,11 @@ const DebtFromMe = styled.TouchableOpacity`
 
 const PickerBlock = styled.View`
     display: flex;
-    width: 100%;
-    justify-content: space-between;
-    padding: 0 20px;
     flex-direction: row;
-    margin-bottom: 20px;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0 15px 15px;
+    max-width: 100%;
 `;
 
 const monthNames = [
@@ -98,29 +107,30 @@ export default function Debt() {
         }
     }
 
+    const onStart = async () => {
+        setItems([]);
+        setState(emptyDebt());
+        let data: debt = await getData({ fileName: 'Debt' });
+        if (data === null) {
+            data = emptyDebt();
+            await setData({ fileName: 'Debt', data: data });
+        }
+        setAccs(await getAccounts());
+        await getItems(await getAccounts());
+        data.debts.map((item) => {
+            if (item.date != '') {
+                const [year, month, day] = item.date.split('-').map(Number);
+                const date = new Date(year, month - 1, day);
+                item.date = `${date.getDate()}  ${
+                    monthNames[date.getMonth()]
+                }  ${date.getFullYear()}`;
+            }
+        });
+        setState(data);
+    };
+
     useFocusEffect(
         useCallback(() => {
-            const onStart = async () => {
-                setItems([]);
-                setState(emptyDebt());
-                let data: debt = await getData({ fileName: 'Debt' });
-                if (data === null) {
-                    data = emptyDebt();
-                    await setData({ fileName: 'Debt', data: data });
-                }
-                setAccs(await getAccounts());
-                await getItems(await getAccounts());
-                data.debts.map((item) => {
-                    if (item.date != '') {
-                        const [year, month, day] = item.date.split('-').map(Number);
-                        const date = new Date(year, month - 1, day);
-                        item.date = `${date.getDate()}  ${
-                            monthNames[date.getMonth()]
-                        }  ${date.getFullYear()}`;
-                    }
-                });
-                setState(data);
-            };
             onStart();
         }, []),
     );
@@ -236,33 +246,38 @@ export default function Debt() {
     };
 
     const submit = async (index: number) => {
-        Alert.alert('Внимание', 'Вы уверены, что хотите закрыть долг?', [
-            {
-                text: 'Да',
-                onPress: async () => {
-                    const item = state.debts[index];
-                    if (item.type == '2') item.sum = -item.sum;
-                    const res = await addMoney(item.sum, item.id, item.id_account, 'debt');
-                    if (res == 'no-money') {
-                        Alert.alert('Ошибка!', 'Недостаточно средств');
-                        return;
-                    } else if (res == 'not-found') {
-                        Alert.alert('Ошибка!', 'Счет не был найден!');
-                        return;
-                    }
-                    await delItem('debts', 'Debt', index);
-                    const newDebt: debt = JSON.parse(JSON.stringify(state));
-                    newDebt.debts.splice(index, 1);
-                    setState(newDebt);
-                    Alert.alert('Долг был успешно закрыт!');
-                    await getItems(await getAccounts());
+        const item = state.debts[index];
+        Alert.alert(
+            'Внимание',
+            'Вы уверены, что хотите закрыть долг?' +
+                `Деньги поступят на счет "${getAcc(item.id_account)}"`,
+            [
+                {
+                    text: 'Да',
+                    onPress: async () => {
+                        if (item.type == '2') item.sum = -item.sum;
+                        const res = await addMoney(item.sum, item.id, item.id_account, 'debt');
+                        if (res == 'no-money') {
+                            Alert.alert('Ошибка!', 'Недостаточно средств');
+                            return;
+                        } else if (res == 'not-found') {
+                            Alert.alert('Ошибка!', 'Счет не был найден!');
+                            return;
+                        }
+                        await delItem('debts', 'Debt', index);
+                        const newDebt: debt = JSON.parse(JSON.stringify(state));
+                        newDebt.debts.splice(index, 1);
+                        setState(newDebt);
+                        Alert.alert('Долг был успешно закрыт!');
+                        await getItems(await getAccounts());
+                    },
                 },
-            },
-            {
-                text: 'Нет',
-                onPress: () => {},
-            },
-        ]);
+                {
+                    text: 'Нет',
+                    onPress: () => {},
+                },
+            ],
+        );
     };
 
     return (
@@ -334,17 +349,7 @@ export default function Debt() {
                     colorActiveInput='#3FDEAE'
                 />
                 <PickerBlock>
-                    <Text
-                        style={{
-                            fontSize: 15,
-                            textAlign: 'center',
-                            width: 'auto',
-                            marginLeft: 55,
-                            textAlignVertical: 'center',
-                        }}
-                    >
-                        Счёт
-                    </Text>
+                    <TextName>Счёт</TextName>
                     <DropDownPicker
                         open={openPicker}
                         value={pickerValue}
@@ -392,6 +397,9 @@ export default function Debt() {
                     setVisible(true);
                     setActiveModalButton(debtTome);
                 }}
+                onModalHide={async () => {
+                    onStart();
+                }}
             />
             <View
                 style={{
@@ -411,7 +419,8 @@ export default function Debt() {
                     <Text
                         style={{
                             color: debtTome ? '#3FDEAE' : '#C9C9C9',
-                            fontSize: 19,
+                            fontSize: 15,
+                            fontFamily: 'MainFont-Regular',
                         }}
                     >
                         Должны мне
@@ -426,7 +435,8 @@ export default function Debt() {
                     <Text
                         style={{
                             color: !debtTome ? '#3FDEAE' : '#C9C9C9',
-                            fontSize: 19,
+                            fontSize: 15,
+                            fontFamily: 'MainFont-Regular',
                         }}
                     >
                         Должен я
@@ -476,9 +486,7 @@ export default function Debt() {
                                                             flexDirection: 'row',
                                                         }}
                                                     >
-                                                        <Text>
-                                                            {item.name} {`${item.id}`}
-                                                        </Text>
+                                                        <Text>{item.name}</Text>
                                                         <Text>{item.date}</Text>
                                                         <Text>{getAcc(item.id_account)}</Text>
                                                         <Text>{`${item.sum}`} руб.</Text>

@@ -13,70 +13,76 @@ import {
     Alert,
     TouchableWithoutFeedback,
     Keyboard,
-    
-  } from 'react-native';
-  import DonutChart from './CustomDonutChart';
-  import Header from '../modular_components/Header';
-  import styled from 'styled-components/native';
-  import BackArrowSvg from '../../assets/icon/BackArrow.svg'
-  import PlusSvg from '../../assets/icon/plus.svg';
-  import Item from './Item';
-  import React, { useState, useCallback, useRef } from 'react';
-  import { useFocusEffect } from '@react-navigation/native';
-  import { account, category, emptyCategories, emptyHistory, history , accountHistory, emptyAccHistory} from '../../models/interfaces';
-  import Input from '../modular_components/Input';
-  import ModalWindow from '../modular_components/ModalWindow';
-  import ModalWindowHistory from './ModalWindowHistory';
-  import Circle from './smallCircle';
-  import InputDate from '../calendar/additionally/InputDate';
-  import DropDownPicker from 'react-native-dropdown-picker';
-  import DateTimePicker from 'react-native-modal-datetime-picker';
-  import { getCategory } from './category';
-  import ModalWindowOneButton from '../modular_components/ModalWindowOneButton';
-  import { addMoney, getAccounts } from '../tools/account';
-  import { getData, setData, addItem, delItem, editItem } from '../tools/iosys';
-  import CardWithButtons from '../modular_components/CardWithButtons';
-  
-  const ButtonView = styled.View`
+} from 'react-native';
+import DonutChart from './CustomDonutChart';
+import Header from '../modular_components/Header';
+import styled from 'styled-components/native';
+import BackArrowSvg from '../../assets/icon/BackArrow.svg';
+import PlusSvg from '../../assets/icon/plus.svg';
+import Item from './Item';
+import React, { useState, useCallback, useRef } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
+import {
+    account,
+    category,
+    emptyCategories,
+    emptyHistory,
+    history,
+    accountHistory,
+    emptyAccHistory,
+} from '../../models/interfaces';
+import Input from '../modular_components/Input';
+import ModalWindow from '../modular_components/ModalWindow';
+import ModalWindowHistory from './ModalWindowHistory';
+import Circle from './smallCircle';
+import InputDate from '../calendar/additionally/InputDate';
+import DropDownPicker from 'react-native-dropdown-picker';
+import DateTimePicker from 'react-native-modal-datetime-picker';
+import { getCategory } from './category';
+import ModalWindowOneButton from '../modular_components/ModalWindowOneButton';
+import { addMoney, getAccounts } from '../tools/account';
+import { getData, setData, addItem, delItem, editItem } from '../tools/iosys';
+import CardWithButtons from '../modular_components/CardWithButtons';
+
+const ButtonView = styled.View`
     display: flex;
     margin: 0px 20px 0px;
     flex-direction: row;
     max-width: 100%;
     justify-content: space-between;
-  `;
-  const Container = styled.View`
+`;
+const Container = styled.View`
     height: 100%;
     // display: flex;
     // flex-direction: column;
     // justify-content: flex-start;
-  `;
-  
-  const RashodME = styled.TouchableOpacity`
-  border-width: 1px;
-  border-style: solid;
-  height: 35px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-start: 0;
-  width: 48%;
-  border-radius: 5px;
-  `;
-  
-  
-  const DohodME = styled.TouchableOpacity`
-  border-width: 1px;
-  border-style: solid;
-  height: 35px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-start: 0;
-  width: 48%;
-  border-radius: 5px;
-  `;
-  
-  const ButtonHeader = styled.TouchableOpacity`
+`;
+
+const RashodME = styled.TouchableOpacity`
+    border-width: 1px;
+    border-style: solid;
+    height: 35px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-start: 0;
+    width: 48%;
+    border-radius: 5px;
+`;
+
+const DohodME = styled.TouchableOpacity`
+    border-width: 1px;
+    border-style: solid;
+    height: 35px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-start: 0;
+    width: 48%;
+    border-radius: 5px;
+`;
+
+const ButtonHeader = styled.TouchableOpacity`
     display: flex;
     justify-content: center;
     align-items: center;
@@ -85,49 +91,43 @@ import {
     background-color: #fdfdfd;
     border-radius: 100px;
     border: 1px solid #aba5a5;
-  `;
-  
-  
-  const HeaderViewModal = styled.View`
+`;
+
+const HeaderViewModal = styled.View`
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
     align-items: center;
     margin: 0 0 0 25px;
     max-width: 100%;
-  
-  `;
-  
-  
-  const ButtonColor = styled.Button``;
-  const Scroll = styled.ScrollView`
+`;
+
+const ButtonColor = styled.Button``;
+const Scroll = styled.ScrollView`
     // margin: 0;
     // height: 100%;
     // max-height: 100%;
-  
-  `;
-  
-  const PickerBlock = styled.View`
+`;
+
+const PickerBlock = styled.View`
     display: flex;
     width: 100%;
     justify-content: space-between;
     padding: 0 20px;
     flex-direction: row;
     margin-bottom: 20px;
-  `;
-  const HeaderText = styled.Text`
+`;
+const HeaderText = styled.Text`
     font-size: 20px;
     margin-left: 17px;
-  `;
-  
-  const CardView = styled.View`
-      display: flex;
-      flex: 1;
-  
-  `;
-  
-  
-  const styles = StyleSheet.create({
+`;
+
+const CardView = styled.View`
+    display: flex;
+    flex: 1;
+`;
+
+const styles = StyleSheet.create({
     image: {
         width: 20,
         height: 20,
@@ -165,17 +165,15 @@ import {
         borderRadius: 25,
         margin: 10,
     },
-  });
-  
-  
-  
-  ////////////////////////////////
-  
-  // render item  and category
-  
-  const renderItem = ({
+});
+
+////////////////////////////////
+
+// render item  and category
+
+const renderItem = ({
     item,
-  }: {
+}: {
     item: {
         id: number;
         name: string;
@@ -184,7 +182,7 @@ import {
         color: string;
         value: number;
     };
-  }) => (
+}) => (
     <Item
         category_id={item.id}
         category_name={item.name}
@@ -193,16 +191,16 @@ import {
         color={item.color}
         value={item.value}
     />
-  );
-  
-  ////////////////////////////////
-  
-  // summation of transactions by category
-  
-  function calculateValues(categories: category, history: history): category {
+);
+
+////////////////////////////////
+
+// summation of transactions by category
+
+function calculateValues(categories: category, history: history): category {
     if (!categories.categories) return emptyCategories();
     if (categories.categories.length == 0) return emptyCategories();
-  
+
     return {
         categories: [
             ...categories.categories.map((categ) => {
@@ -226,12 +224,12 @@ import {
             }),
         ],
     };
-  }
-  
-  ////////////////////////////////
-  
-  // basic function
-  export default function Home() {
+}
+
+////////////////////////////////
+
+// basic function
+export default function Home() {
     const [numColumns, setNumColumns] = useState(2);
     const [dataItems, setDataItems] = useState(emptyCategories());
     const [datahistory, setDatahistory] = useState(emptyHistory());
@@ -272,18 +270,17 @@ import {
         'ноября',
         'декабря',
     ];
-  
-    const deleteCardHistory = async (index : number) => {
+
+    const deleteCardHistory = async (index: number) => {
         let data: history = JSON.parse(JSON.stringify(datahistory));
-        let sumAccounts = 0
+        let sumAccounts = 0;
         console.log(data);
-        
+
         dataItems.categories.map((item) => {
             if (item.id === data.history[index].category) {
                 console.log(item.category_type);
                 console.log(data.history[index].id);
-                
- 
+
                 if (item.category_type === 'Расход') {
                     sumAccounts = data.history[index].sum * 1;
                     console.log('я тута ');
@@ -294,99 +291,114 @@ import {
             }
         });
 
-        data.history.splice(index,1);
+        data.history.splice(index, 1);
         await delItem('history', 'history', index);
         setDatahistory(data);
         setDataItems(calculateValues(dataItems, data));
         let sum = 0;
- 
+
         data.history.forEach((item) => {
-          const category = dataItems.categories.find(cat => cat.id === item.category);
-          if (category && category.category_type === 'Доход') {
-            sum += item.sum;
-          } else {
-            sum -= item.sum;
-          }
+            const category = dataItems.categories.find((cat) => cat.id === item.category);
+            if (category && category.category_type === 'Доход') {
+                sum += item.sum;
+            } else {
+                sum -= item.sum;
+            }
         });
         setTotalValue(sum);
-        
-        
-        await addMoney(sumAccounts, datahistory.history[editing.index].id, datahistory.history[editing.index].id_account,  "home", true, false)
-        
+
+        await addMoney(
+            sumAccounts,
+            datahistory.history[editing.index].id,
+            datahistory.history[editing.index].id_account,
+            'home',
+            true,
+            false,
+        );
     };
-  
+
     const editModalHistory = async (index: number) => {
         settexthistory([
             datahistory.history[index].sum.toString(),
             datahistory.history[index].comment,
             datahistory.history[index].date,
         ]);
-        let sumaa = datahistory.history[index].sum
+        let sumaa = datahistory.history[index].sum;
         dataItems.categories.map((item) => {
             if (item.id === datahistory.history[index].category) {
                 if (item.category_type === 'Расход') {
                     sumaa = sumaa * 1;
-  
                 } else {
                     sumaa = sumaa * -1;
                 }
-                
             }
         });
-        await addMoney(sumaa, datahistory.history[editing.index].id, datahistory.history[editing.index].id_account,  "home", false, true)
+        await addMoney(
+            sumaa,
+            datahistory.history[editing.index].id,
+            datahistory.history[editing.index].id_account,
+            'home',
+            false,
+            true,
+        );
         setPickerValue(`${datahistory.history[index].category}`);
-        setPickerValueAccounts(`${datahistory.history[index].id_account}`)
+        setPickerValueAccounts(`${datahistory.history[index].id_account}`);
         setVisibleAddHistory(debtTome);
         setVisibleAddHistory(true);
         setEditing({ editing: true, index: index });
     };
-  
-  
-    const deleteCardCategory = async (index : number) => {
+
+    const deleteCardCategory = async (index: number) => {
         let NewDat: category = JSON.parse(JSON.stringify(dataItems));
         let Newhistory: history = JSON.parse(JSON.stringify(datahistory));
-  
-  
+
         for (let indexs = 0; indexs < Newhistory.history.length; indexs++) {
             if (Newhistory.history[indexs].category === NewDat.categories[index].id) {
-  
-  
-                (NewDat.categories[index].category_type === 'Расход') ? await addMoney(Newhistory.history[indexs].sum, Newhistory.history[indexs].id, Newhistory.history[indexs].id_account, "home", true) : await addMoney(Newhistory.history[indexs].sum * -1, Newhistory.history[indexs].id, Newhistory.history[indexs].id_account, "home", true)
+                NewDat.categories[index].category_type === 'Расход'
+                    ? await addMoney(
+                          Newhistory.history[indexs].sum,
+                          Newhistory.history[indexs].id,
+                          Newhistory.history[indexs].id_account,
+                          'home',
+                          true,
+                      )
+                    : await addMoney(
+                          Newhistory.history[indexs].sum * -1,
+                          Newhistory.history[indexs].id,
+                          Newhistory.history[indexs].id_account,
+                          'home',
+                          true,
+                      );
             }
         }
-        Newhistory.history = Newhistory.history.filter(item => item.category !== NewDat.categories[index].id)
+        Newhistory.history = Newhistory.history.filter(
+            (item) => item.category !== NewDat.categories[index].id,
+        );
         let sum = 0;
         Newhistory.history.forEach((item) => {
-            
-  
-          const category = dataItems.categories.find(cat => cat.id === item.category);
-          if (category && category.category_type === 'Доход') {
-            sum += item.sum;
-          } else {
-            sum -= item.sum;
-          }
+            const category = dataItems.categories.find((cat) => cat.id === item.category);
+            if (category && category.category_type === 'Доход') {
+                sum += item.sum;
+            } else {
+                sum -= item.sum;
+            }
         });
-  
+
         NewDat.categories.splice(index, 1);
-  
+
         setTotalValue(sum);
-        delItem('categories', 'category',index);
-        setDataItems(NewDat)
+        delItem('categories', 'category', index);
+        setDataItems(NewDat);
         setData({ fileName: 'history', data: Newhistory });
-        setDatahistory(Newhistory)
-    }
-  
+        setDatahistory(Newhistory);
+    };
+
     const editModalCategory = (index: number) => {
-        setText([
-            dataItems.categories[index].color,
-            dataItems.categories[index].name,
-        ])
+        setText([dataItems.categories[index].color, dataItems.categories[index].name]);
         setVisibleAddCategory(true);
         setEditingcategory({ editingcategory: true, index: index });
     };
-  
-  
-  
+
     function getItems(accounts: category['categories']) {
         let data: { label: string; value: string }[] = [];
         accounts.map((item) => {
@@ -394,7 +406,7 @@ import {
         });
         setItems(data);
     }
-  
+
     function getAccount(accounts: account['accounts']) {
         let data: { label: string; value: string }[] = [];
         accounts.map((item) => {
@@ -402,78 +414,69 @@ import {
         });
         setitemsAccounts(data);
     }
-  
+
+    const onStart = async () => {
+        let dataC: category = await getData({ fileName: 'category' });
+        let dataH: history = await getData({ fileName: 'history' });
+
+        Animated.timing(animateContainerOpacity, {
+            toValue: 1,
+            duration: 1000,
+            useNativeDriver: true,
+        }).start();
+
+        if (dataC === null) {
+            dataC = emptyCategories();
+
+            await setData({ fileName: 'category', data: dataC });
+        }
+
+        await getItems(await getCategory());
+        await getAccount(await await getAccounts());
+        if (dataH === null) {
+            dataH = emptyHistory();
+            setTotalValue(0);
+
+            await setData({ fileName: 'history', data: dataH });
+        }
+        setDataItems(
+            calculateValues(JSON.parse(JSON.stringify(dataC)), JSON.parse(JSON.stringify(dataH))),
+        );
+        setDatahistory(JSON.parse(JSON.stringify(dataH)));
+
+        let sum = 0;
+        if (dataH.history.length > 0) {
+            dataH.history.forEach((item) => {
+                const category = dataC.categories.find((cat) => cat.id === item.category);
+                if (category && category.category_type === 'Доход') {
+                    sum += item.sum;
+                } else {
+                    sum -= item.sum;
+                }
+            });
+            setTotalValue(sum);
+        }
+    };
+
     useFocusEffect(
         useCallback(() => {
-            const onStart = async () => {
-                let dataC: category = await getData({ fileName: 'category' });
-                let dataH: history = await getData({ fileName: 'history' });
-                
-               
-                
-                Animated.timing(animateContainerOpacity, {
-                    toValue: 1,
-                    duration: 1000,
-                    useNativeDriver: true,
-                }).start();
-  
-                
-                if (dataC === null) {
-                    dataC = emptyCategories();
-  
-                    await setData({ fileName: 'category', data: dataC });
-                }
-                
-                await getItems(await getCategory());
-                await getAccount(await await getAccounts());
-                if (dataH === null) {
-                    dataH = emptyHistory();
-                    setTotalValue(0);
-  
-                    await setData({ fileName: 'history', data: dataH });
-                }
-                setDataItems(
-                    calculateValues(
-                        JSON.parse(JSON.stringify(dataC)),
-                        JSON.parse(JSON.stringify(dataH)),
-                    ),
-                );
-                setDatahistory(JSON.parse(JSON.stringify(dataH)));
-  
-                let sum = 0;
-                if (dataH.history.length > 0) {
-                    dataH.history.forEach((item) => {
-                      const category = dataC.categories.find(cat => cat.id === item.category);
-                      if (category && category.category_type === 'Доход') {
-                        sum += item.sum;
-                      } else {
-                        sum -= item.sum;
-                      }
-                      
-                    });
-                    setTotalValue(sum);
-                }
-               
-                
-            };
             onStart();
         }, []),
     );
-  
+
     const handleAddCategory = async () => {
         const maxid = 10;
         let mama: category = JSON.parse(JSON.stringify(dataItems));
         let dataH: history = await getData({ fileName: 'history' });
         let dat = {
-                category_icon: 1,
-                category_type: activeModalButtonAddCategory ? 'Доход' : 'Расход',
-                value: 0,
-                color: text[0],
-                id: 0,
-                name: text[1],
-            };
-  
-  
+            category_icon: 1,
+            category_type: activeModalButtonAddCategory ? 'Доход' : 'Расход',
+            value: 0,
+            color: text[0],
+            id: 0,
+            name: text[1],
+        };
+
         if (dat.id > maxid) {
             alert(`Cannot add category with ID greater than 11`);
             return;
@@ -496,24 +499,21 @@ import {
             if (mama.categories.length !== 0) {
                 dat.id = mama.categories[mama.categories.length - 1].id + 1;
                 mama.categories.push(dat);
-  
-  
             } else {
                 dat.id = 0;
-                mama.categories = [dat]; 
+                mama.categories = [dat];
             }
             setDataItems(mama);
         }
-  
+
         await setData({ fileName: 'category', data: mama });
         setText(['', '', '', '']);
-        
-        
+
         await getItems(await getCategory());
         setVisibleAddCategory(false);
-        setEditingcategory({editingcategory: false, index: 0})
+        setEditingcategory({ editingcategory: false, index: 0 });
     };
-  
+
     const handleADDHistory = async () => {
         if (texthistory[0] === '' || pickerValue === '') {
             Alert.alert('Ошибка', 'Введите корректные данные');
@@ -522,7 +522,7 @@ import {
         let mama: history = JSON.parse(JSON.stringify(datahistory));
         let dateS: string = '';
         let dateP: string = '';
-  
+
         if (selectedDate == '') {
             dateS = '';
         } else {
@@ -541,43 +541,46 @@ import {
             sum: Number(texthistory[0]),
             comment: texthistory[1],
         };
-  
+
         if (mama.history.length !== 0) {
             dat.id = mama.history[mama.history.length - 1].id + 1;
             dat.category = Number(pickerValue);
             dat.id_account = Number(pickerValueAccounts);
             let sumAccounts = 0;
-  
-  
+
             dataItems.categories.map((item) => {
-  
-  
                 if (item.id === dat.category) {
                     if (item.category_type === 'Расход') {
                         sumAccounts = dat.sum * -1;
                     } else {
                         sumAccounts = dat.sum;
                     }
-  
                 }
             });
-  
-  
-  
-            const res = (editing.editing) ? await addMoney(sumAccounts, datahistory.history[editing.index].id, datahistory.history[editing.index].id_account,  "home", false, true) : await addMoney(sumAccounts, dat.id, dat.id_account,  "home")
+
+            const res = editing.editing
+                ? await addMoney(
+                      sumAccounts,
+                      datahistory.history[editing.index].id,
+                      datahistory.history[editing.index].id_account,
+                      'home',
+                      false,
+                      true,
+                  )
+                : await addMoney(sumAccounts, dat.id, dat.id_account, 'home');
             if (res === 'not-found') Alert.alert('ошибка', 'счет не найден');
             else {
                 if (res === 'no-money') Alert.alert('ошибка', 'недостаточно средств');
                 else {
-                    if (editing.editing){
+                    if (editing.editing) {
                         if (datahistory.history[editing.index]) {
                             dat.id = datahistory.history[editing.index].id;
-                          }
+                        }
                         mama.history[editing.index] = dat;
-                        await editItem('history','history',editing.index, dat);
+                        await editItem('history', 'history', editing.index, dat);
                     } else {
-                    mama.history.push(dat);
-                    await setData({ fileName: 'history', data: mama });
+                        mama.history.push(dat);
+                        await setData({ fileName: 'history', data: mama });
                     }
                 }
             }
@@ -596,31 +599,37 @@ import {
             let sumAccounts = 0;
             dataItems.categories.map((item) => {
                 if (item.id === dat.category) {
-                    
-  
                     if (item.category_type === 'Расход') {
                         sumAccounts = dat.sum * -1;
-                        
                     } else {
                         sumAccounts = dat.sum;
                     }
                     console.log(sumAccounts);
                 }
             });
-            const res = (editing.editing) ? await addMoney(sumAccounts, datahistory.history[editing.index].id, datahistory.history[editing.index].id_account,  "home", false, true) : await addMoney(sumAccounts, dat.id, dat.id_account,  "home")
+            const res = editing.editing
+                ? await addMoney(
+                      sumAccounts,
+                      datahistory.history[editing.index].id,
+                      datahistory.history[editing.index].id_account,
+                      'home',
+                      false,
+                      true,
+                  )
+                : await addMoney(sumAccounts, dat.id, dat.id_account, 'home');
             if (res === 'not-found') Alert.alert('ошибка', 'счет не найден');
             else {
                 if (res === 'no-money') Alert.alert('ошибка', 'недостаточно средств');
                 else {
-                    if (editing.editing){
+                    if (editing.editing) {
                         if (datahistory.history[editing.index]) {
                             dat.id = datahistory.history[editing.index].id;
-                          }
+                        }
                         mama.history[editing.index] = dat;
-                        await editItem('history','history',editing.index, dat);
+                        await editItem('history', 'history', editing.index, dat);
                     } else {
-                    mama.history.push(dat);
-                    await setData({ fileName: 'history', data: mama });
+                        mama.history.push(dat);
+                        await setData({ fileName: 'history', data: mama });
                     }
                 }
             }
@@ -632,27 +641,22 @@ import {
             setOpenPicker(false);
             setEditing({ editing: false, index: 0 });
         }
-  
-  
-  
+
         setDataItems(calculateValues(dataItems, mama));
         let sum = 0;
-  
+
         mama.history.forEach((item) => {
-          const category = dataItems.categories.find(cat => cat.id === item.category);
-          if (category && category.category_type === 'Доход') {
-            sum += item.sum;
-          } else {
-            sum -= item.sum;
-          }
+            const category = dataItems.categories.find((cat) => cat.id === item.category);
+            if (category && category.category_type === 'Доход') {
+                sum += item.sum;
+            } else {
+                sum -= item.sum;
+            }
         });
         setTotalValue(sum);
         setVisibleAddHistory(false);
     };
-  
-  
-  
-  
+
     const animateContainerOpacity = useRef(new Animated.Value(0)).current;
     const colors = [
         '#FF0000',
@@ -667,20 +671,20 @@ import {
     ];
     const [selectedColor, setSelectedColor] = useState('');
     const [selectedBlockIndex, setSelectedBlockIndex] = useState(-1);
-  
+
     const handleColorSelect = (color: string, index: number) => {
         setSelectedColor(color);
-  
+
         setSelectedBlockIndex(index);
     };
-  
+
     const handleAddColor = () => {
         text[0] = selectedColor.toString();
         setVisible2(false);
-  
+
         setSelectedBlockIndex(-1);
     };
-  
+
     return (
         <View
             style={{
@@ -690,29 +694,31 @@ import {
                 justifyContent: 'space-between',
             }}
         >
-            <Modal visible={visible2} animationType='slide' onRequestClose={() =>setVisible2(false)}>
-                
-                    <View style={styles.modalContainer}>
-                        {colors.map((color, index) => (
-                            <TouchableOpacity
-                                key={color}
-                                style={[
-                                    styles.colorBlock,
-                                    { backgroundColor: color },
-                                    selectedBlockIndex === index && {
-                                        borderColor: 'black',
-                                        borderWidth: 3,
-                                    },
-                                ]}
-                                onPress={() => handleColorSelect(color, index)}
-                                onPressOut={() => setSelectedBlockIndex(-1)}
-                            />
-                        ))}
-                    </View>
-                    <Button title='Добавить цвет' onPress={handleAddColor} />
-               
+            <Modal
+                visible={visible2}
+                animationType='slide'
+                onRequestClose={() => setVisible2(false)}
+            >
+                <View style={styles.modalContainer}>
+                    {colors.map((color, index) => (
+                        <TouchableOpacity
+                            key={color}
+                            style={[
+                                styles.colorBlock,
+                                { backgroundColor: color },
+                                selectedBlockIndex === index && {
+                                    borderColor: 'black',
+                                    borderWidth: 3,
+                                },
+                            ]}
+                            onPress={() => handleColorSelect(color, index)}
+                            onPressOut={() => setSelectedBlockIndex(-1)}
+                        />
+                    ))}
+                </View>
+                <Button title='Добавить цвет' onPress={handleAddColor} />
             </Modal>
-  
+
             <ModalWindow
                 functionCancelButton={() => {
                     setText(['', '', '', '']);
@@ -758,58 +764,71 @@ import {
                     colorActiveInput={activeModalButtonAddCategory ? '#3EA2FF' : '#FF6E6E'}
                 />
             </ModalWindow>
-  
+
             <ModalWindowHistory
                 visible={visibleHistory}
                 setVisible={setVisibleHistory}
                 type={false}
             >
                 <Container>
-                {datahistory.history &&
-                datahistory.history.map((item, index) => { { const category = dataItems.categories.find(cat => cat.id === item.category); return (
-                    <CardWithButtons 
-                      key={index}
-                      editModal = {()=> {
-                        editModalHistory(index);
-                      }}
-                      del = {()=> {
-                        deleteCardHistory(index);
-                      }}
-                    >
-                        <View >
-  
-                            <Circle
-                                radius={10}
-                                color={ category && category.color ? category.color : '#000000'
-                                }
-                            />
-                            <View style={{ position: 'absolute', marginTop: '3%' }}>
-                                <Text style={{ color: '#303841', marginLeft: '30%' }}>
-                                    { category && category.name ? category.name :'No category name available'}
-                                    
-                                </Text>
-                                <Text
-                                    style={{ color: '#7D8895', marginTop: '20%', marginLeft: '8%' }}
-                                >
-                                    {item.date}
-                                </Text>
-                            </View>
-                            <Text
-                                style={{
-                                    color: '#94C3F6',
-                                    marginTop: '4%',
-                                    marginLeft: '60%',
-                                    fontSize: 20,
-                                }}
-                            >
-                                {item.sum} руб
-                            </Text>
-  
-                        </View>
-                    </CardWithButtons>
-                    );
-                }
-                })}
+                    {datahistory.history &&
+                        datahistory.history.map((item, index) => {
+                            {
+                                const category = dataItems.categories.find(
+                                    (cat) => cat.id === item.category,
+                                );
+                                return (
+                                    <CardWithButtons
+                                        key={index}
+                                        editModal={() => {
+                                            editModalHistory(index);
+                                        }}
+                                        del={() => {
+                                            deleteCardHistory(index);
+                                        }}
+                                    >
+                                        <View>
+                                            <Circle
+                                                radius={10}
+                                                color={
+                                                    category && category.color
+                                                        ? category.color
+                                                        : '#000000'
+                                                }
+                                            />
+                                            <View style={{ position: 'absolute', marginTop: '3%' }}>
+                                                <Text
+                                                    style={{ color: '#303841', marginLeft: '30%' }}
+                                                >
+                                                    {category && category.name
+                                                        ? category.name
+                                                        : 'No category name available'}
+                                                </Text>
+                                                <Text
+                                                    style={{
+                                                        color: '#7D8895',
+                                                        marginTop: '20%',
+                                                        marginLeft: '8%',
+                                                    }}
+                                                >
+                                                    {item.date}
+                                                </Text>
+                                            </View>
+                                            <Text
+                                                style={{
+                                                    color: '#94C3F6',
+                                                    marginTop: '4%',
+                                                    marginLeft: '60%',
+                                                    fontSize: 20,
+                                                }}
+                                            >
+                                                {item.sum} руб
+                                            </Text>
+                                        </View>
+                                    </CardWithButtons>
+                                );
+                            }
+                        })}
                 </Container>
             </ModalWindowHistory>
             <ModalWindowOneButton
@@ -858,7 +877,7 @@ import {
                         dropDownDirection='DEFAULT'
                     />
                 </PickerBlock>
-  
+
                 <Input
                     textName='Сумма'
                     value={texthistory[0].toString()}
@@ -925,39 +944,48 @@ import {
                     />
                 )}
             </ModalWindowOneButton>
-  
-            
-  
-  
-            <Modal animationType="slide" transparent={false} visible={visible} onRequestClose={() => setVisible(false)} >
-  
-                    <View >
-                        <HeaderViewModal>
-                            <BackArrowSvg width={25} height={25} onPress={() => {setVisible(false)}}/>
-                            <HeaderText>{(activeModalButton) ? 'Доход' : 'Расход'}</HeaderText>
-                            <ButtonHeader 
-                                onPress={() => {setVisibleAddCategory(true);setActiveModalButtonAddCategory(activeModalButton);}} 
-                                style={{shadowColor: '#625E5E',
-                                    elevation: 10, 
-                                }}>
-                                <PlusSvg width={15} height={15}/>
-                            </ButtonHeader>
-                        </HeaderViewModal>
-                        <View
+
+            <Modal
+                animationType='slide'
+                transparent={false}
+                visible={visible}
+                onRequestClose={() => setVisible(false)}
+            >
+                <View>
+                    <HeaderViewModal>
+                        <BackArrowSvg
+                            width={25}
+                            height={25}
+                            onPress={() => {
+                                setVisible(false);
+                            }}
+                        />
+                        <HeaderText>{activeModalButton ? 'Доход' : 'Расход'}</HeaderText>
+                        <ButtonHeader
+                            onPress={() => {
+                                setVisibleAddCategory(true);
+                                setActiveModalButtonAddCategory(activeModalButton);
+                            }}
+                            style={{ shadowColor: '#625E5E', elevation: 10 }}
+                        >
+                            <PlusSvg width={15} height={15} />
+                        </ButtonHeader>
+                    </HeaderViewModal>
+                    <View
                         style={{
                             margin: 5,
-  
+
                             flexDirection: 'row',
                             marginBottom: 40,
                             justifyContent: 'space-around',
                         }}
-                        >
-                            <DohodME
+                    >
+                        <DohodME
                             onPress={() => {
                                 setcategorytype(true);
                             }}
                             style={{ borderColor: categorytype ? '#3EA2FF' : '#C9C9C9' }}
-                            >
+                        >
                             <Text
                                 style={{
                                     color: categorytype ? '#3EA2FF' : '#C9C9C9',
@@ -966,51 +994,52 @@ import {
                             >
                                 Доход
                             </Text>
-                            </DohodME>   
-                            <RashodME
+                        </DohodME>
+                        <RashodME
                             onPress={() => {
                                 setcategorytype(false);
                             }}
                             style={{ borderColor: !categorytype ? '#FF6E6E' : '#C9C9C9' }}
-                            >
+                        >
                             <Text
                                 style={{
-                                color: !categorytype ? '#FF6E6E' : '#C9C9C9',
-                                fontSize: 19,
-                            }}
+                                    color: !categorytype ? '#FF6E6E' : '#C9C9C9',
+                                    fontSize: 19,
+                                }}
                             >
-                            Расход
+                                Расход
                             </Text>
-                            </RashodME>
-                        </View>
-                        <Scroll>
-                            <Container>
-                                {dataItems.categories && dataItems.categories.map((item, index) => {
-                                    if ((categorytype && item.category_type == 'Доход') || (item.category_type == 'Расход' && !categorytype))
-                                    return (
-                                        <CardWithButtons
-                                            key = {index}
-                                            del={() => {
-                                                deleteCardCategory(index);
-                                            }}
-                                            editModal={() => {
-                                                editModalCategory(index);
-                                            }}
-                                        >
-                                            <CardView>  
-                                                <Text>{item.name}</Text> 
-                                            </CardView>
-                                        </CardWithButtons>
-                                        
+                        </RashodME>
+                    </View>
+                    <Scroll>
+                        <Container>
+                            {dataItems.categories &&
+                                dataItems.categories.map((item, index) => {
+                                    if (
+                                        (categorytype && item.category_type == 'Доход') ||
+                                        (item.category_type == 'Расход' && !categorytype)
                                     )
-                            })}
-                            </Container>
-                        </Scroll>
-                    </View>    
-  
+                                        return (
+                                            <CardWithButtons
+                                                key={index}
+                                                del={() => {
+                                                    deleteCardCategory(index);
+                                                }}
+                                                editModal={() => {
+                                                    editModalCategory(index);
+                                                }}
+                                            >
+                                                <CardView>
+                                                    <Text>{item.name}</Text>
+                                                </CardView>
+                                            </CardWithButtons>
+                                        );
+                                })}
+                        </Container>
+                    </Scroll>
+                </View>
             </Modal>
-  
-  
+
             <Header
                 name='Home'
                 style='2'
@@ -1018,8 +1047,11 @@ import {
                 functionRight={() => {
                     setVisibleHistory(true);
                 }}
+                onModalHide={async () => {
+                    onStart();
+                }}
             />
-  
+
             <View style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Animated.View style={{ opacity: animateContainerOpacity }}>
                     <DonutChart
@@ -1029,7 +1061,7 @@ import {
                         size={350}
                     />
                 </Animated.View>
-  
+
                 <View style={styles.ViewInDiagrams}>
                     <Text style={styles.TextInDiagramsfirst}>Текущий счет</Text>
                     <Text style={styles.TextInDiagramsSecond}>{totalValue.toFixed(2)} руб</Text>
@@ -1049,23 +1081,23 @@ import {
                         />
                     </View>
                 </ButtonHeader>
-                {dataItems.categories.length > 0 &&
-                <ButtonHeader
-                    onPress={() => {
-                        setVisibleAddHistory(true);
-                        setactiveModalButtonHistory(true);
-                    }}
-                >
-                    <View>
-                        <Image
-                            source={require('../../assets/icon/plus.png')}
-                            style={styles.image}
-                        />
-                    </View>
-                </ButtonHeader>
-                }
+                {dataItems.categories.length > 0 && (
+                    <ButtonHeader
+                        onPress={() => {
+                            setVisibleAddHistory(true);
+                            setactiveModalButtonHistory(true);
+                        }}
+                    >
+                        <View>
+                            <Image
+                                source={require('../../assets/icon/plus.png')}
+                                style={styles.image}
+                            />
+                        </View>
+                    </ButtonHeader>
+                )}
             </ButtonView>
-  
+
             <FlatList
                 style={{ display: 'flex', alignContent: 'flex-start' }}
                 data={dataItems.categories}
@@ -1077,4 +1109,4 @@ import {
             />
         </View>
     );
-  }
+}
