@@ -1,11 +1,10 @@
 import { TouchableOpacity, View } from 'react-native';
 import styled from 'styled-components/native';
-
 import { useState } from 'react';
-
+ 
 import Edit from '../../assets/icon/Edit.svg';
 import Trash from '../../assets/icon/Trash.svg';
-
+ 
 const Card = styled.View`
     display: flex;
     flex-direction: row;
@@ -20,30 +19,31 @@ const Card = styled.View`
     padding: 10px;
     border-radius: 10px;
 `;
-
+ 
 const EditBtn = styled.TouchableOpacity`
     position: absolute;
-    left: 33px;
+    left: 50px;
     top: 21px;
     width: 30%;
     border-radius: 10px;
-    height: 120px;
+    height: 100px;
     background-color: #ffb660;
     display: flex;
     justify-content: space-between;
     flex-direction: column;
+ 
 `;
-
+ 
 const DelBtn = styled.TouchableOpacity`
     position: absolute;
-    right: 33px;
+    right: 50px;
     top: 21px;
     width: 30%;
     border-radius: 10px;
-    height: 120px;
+    height: 100px;
     background-color: #ff8484;
 `;
-
+ 
 /**
  * Элемент карточки, который имеет кнопки редактирования и удаления, появляющиеся при нажатии на эту карточку.
  *
@@ -64,7 +64,7 @@ export default function CardWithButtons(props: {
 }) {
     const [pressed, setPressed] = useState(false);
     return (
-        <View style={{ height: 145 }}>
+        <View style={{ height: 135 }}>
             {pressed && (
                 <View>
                     <EditBtn
@@ -73,16 +73,21 @@ export default function CardWithButtons(props: {
                             setPressed(false);
                         }}
                     >
+ 
                         <Edit
-                            width={25}
+                            width={20}
                             style={{
                                 position: 'absolute',
-                                bottom: 0,
+                                bottom: -10,
                                 left: '50%',
                                 marginStart: -12.5,
+ 
+ 
                             }}
                         />
+ 
                     </EditBtn>
+ 
                     <DelBtn
                         onPress={() => {
                             props.del();
@@ -90,10 +95,10 @@ export default function CardWithButtons(props: {
                         }}
                     >
                         <Trash
-                            width={25}
+                            width={23}
                             style={{
                                 position: 'absolute',
-                                bottom: 0,
+                                bottom: -8,
                                 left: '50%',
                                 marginStart: -12.5,
                             }}
@@ -106,12 +111,13 @@ export default function CardWithButtons(props: {
                 onPress={() => {
                     setPressed(!pressed);
                     if (!pressed) {
-                        setTimeout(() => setPressed(false), 1000);
+                        setTimeout(() => setPressed(false), 2500);
                     }
                 }}
             >
                 <Card>{props.children}</Card>
             </TouchableOpacity>
+ 
         </View>
     );
 }

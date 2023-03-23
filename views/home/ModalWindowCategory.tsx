@@ -46,34 +46,7 @@ const InputView = styled.View`
     
 `;
 
-const ButtonLow = styled.View`
-    display: flex;
-    flex-direction: row;
-    justify-content: space-evenly;
-    align-items: center;
-    margin: 14px 0;
-    max-width: 100%;
-`;
 
-const ButtonLowLeft = styled.TouchableOpacity`
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 35px;
-    width: 58%;
-    border-radius: 5px;
-    border: 1px solid #C6C3C3;
-`;
-
-const ButtonLowRight = styled.TouchableOpacity`
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 35px;
-    width: 38%;
-    border-radius: 5px;
-    border: 1px solid #C6C3C3;
-`;
 const ButtonHeader = styled.TouchableOpacity`
   display: flex;
   justify-content: center;
@@ -82,7 +55,7 @@ const ButtonHeader = styled.TouchableOpacity`
   width: 35px;
   background-color: #FDFDFD;
   border-radius: 100px;
-  margin-left: 60%;
+  margin-left: 62%;
   border: 1px solid #ABA5A5;
 `;
 
