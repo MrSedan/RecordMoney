@@ -29,7 +29,8 @@ export default function App() {
   const loadFonts =async () => {
     await Font.loadAsync({
       "MainFont-Regular": require("./assets/font/Montserrat-Regular.ttf"),
-      "MainFont-Bold": require("./assets/font/Montserrat-Bold.ttf")
+      "MainFont-Bold": require("./assets/font/Montserrat-Bold.ttf"),
+      "MainFont-Light": require("./assets/font/Montserrat-Light.ttf")
     });
   };
 

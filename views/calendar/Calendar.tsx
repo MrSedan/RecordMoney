@@ -16,6 +16,12 @@ import InputDate from './additionally/InputDate';
 import ModalWindow from '../modular_components/ModalWindow';
 import DateTimePicker from 'react-native-modal-datetime-picker';
 
+import PlusSvg from "../../assets/icon/plus.svg";
+import PlusBlackSvg from "../../assets/icon/PlusBlack.svg";
+import PlusWhiteSvg from "../../assets/icon/PlusWhite.svg";
+import MinusBlackSvg from "../../assets/icon/MinusBlack.svg"
+import MinusWhiteSvg from "../../assets/icon/MinusWhite.svg";
+
 interface DataType {
     cards: {
         comment: string;
@@ -49,7 +55,9 @@ function reformat(item: DataType) {
                 ? { key: `${item.cards[index].id}`, color: '#3EA2FF' }
                 : { key: `${item.cards[index].id}`, color: '#FF6E6E' };
         datas[item.cards[index].date] == null
-            ? (datas[item.cards[index].date] = { dots: [itemType] })
+            ? (datas[item.cards[index].date] = {
+                  dots: [itemType],
+              })
             : datas[item.cards[index].date].dots.push(itemType);
     }
 
@@ -66,25 +74,34 @@ function PeopleDate(date: string) {
 
 const CardView = styled.View`
     display: flex;
-    flex-direction: column;
-    justify-content: space-evenly;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
     max-width: 100%;
     height: 100%;
     width: 100%;
-    border-width: 1px;
-    border-radius: 10px;
+    padding-left: 5%;
 `;
 
-const HeaderCardView = styled.View`
+const MainCardView = styled.View`
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     justify-content: space-evenly;
+    margin-left: 5%;
+`;
+
+const CardTypeCircle = styled.View`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 45px;
+    width: 45px;
+    border-radius: 25px;
 `;
 
 const CardText = styled.Text`
-    text-align: center;
-    font-size: 14px;
-    font-weight: 400;
+    font-family: 'MainFont-Light';
+    font-size: 13px;
 `;
 
 const PickerBlock = styled.View`
@@ -97,6 +114,7 @@ const PickerBlock = styled.View`
 `;
 
 const TextName = styled.Text`
+    font-family: 'MainFont-Regular';
     text-align: center;
     width: 33%;
     margin-right: 1%;
@@ -112,17 +130,16 @@ const ModalInfo = styled.View`
     background-color: #fff;
     width: 70%;
     height: 50%;
-    // border: 1px solid #000;
     margin: 15%;
     border-radius: 10px;
     padding: 20px;
 `;
 
 const AlertTitle = styled.Text`
+    font-family: 'MainFont-Bold';
     text-align: center;
     width: 100%;
     font-size: 18px;
-    font-weight: 700;
     margin-bottom: 5%;
 `;
 
@@ -134,11 +151,13 @@ const AlertInView = styled.View`
 `;
 
 const AlertMessage = styled.Text`
-    font-size: 15px;
+    font-family: 'MainFont-Regular';
+    font-size: 14px;
     margin-bottom: 10px;
 `;
 
 const AlertButton = styled.Text`
+    font-family: 'MainFont-Regular';
     color: #000;
     text-align: center;
     border: 1px solid rgba(0, 0, 0, 0.2);
@@ -191,6 +210,8 @@ export default function Calendar() {
         useCallback(() => {
             const search = async () => {
                 let data: calendar = await getData({ fileName: path });
+                console.log(data);
+                
                 if (data === null) {
                     data = emptyCalendar();
                     await setData({ fileName: path, data: data });
@@ -213,6 +234,7 @@ export default function Calendar() {
             sum: +text[2],
             type: activeModalButton ? '1' : '2',
             comment: text[3],
+            close: false
         };
 
         if (editing.edit) {
@@ -229,7 +251,7 @@ export default function Calendar() {
         }
 
         editing.edit
-            ? editItem('cards', path, editing.index, data)
+            ? await editItem('cards', path, editing.index, data)
             : await addItem('cards', path, data);
         setSelectedDate('');
         setPickerValue('');
@@ -254,6 +276,10 @@ export default function Calendar() {
     };
 
     const editModal = (index: number) => {
+        if (state.cards[index].close) {
+            Alert.alert('Доступ запрещен!', 'Вы не можете редактировать закрытую операцию');
+            return;
+        }
         setText([
             state.cards[index].name,
             state.cards[index].date,
@@ -272,14 +298,20 @@ export default function Calendar() {
         setCounter(JSON.parse(JSON.stringify(reformat(data))));
     };
 
-    const addMoneyAccount = async (value: number, type: string, id_acc: number) => {
+    const addMoneyAccount = async (id: number, value: number, type: string, id_acc: number, date: string, closed: boolean) => {
         let res = '';
         type === '1'
-            ? (res = await addMoney(value, id_acc))
-            : (res = await addMoney(value * -1, id_acc));
+            ? (res = await addMoney(value, id, id_acc, "calendar"))
+            : (res = await addMoney(value * -1, id, id_acc, "calendar"));
 
         if (res === 'not-found') Alert.alert('Ошибка!', 'Счет не найден');
         if (res === 'no-money') Alert.alert('Ошибка', 'Недостаточно средств');
+        if (res === 'ok') {
+            let data: calendar = JSON.parse(JSON.stringify(state));
+            data.cards[idCard].close = true
+            await editItem('cards', path, idCard, data.cards[idCard])
+            setState(data)
+        }
         setIdCard(-1);
         setWinInfo(false);
     };
@@ -341,9 +373,17 @@ export default function Calendar() {
             }}
         >
             <ModalWindow
+                functionCloseButton={() => {
+                    setText(['', '', '', '']);
+                    setSelectedDate('');
+                    setPickerValue('');                    
+                    setEditing({ edit: false, index: 0 });
+                }}
                 functionCancelButton={() => {
                     setText(['', '', '', '']);
                     setSelectedDate('');
+                    setPickerValue('');
+                    setEditing({ edit: false, index: 0 });
                 }}
                 functionSaveButton={() => {
                     tryToSave();
@@ -479,6 +519,14 @@ export default function Calendar() {
                                 {idCard !== -1 ? state.cards[idCard].comment : ''}
                             </AlertMessage>
                         </AlertInView>
+                        <AlertInView>
+                            <AlertMessage style={{ textDecorationLine: 'underline' }}>
+                                Завершено:
+                            </AlertMessage>
+                            <AlertMessage>
+                                {idCard !== -1 ? (state.cards[idCard].close) ? 'Да' : 'Нет' : ''}
+                            </AlertMessage>
+                        </AlertInView>
                         <AlertButton
                             onPress={() => {
                                 setIdCard(-1);
@@ -487,17 +535,24 @@ export default function Calendar() {
                         >
                             Ok
                         </AlertButton>
-                        <AlertButton
-                            onPress={() => {
-                                addMoneyAccount(
-                                    state.cards[idCard].sum,
-                                    state.cards[idCard].type,
-                                    state.cards[idCard].id_account,
-                                );
-                            }}
-                        >
-                            Провести операцию
-                        </AlertButton>
+                        {(idCard !== -1 && state.cards[idCard].close === false) ?
+                            <AlertButton
+                                onPress={() => {
+                                    addMoneyAccount(
+                                        state.cards[idCard].id,
+                                        state.cards[idCard].sum,
+                                        state.cards[idCard].type,
+                                        state.cards[idCard].id_account,
+                                        state.cards[idCard].date,
+                                        state.cards[idCard].close
+                                    );
+                                }}
+                            >
+                                Провести операцию
+                            </AlertButton>
+                        :
+                        <View></View>}
+
                     </ModalInfo>
                 </View>
             </Modal>
@@ -506,6 +561,8 @@ export default function Calendar() {
                 style='1'
                 functionLeft={() => {}}
                 functionRight={() => {
+                    setText(['','','',''])
+                    setSelectedDate('')
                     setVisible(true);
                     setActiveModalButton(true);
                 }}
@@ -522,14 +579,29 @@ export default function Calendar() {
                     maxDate={'2026-01-01'}
                     // действия при клике на дату
                     onDayPress={(day) => {
-                        setCardDate(
-                            `${day.year}-${day.month.toString().padStart(2, '0')}-${day.day
-                                .toString()
-                                .padStart(2, '0')}`,
-                        );
+                        const newc = JSON.parse(JSON.stringify(reformat(state)));
+                        const selectedDay = day.dateString;
+
+                        const selectedDateObject = newc[selectedDay] || {};
+                        const selectDateDots = selectedDateObject.dots || [];
+
+                        const newSelectedDateObject = {
+                            ...selectedDateObject,
+                            dots: [...selectDateDots],
+                            selected: true,
+                            selectedColor: '#BEBEBE',
+                        };
+                        const newMarked = {
+                            ...newc,
+                            [selectedDay]: newSelectedDateObject,
+                        };
+                        setCardDate(selectedDay);
+                        setCounter(newMarked);
                     }}
                     // Действие при долгом нажатии на дату
-                    onDayLongPress={(day) => {}}
+                    onDayLongPress={(day) => {
+                        setCounter(JSON.parse(JSON.stringify(reformat(state))));
+                    }}
                     // Month format in calendar title. Formatting values: http://arshaw.com/xdate/#Formatting
                     monthFormat={monthNames[+'MM']}
                     // Можно отловить на каком месяце находится юзер
@@ -578,7 +650,7 @@ export default function Calendar() {
                                             deleteCard(index);
                                         }}
                                         onEdit={() => {
-                                            editModal(index);
+                                            editModal(index)
                                         }}
                                         onDoubleClick={() => {
                                             setIdCard(index);
@@ -586,23 +658,18 @@ export default function Calendar() {
                                         }}
                                     >
                                         <CardView
-                                            style={
-                                                type
-                                                    ? { borderColor: '#3EA2FF' }
-                                                    : { borderColor: '#FF6E6E' }
-                                            }
+                                            
                                         >
-                                            <CardText>
-                                                {item.type === '1' ? 'Доход' : 'Платеж'}
-                                            </CardText>
-
-                                            <HeaderCardView>
-                                                {/* <CardText>{`${date.getDate()}  ${
-                                                    monthNames[date.getMonth()]
-                                                }  ${date.getFullYear()}`}</CardText> */}
-                                                <CardText>{item.name}</CardText>
+                                            <CardTypeCircle style={
+                                                type
+                                                    ? { backgroundColor: '#3EA2FF' }
+                                                    : { backgroundColor: '#FF6E6E' }
+                                            }>{(type) ? <PlusWhiteSvg /> : <MinusWhiteSvg />}</CardTypeCircle>
+                                            <MainCardView>
+                                                <CardText style={!item.close ? {textDecorationLine: 'none', fontFamily: "MainFont-Bold", fontSize: 14} : {textDecorationLine: 'line-through', fontFamily: "MainFont-Bold", fontSize: 14}}>{item.name}</CardText>
+                                                <CardText>{PeopleDate(item.date)}</CardText>
                                                 <CardText>{item.sum} руб</CardText>
-                                            </HeaderCardView>
+                                            </MainCardView>
                                         </CardView>
                                     </CardSwipe>
                                 );
