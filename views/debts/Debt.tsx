@@ -394,8 +394,15 @@ export default function Debt() {
                 style='1'
                 functionLeft={() => {}}
                 functionRight={() => {
+                    if (items.length > 0) {
                     setVisible(true);
                     setActiveModalButton(debtTome);
+                    } else {
+                        Alert.alert(
+                            'Внимание!',
+                            'Вы пробуете создать долг, не создав предварительно счёт!',
+                        );
+                    }
                 }}
                 onModalHide={async () => {
                     onStart();
