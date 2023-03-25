@@ -60,8 +60,8 @@ export default function Account(props: {
         let newDat: account = JSON.parse(JSON.stringify(state));
         let dat = {
             id: 0,
-            name: text[0],
-            sum: Number(text[1] != '' ? text[1] : ''),
+            name: text[0].trim(),
+            sum: Number(text[1].trim() != '' ? text[1].trim() : ''),
         };
         if (editing.editing) {
             dat.id = newDat.accounts[editing.index].id;
@@ -80,8 +80,8 @@ export default function Account(props: {
     };
 
     const tryToSave = () => {
-        if (text[0] == '') {
-            Alert.alert('Ошибка!', 'Пожалуйста, заполните все обязательные поля.', [
+        if (text[0].trim() == '' || !text[1].trim().match(/^\d+$/)) {
+            Alert.alert('Ошибка!', 'Пожалуйста, заполните все обязательные поля корректно.', [
                 {
                     text: 'OK',
                     onPress: () => {},

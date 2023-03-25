@@ -155,12 +155,12 @@ export default function Debt() {
         let dat = {
             id: 0,
             id_account: 0,
-            name: text[0],
+            name: text[0].trim(),
             type: activeModalButton ? '1' : '2',
             sum: Number(text[1]),
-            contact: selectedContact,
+            contact: selectedContact.trim(),
             date: dateS,
-            comment: text[3],
+            comment: text[3].trim(),
         };
         if (editing.editing) {
             dat.id = state.debts[editing.index].id;
@@ -184,8 +184,8 @@ export default function Debt() {
     };
 
     const tryToSave = () => {
-        if (text[0] == '' || text[1] == '' || pickerValue == '') {
-            Alert.alert('Ошибка!', 'Пожалуйста, заполните все обязательные поля.', [
+        if (text[0].trim() == '' || pickerValue == '' || !text[1].trim().match(/^\d+$/)) {
+            Alert.alert('Ошибка!', 'Пожалуйста, заполните все обязательные поля корректно.', [
                 {
                     text: 'OK',
                     onPress: () => {},
@@ -394,8 +394,15 @@ export default function Debt() {
                 style='1'
                 functionLeft={() => {}}
                 functionRight={() => {
-                    setVisible(true);
-                    setActiveModalButton(debtTome);
+                    if (items.length > 0) {
+                        setVisible(true);
+                        setActiveModalButton(debtTome);
+                    } else {
+                        Alert.alert(
+                            'Внимание!',
+                            'Вы пробуете создать долг, не создав предварительно счёт!',
+                        );
+                    }
                 }}
                 onModalHide={async () => {
                     onStart();
