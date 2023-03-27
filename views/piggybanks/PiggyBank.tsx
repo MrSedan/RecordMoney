@@ -187,8 +187,8 @@ export default function PiggyBank() {
     );
 
     const click = async () => {
-        if (text[0] == '' || text[1] == '') {
-            Alert.alert('Ошибка!', 'Пожалуйста, заполните все обязательные поля.', [
+        if (text[0].trim() == '' || !text[1].trim().match(/^\d+$/)) {
+            Alert.alert('Ошибка!', 'Пожалуйста, заполните все обязательные поля корректно.', [
                 {
                     text: 'OK',
                     onPress: () => {},
@@ -347,7 +347,7 @@ export default function PiggyBank() {
                     value={text[0].toString()}
                     setItems={setText}
                     index={0}
-                    placeholder='Введите название долга'
+                    placeholder='Введите название цели'
                     keyboardType='default'
                     colorActiveInput={activeModalButton ? '#3EA2FF' : '#FF6E6E'}
                 />
@@ -415,7 +415,10 @@ export default function PiggyBank() {
                 <Container>
                     <ButtonTypeView>
                         <ButtonType
-                            onPress={() => setActive(false)}
+                            onPress={() => {
+                                setActive(false);
+                                setText(['', '', ' ']);
+                            }}
                             style={
                                 !active ? { borderColor: '#3FDEAE' } : { borderColor: '#C9C9C9' }
                             }
@@ -427,7 +430,10 @@ export default function PiggyBank() {
                             </ButtonTypeText>
                         </ButtonType>
                         <ButtonType
-                            onPress={() => setActive(true)}
+                            onPress={() => {
+                                setActive(true);
+                                setText(['', '', ' ']);
+                            }}
                             style={active ? { borderColor: '#3FDEAE' } : { borderColor: '#C9C9C9' }}
                         >
                             <ButtonTypeText style={{ color: active ? '#3FDEAE' : '#C9C9C9' }}>
@@ -448,24 +454,46 @@ export default function PiggyBank() {
                                             del(index);
                                         }}
                                         onEdit={() => {
-                                            setText([
-                                                state.piggyBanks[index].name,
-                                                state.piggyBanks[index].sum_max.toString(),
-                                                state.piggyBanks[index].sum_cur.toString(),
-                                            ]);
-                                            setVisible(true);
-                                            setEditing({ editing: true, index: index });
-                                            setPickerValue(`${state.piggyBanks[index].id_account}`);
+                                            if (item.status == false) {
+                                                setText([
+                                                    state.piggyBanks[index].name,
+                                                    state.piggyBanks[index].sum_max.toString(),
+                                                    state.piggyBanks[index].sum_cur.toString(),
+                                                ]);
+                                                setVisible(true);
+                                                setEditing({ editing: true, index: index });
+                                                setPickerValue(
+                                                    `${state.piggyBanks[index].id_account}`,
+                                                );
+                                            } else {
+                                                Alert.alert(
+                                                    'Внимание!',
+                                                    'Вы не можете редактировать закрытую цель!',
+                                                );
+                                            }
                                         }}
                                         onDoubleClick={() => {
-                                            setText([
-                                                state.piggyBanks[index].name,
-                                                state.piggyBanks[index].sum_max.toString(),
-                                                state.piggyBanks[index].sum_cur.toString(),
-                                            ]);
-                                            setSVisible(true);
-                                            setEditsum({ editsum: true, index: index });
-                                            setPickerValue(`${state.piggyBanks[index].id_account}`);
+                                            if (item.status == false) {
+                                                if (items.length > 0) {
+                                                    setText([
+                                                        state.piggyBanks[index].name,
+                                                        state.piggyBanks[index].sum_max.toString(),
+                                                        state.piggyBanks[index].sum_cur.toString(),
+                                                    ]);
+                                                    setSVisible(true);
+                                                    setEditsum({ editsum: true, index: index });
+                                                    setPickerValue(
+                                                        `${state.piggyBanks[index].id_account}`,
+                                                    );
+                                                } else {
+                                                    Alert.alert(
+                                                        'Внимание!',
+                                                        'Вы пробуете добавить средства в цель, не создав предварительно счёт!',
+                                                    );
+                                                }
+                                            } else {
+                                                Alert.alert('Внимание!', 'Вы уже закрыли цель!');
+                                            }
                                         }}
                                     >
                                         <Kopilka>
@@ -496,16 +524,37 @@ export default function PiggyBank() {
                                             </Text>
                                             <TouchableOpacity
                                                 onPress={() => {
-                                                    setText([
-                                                        state.piggyBanks[index].name,
-                                                        state.piggyBanks[index].sum_max.toString(),
-                                                        state.piggyBanks[index].sum_cur.toString(),
-                                                    ]);
-                                                    setSVisible(true);
-                                                    setEditsum({ editsum: true, index: index });
-                                                    setPickerValue(
-                                                        `${state.piggyBanks[index].id_account}`,
-                                                    );
+                                                    if (item.status == false) {
+                                                        if (items.length > 0) {
+                                                            setText([
+                                                                state.piggyBanks[index].name,
+                                                                state.piggyBanks[
+                                                                    index
+                                                                ].sum_max.toString(),
+                                                                state.piggyBanks[
+                                                                    index
+                                                                ].sum_cur.toString(),
+                                                            ]);
+                                                            setSVisible(true);
+                                                            setEditsum({
+                                                                editsum: true,
+                                                                index: index,
+                                                            });
+                                                            setPickerValue(
+                                                                `${state.piggyBanks[index].id_account}`,
+                                                            );
+                                                        } else {
+                                                            Alert.alert(
+                                                                'Внимание!',
+                                                                'Вы пробуете добавить средства в цель, не создав предварительно счёт!',
+                                                            );
+                                                        }
+                                                    } else {
+                                                        Alert.alert(
+                                                            'Внимание!',
+                                                            'Вы уже закрыли цель!',
+                                                        );
+                                                    }
                                                 }}
                                             >
                                                 <Text
