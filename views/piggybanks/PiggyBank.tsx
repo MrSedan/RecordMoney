@@ -242,7 +242,6 @@ export default function PiggyBank() {
                 dat.sum_max = +text[1];
                 dat.sum_cur = +(state.piggyBanks[editsum.index].sum_cur + +text[2]);
                 let res = dat.sum_max - dat.sum_cur;
-                console.log('ААААААААААААААААААААААААААААААААААААА');
                 console.log(res);
                 if (dat.sum_cur > dat.sum_max) {
                     Alert.alert(
@@ -256,7 +255,6 @@ export default function PiggyBank() {
                         ],
                     );
                     let itog = +text[2] - -res;
-                    console.log('ААААААААААААААААААААААААААААААААААААА');
                     console.log(itog);
                     addMoneyAccount(-itog, editsum.index);
                     dat.sum_cur = dat.sum_max;
@@ -404,6 +402,7 @@ export default function PiggyBank() {
                 style='1'
                 functionLeft={() => {}}
                 functionRight={() => {
+                    setText(['', '', ' ']);
                     setVisible(true);
                     setActiveModalButton(true);
                 }}
