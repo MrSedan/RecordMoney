@@ -135,3 +135,14 @@ export async function removeAllData() {
 
     await setData({ fileName: 'AccountHistory', data: emptyAccHistory() });
 }
+
+export function abbrNum(num: number) {
+    if (num >= 1000000000) return `${Math.round((num / 1000000000) * 10) / 10} млрд.`;
+    else if (num >= 1000000) return `${Math.round((num / 1000000) * 10) / 10} млн.`;
+    else if (num >= 1000) return `${Math.round((num / 1000) * 10) / 10} тыс.`;
+    else return num;
+}
+
+export function replaceSpace(str: string) {
+    return str.replace(/\s+/g, ' ').trim();
+}
