@@ -15,49 +15,69 @@ import InputContact from '../modular_components/InputContact';
 import * as Contacts from 'expo-contacts';
 import CardSwipe from '../modular_components/CardSwipe';
 
-const TextName = styled.Text`
-    font-family: 'MainFont-Regular';
-    text-align: center;
-    width: 33%;
-    margin-right: 1%;
-    padding-bottom: 2px;
-    font-size: 15px;
+//Button up ///////////////////////////////
+const ButtonTypeView = styled.View`
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    margin: 5px;
 `;
 
-const Scroll = styled.ScrollView`
-    margin: 0;
-    height: 100%;
-    max-height: 100%;
+const ButtonType = styled.TouchableOpacity`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 35px;
+    width: 47%;
+    border-radius: 5px;
+    border: 1px solid #c6c3c3;
 `;
-const Container = styled.View`
+
+const ButtonTypeText = styled.Text`
+    font-size: 15px;
+    font-family: 'MainFont-Regular';
+`;
+///////////////////////////////////////////
+
+//Cards////////////////////////////////////
+const Scroll = styled.ScrollView`
     height: 100%;
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
-`;
-const DebtToMe = styled.TouchableOpacity`
-    border-width: 1px;
-    border-style: solid;
-    height: 35px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-start: 0;
-    width: 48%;
-    border-radius: 5px;
-`;
-const DebtFromMe = styled.TouchableOpacity`
-    border-width: 1px;
-    border-style: solid;
-    height: 35px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-start: 0;
-    width: 48%;
-    border-radius: 5px;
 `;
 
+const CardView = styled.View`
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    max-width: 100%;
+    height: 100%;
+    width: 100%;
+    padding: 6px 3%;
+`;
+
+const CardViewBlock = styled.View`
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+`;
+
+const CardTitle = styled.Text`
+    font-family: 'MainFont-Bold';
+    font-size: 13px;
+    color: #000000;
+    text-align: center;
+`;
+
+const CardMoreInfo = styled.Text`
+    font-family: 'MainFont-Regular';
+    font-size: 13px;
+    text-align: center;
+`;
+///////////////////////////////////////////
+
+//PickerBlock//////////////////////////////
 const PickerBlock = styled.View`
     display: flex;
     flex-direction: row;
@@ -66,6 +86,16 @@ const PickerBlock = styled.View`
     margin: 0 15px 15px;
     max-width: 100%;
 `;
+
+const TextName = styled.Text`
+    font-family: 'MainFont-Regular';
+    text-align: center;
+    width: 33%;
+    margin-right: 1%;
+    padding-bottom: 2px;
+    font-size: 15px;
+`;
+/////////////////////////////////////////////
 
 const monthNames = [
     'января',
@@ -121,9 +151,9 @@ export default function Debt() {
             if (item.date != '') {
                 const [year, month, day] = item.date.split('-').map(Number);
                 const date = new Date(year, month - 1, day);
-                item.date = `${date.getDate()}  ${
+                item.date = `${date.getDate()} ${
                     monthNames[date.getMonth()]
-                }  ${date.getFullYear()}`;
+                } ${date.getFullYear()}`;
             }
         });
         setState(data);
@@ -408,22 +438,14 @@ export default function Debt() {
                     onStart();
                 }}
             />
-            <View
-                style={{
-                    margin: 5,
-                    flex: 1,
-                    flexDirection: 'row',
-                    marginBottom: 40,
-                    justifyContent: 'space-around',
-                }}
-            >
-                <DebtToMe
+            <ButtonTypeView>
+                <ButtonType
                     onPress={() => {
                         setDebt(true);
                     }}
                     style={{ borderColor: debtTome ? '#3FDEAE' : '#C9C9C9' }}
                 >
-                    <Text
+                    <ButtonTypeText
                         style={{
                             color: debtTome ? '#3FDEAE' : '#C9C9C9',
                             fontSize: 15,
@@ -431,15 +453,15 @@ export default function Debt() {
                         }}
                     >
                         Должны мне
-                    </Text>
-                </DebtToMe>
-                <DebtFromMe
+                    </ButtonTypeText>
+                </ButtonType>
+                <ButtonType
                     onPress={() => {
                         setDebt(false);
                     }}
                     style={{ borderColor: !debtTome ? '#3FDEAE' : '#C9C9C9' }}
                 >
-                    <Text
+                    <ButtonTypeText
                         style={{
                             color: !debtTome ? '#3FDEAE' : '#C9C9C9',
                             fontSize: 15,
@@ -447,66 +469,54 @@ export default function Debt() {
                         }}
                     >
                         Должен я
-                    </Text>
-                </DebtFromMe>
-            </View>
+                    </ButtonTypeText>
+                </ButtonType>
+            </ButtonTypeView>
             <Scroll>
-                <Container>
-                    {state.debts &&
-                        state.debts.map((item, index) => {
-                            {
-                                if (
-                                    (debtTome && item.type == '1') ||
-                                    (item.type == '2' && !debtTome)
-                                )
-                                    return (
-                                        <CardSwipe
-                                            key={index}
-                                            onDelete={() => {
-                                                del(index);
-                                            }}
-                                            onEdit={() => {
-                                                openEditModal(index);
-                                            }}
-                                            onDoubleClick={() => {
-                                                console.log('Aboba');
-                                            }}
-                                        >
-                                            <TouchableOpacity
-                                                activeOpacity={1}
-                                                onPress={() => {
-                                                    submit(index);
-                                                }}
-                                                style={{ width: '100%' }}
-                                            >
-                                                <View
-                                                    style={{
-                                                        flex: 1,
-                                                        flexDirection: 'column',
-                                                        padding: 10,
-                                                    }}
-                                                >
-                                                    <View
-                                                        style={{
-                                                            flex: 1,
-                                                            justifyContent: 'space-between',
-                                                            flexDirection: 'row',
-                                                        }}
-                                                    >
-                                                        <Text>{item.name}</Text>
-                                                        <Text>{item.date}</Text>
-                                                        <Text>{getAcc(item.id_account)}</Text>
-                                                        <Text>{`${item.sum}`} руб.</Text>
-                                                    </View>
-                                                    <Text>{item.contact}</Text>
-                                                    <Text>{item.comment}</Text>
-                                                </View>
-                                            </TouchableOpacity>
-                                        </CardSwipe>
-                                    );
-                            }
-                        })}
-                </Container>
+                {state.debts &&
+                    state.debts.map((item, index) => {
+                        {
+                            if ((debtTome && item.type == '1') || (item.type == '2' && !debtTome))
+                                return (
+                                    <CardSwipe
+                                        key={index}
+                                        onDelete={() => {
+                                            del(index);
+                                        }}
+                                        onEdit={() => {
+                                            openEditModal(index);
+                                        }}
+                                        onDoubleClick={() => {
+                                            submit(index);
+                                        }}
+                                    >
+                                        {/* <CardView>
+                                                <CardTitle>
+
+                                                </CardTitle>
+                                                   
+                                                    //     <Text>{item.name}</Text>
+                                                    //     <Text>{item.date}</Text>
+                                                    //     <Text>{getAcc(item.id_account)}</Text>
+                                                    //     <Text>{`${item.sum}`} руб.</Text>
+                                                    // </View>
+                                                    // <Text>{item.contact}</Text>
+                                                    // <Text>{item.comment}</Text>
+                                            </CardView> */}
+                                        <CardView>
+                                            <CardViewBlock>
+                                                <CardTitle>{item.name}</CardTitle>
+                                                <CardMoreInfo>{item.sum} руб</CardMoreInfo>
+                                                <CardMoreInfo>{item.contact}</CardMoreInfo>
+                                            </CardViewBlock>
+                                            <CardViewBlock style={{ justifyContent: 'flex-end' }}>
+                                                <CardMoreInfo>{item.date}</CardMoreInfo>
+                                            </CardViewBlock>
+                                        </CardView>
+                                    </CardSwipe>
+                                );
+                        }
+                    })}
             </Scroll>
         </View>
     );
