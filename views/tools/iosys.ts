@@ -12,6 +12,7 @@ import {
     emptyDebt,
     emptyPiggyBank,
     emptyAccHistory,
+    emptyCategories,
 } from '../../models/interfaces';
 
 /**
@@ -123,6 +124,8 @@ export async function removeAllData() {
     await setData({ fileName: 'Account', data: emptyAccount() });
 
     await setData({ fileName: 'history', data: emptyHistory() });
+
+    await setData({ fileName: 'category', data: emptyCategories() });
 
     await setData({ fileName: 'Calendar', data: emptyCalendar() });
 
