@@ -47,7 +47,7 @@ const BoxInput = styled.View`
  *              }
  * 
 */
-const Input = (props: {textName: string, value: string, index: number, placeholder: string, keyboardType: KeyboardTypeOptions, colorActiveInput: string, setItems: Dispatch<SetStateAction<string[]>>}) => {
+const Input = (props: {len?: number, textName: string, value: string, index: number, placeholder: string, keyboardType: KeyboardTypeOptions, colorActiveInput: string, setItems: Dispatch<SetStateAction<string[]>>}) => {
   const [active, setActive] = useState(false);
 
   const setValue = (newValue: string) => {
@@ -80,6 +80,7 @@ const Input = (props: {textName: string, value: string, index: number, placehold
             keyboardType={props.keyboardType}
             onFocus={() => setActive(true)}
             onEndEditing={() => setActive(false)}
+            maxLength={props.len || 20}
           />
         </BoxInput>
       </BoxView>
