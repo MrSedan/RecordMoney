@@ -241,7 +241,15 @@ export default function PiggyBank() {
             }
             data.piggyBanks[editSum.index] = newData;
             await editItem('piggyBanks', 'PiggyBank', editSum.index, newData);
-            await addMoneyAccount(+pickerValue, value);
+            let res = await addMoneyAccount(+pickerValue, value);
+            if (res === 'not-found') {
+                Alert.alert('Ошибка!', 'Счет не найден');
+                return;
+            }
+            if (res === 'no-money') {
+                Alert.alert('Ошибка', 'Недостаточно средств');
+                return;
+            }
         } else {
             if (data.piggyBanks.length !== 0) {
                 newData.id = data.piggyBanks[data.piggyBanks.length - 1].id + 1;
@@ -340,8 +348,7 @@ export default function PiggyBank() {
             id_accound,
             'piggyBank',
         );
-        if (res === 'not-found') Alert.alert('Ошибка!', 'Счет не найден');
-        if (res === 'no-money') Alert.alert('Ошибка', 'Недостаточно средств');
+        return res;
     };
 
     return (
