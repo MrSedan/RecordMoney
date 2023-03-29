@@ -1,5 +1,18 @@
 import * as fs from 'expo-file-system';
-import { category, debt, history, piggyBank, calendar, account, emptyAccount, emptyHistory, emptyCalendar, emptyDebt, emptyPiggyBank, emptyAccHistory } from '../../models/interfaces';
+import {
+    category,
+    debt,
+    history,
+    piggyBank,
+    calendar,
+    account,
+    emptyAccount,
+    emptyHistory,
+    emptyCalendar,
+    emptyDebt,
+    emptyPiggyBank,
+    emptyAccHistory,
+} from '../../models/interfaces';
 
 /**
  * Функция для записи в приложение
@@ -106,17 +119,27 @@ export async function editItem<
     await setData({ fileName: fileName, data: data });
 }
 
-
 export async function removeAllData() {
-    await setData({fileName: 'Account', data: emptyAccount()})
+    await setData({ fileName: 'Account', data: emptyAccount() });
 
     await setData({ fileName: 'history', data: emptyHistory() });
 
     await setData({ fileName: 'Calendar', data: emptyCalendar() });
 
     await setData({ fileName: 'Debt', data: emptyDebt() });
-    
+
     await setData({ fileName: 'PiggyBank', data: emptyPiggyBank() });
 
     await setData({ fileName: 'AccountHistory', data: emptyAccHistory() });
+}
+
+export function abbrNum(num: number) {
+    if (num >= 1000000000) return `${Math.round((num / 1000000000) * 10) / 10} млрд.`;
+    else if (num >= 1000000) return `${Math.round((num / 1000000) * 10) / 10} млн.`;
+    else if (num >= 1000) return `${Math.round((num / 1000) * 10) / 10} тыс.`;
+    else return num;
+}
+
+export function replaceSpace(str: string) {
+    return str.replace(/\s+/g, ' ').trim();
 }
