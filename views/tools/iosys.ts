@@ -1,5 +1,19 @@
 import * as fs from 'expo-file-system';
-import { category, debt, history, piggyBank, calendar, account, emptyAccount, emptyHistory, emptyCalendar, emptyDebt, emptyPiggyBank, emptyAccHistory } from '../../models/interfaces';
+import {
+    category,
+    debt,
+    history,
+    piggyBank,
+    calendar,
+    account,
+    emptyAccount,
+    emptyHistory,
+    emptyCalendar,
+    emptyDebt,
+    emptyPiggyBank,
+    emptyAccHistory,
+    emptyCategories,
+} from '../../models/interfaces';
 
 /**
  * Функция для записи в приложение
@@ -106,16 +120,17 @@ export async function editItem<
     await setData({ fileName: fileName, data: data });
 }
 
-
 export async function removeAllData() {
-    await setData({fileName: 'Account', data: emptyAccount()})
+    await setData({ fileName: 'Account', data: emptyAccount() });
 
     await setData({ fileName: 'history', data: emptyHistory() });
+
+    await setData({ fileName: 'category', data: emptyCategories() });
 
     await setData({ fileName: 'Calendar', data: emptyCalendar() });
 
     await setData({ fileName: 'Debt', data: emptyDebt() });
-    
+
     await setData({ fileName: 'PiggyBank', data: emptyPiggyBank() });
 
     await setData({ fileName: 'AccountHistory', data: emptyAccHistory() });
