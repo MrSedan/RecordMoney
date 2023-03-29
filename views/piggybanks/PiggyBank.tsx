@@ -1,28 +1,34 @@
-import { Alert, Text, TouchableOpacity, View } from 'react-native';
-import React, { useState } from 'react';
-import styled from 'styled-components/native';
-import Header from '../modular_components/Header';
-import { emptyPiggyBank, piggyBank, emptyAccount, account } from '../../models/interfaces';
-import { useCallback } from 'react';
+import { Alert, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import { getData, setData } from '../tools/iosys';
+import { useState, useCallback, SetStateAction } from 'react';
+import styled from 'styled-components/native';
+
+import Header from '../modular_components/Header';
 import ModalWindowOneButton from '../modular_components/ModalWindowOneButton';
 import Input from '../modular_components/Input';
 import CardSwipe from '../modular_components/CardSwipe';
-import DropDownPicker from 'react-native-dropdown-picker';
+import InputPG from '../piggybanks/InputPG';
+
+import { emptyPiggyBank, piggyBank, account } from '../../models/interfaces';
+import {
+    getData,
+    setData,
+    abbrNum,
+    editItem,
+    addItem,
+    delItem,
+    replaceSpace,
+} from '../tools/iosys';
 import { addMoney, getAccounts } from '../tools/account';
+import Account from '../accounts/Account';
+import DropDownPicker from 'react-native-dropdown-picker';
 
-const Scroll = styled.ScrollView`
-    heigth: 100%;
-`;
-
-const TextName = styled.Text`
-    font-family: 'MainFont-Regular';
-    text-align: center;
-    width: 33%;
-    margin-right: 1%;
-    padding-bottom: 2px;
-    font-size: 15px;
+//Button up ///////////////////////////////
+const ButtonTypeView = styled.View`
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    margin: 5px;
 `;
 
 const ButtonType = styled.TouchableOpacity`
@@ -39,65 +45,83 @@ const ButtonTypeText = styled.Text`
     font-size: 15px;
     font-family: 'MainFont-Regular';
 `;
+///////////////////////////////////////////
 
-const ButtonTypeView = styled.View`
-    display: flex;
-    flex-direction: row;
-    justify-content: space-evenly;
-    align-items: center;
-    margin: 5px 1px 0px 1px;
-    max-width: 100%;
-`;
-
-const KTitle = styled.Text`
-    font-family: 'MainFont-Bold';
-    font-weight: 400;
-    font-size: 15px;
-    color: #000000;
-    letter-spacing: 1px;
-`;
-
-const KMoney = styled.Text`
-    font-family: 'MainFont-Bold';
-    font-weight: 400;
-    font-size: 15px;
-    letter-spacing: 1px;
-    color: #000000;
-`;
-
-const Kopilka = styled.View`
-    flex: 1;
-    background: #ffffff;
-    border: 1px solid #cecccc;
-    box-shadow: 0px 2px 48px rgba(0, 0, 0, 0.04);
-    border-radius: 8px;
-    flex-direction: column;
-`;
-
-const Container = styled.View`
+//Cards////////////////////////////////////
+const Scroll = styled.ScrollView`
     height: 100%;
     display: flex;
     flex-direction: column;
 `;
 
-const KDetails = styled.View`
-    flex: 1;
+const CardView = styled.View`
     display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    margin: 8px 20px 0 20px;
+    flex-direction: column;
+    justify-content: flex-start;
+    max-width: 100%;
+    height: 100%;
+    width: 100%;
+    padding: 2px 5%;
 `;
 
-const FullBar = styled.View`
-    width: 90%;
-    margin: 0 auto;
-    border-radius: 16px;
+const CardHeader = styled.View`
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+`;
+
+const CardTitle = styled.Text`
+    font-family: 'MainFont-Bold';
+    font-weight: 400;
+    font-size: 14px;
+    color: #000000;
+    letter-spacing: 1px;
+    text-align: center;
+`;
+
+const CardMoney = styled.Text`
+    font-family: 'MainFont-Regular';
+    font-weight: 400;
+    font-size: 12px;
+    letter-spacing: 1px;
+    text-align: center;
+`;
+
+const CardMoreInfo = styled.Text`
+    font-family: 'MainFont-Regular';
+    font-size: 13px;
+    text-align: center;
+`;
+///////////////////////////////////////////
+
+//ProgresBar///////////////////////////////
+const ProgressBarView = styled.View`
+    display: flex;
     align-items: flex-start;
     justify-content: center;
-    height: 10px;
-    background-color: #7d85fd;
+    width: 100%;
+    height: 12px;
+    margin: 3px 0;
+    background-color: #fff;
+    border: 1px solid #e0dfdf;
+    border-raduis: 16px;
 `;
 
+const ProgressBarCase = styled.View`
+    border-radius: 16px;
+    height: 100%;
+    background-color: #3ea2ff;
+`;
+
+const ProgressBarText = styled.Text`
+    position: absolute;
+    text-align: center;
+    width: 100%;
+    font-size: 11px;
+`;
+///////////////////////////////////////////
+
+//PickerBlock//////////////////////////////
 const PickerBlock = styled.View`
     display: flex;
     flex-direction: row;
@@ -107,77 +131,63 @@ const PickerBlock = styled.View`
     max-width: 100%;
 `;
 
-const Content = styled.View`
-    border-radius: 16px;
-    height: 10px;
-    background-color: #0413e7;
-    width: 40%;
+const TextName = styled.Text`
+    font-family: 'MainFont-Regular';
+    text-align: center;
+    width: 33%;
+    margin-right: 1%;
+    padding-bottom: 2px;
+    font-size: 15px;
 `;
+/////////////////////////////////////////////
 
-function ProgressBar(props: { weight1: string }) {
+function ProgressBar(props: { value: number }) {
     return (
-        <FullBar>
-            <Content style={{ width: ` ${props.weight1}` }} />
-        </FullBar>
+        <ProgressBarView>
+            <ProgressBarCase
+                style={{
+                    width: `${props.value}%`,
+                }}
+            ></ProgressBarCase>
+            <ProgressBarText>{Math.round(props.value)}%</ProgressBarText>
+        </ProgressBarView>
     );
 }
 
 export default function PiggyBank() {
     const [state, setState] = useState(emptyPiggyBank());
-    const [counter, setCounter] = useState(0);
-    const [active, setActive] = useState(false);
-    const [visible, setVisible] = useState(false);
-    const [activeModalButton, setActiveModalButton] = useState(true);
-    const [text, setText] = useState(['', '', '0']);
-    const [editing, setEditing] = useState({ editing: false, index: 0 });
-    const [editsum, setEditsum] = useState({ editsum: false, index: 0 });
-    const [svisible, setSVisible] = useState(false);
+    const [accs, setAccs] = useState<{ label: string; value: string }[]>([]);
+    const [text, setText] = useState(['', '']);
+    const [sumEdit, setSumEdit] = useState('');
+
+    const [activeButtonType, setActiveButtonType] = useState(false);
+
+    const [modalWindow, setModalWindow] = useState(false);
+    const [holdActiveInput, setHoldActiveInput] = useState(false);
     const [openPicker, setOpenPicker] = useState(false);
     const [pickerValue, setPickerValue] = useState('');
-    const [items, setItems] = useState<{ label: string; value: string }[]>([]);
 
-    function getItems(accounts: account['accounts']) {
+    const [editing, setEditing] = useState({ editing: false, index: -1 });
+    const [editSum, setEditSum] = useState({ editSum: false, index: -1 });
+
+    const getItems = (accounts: account['accounts']) => {
         let data: { label: string; value: string }[] = [];
         accounts.map((item) => {
-            data.push({ label: `${item.name}     ${item.sum} руб.`, value: item.id.toString() });
+            data.push({ label: `${item.name} ${item.sum}`, value: item.id.toString() });
         });
-        setItems(data);
-    }
-
-    const curData = {
-        id: 1,
-        id_account: +pickerValue,
-        name: 'Билет в Москву',
-        sum_max: 30000,
-        sum_cur: 20000,
-        status: false,
-    };
-
-    const openEdit = (index: number) => {
-        setText([state.piggyBanks[index].name, state.piggyBanks[index].sum_max.toString()]);
-        setVisible(true);
-        setEditing({ editing: true, index: index });
-    };
-
-    const addMoneyAccount = async (value: number, id_operat: number) => {
-        let dat = curData;
-        dat.id_account = +pickerValue;
-        let res = '';
-        res = await addMoney(value, id_operat, dat.id_account, 'piggyBank');
-        if (res === 'not-found') Alert.alert('Ошибка!', 'Счет не найден');
-        if (res === 'no-money') Alert.alert('Ошибка', 'Недостаточно средств');
+        setAccs(data);
     };
 
     const search = async () => {
+        setAccs([]);
+        setState(emptyPiggyBank());
         let data: piggyBank = await getData({ fileName: 'PiggyBank' });
-
         if (data === null) {
-            await setData({ fileName: 'PiggyBank', data: emptyPiggyBank() });
             data = emptyPiggyBank();
+            await setData({ fileName: 'PiggyBank', data: data });
         }
-        setState(data);
-        setCounter(data.piggyBanks.length);
         await getItems(await getAccounts());
+        setState(JSON.parse(JSON.stringify(data)));
     };
 
     useFocusEffect(
@@ -186,136 +196,134 @@ export default function PiggyBank() {
         }, []),
     );
 
-    const click = async () => {
-        if (text[0].trim() == '' || !text[1].trim().match(/^\d+$/)) {
-            Alert.alert('Ошибка!', 'Пожалуйста, заполните все обязательные поля корректно.', [
-                {
-                    text: 'OK',
-                    onPress: () => {},
-                },
-            ]);
-        } else {
-            let NewDat: piggyBank = await getData({ fileName: 'PiggyBank' });
-            let dat = curData;
-            dat.name = text[0];
-            dat.id_account = +pickerValue;
-            dat.sum_max = +text[1];
-            dat.sum_cur = +text[2];
-            dat.status = false;
-            if (editing.editing) {
-                dat.id = editing.index;
-                NewDat.piggyBanks[editing.index] = dat;
-                dat.id_account = Number(pickerValue);
+    const onClick = async () => {
+        let data: piggyBank = JSON.parse(JSON.stringify(state));
+        let newData = {
+            id: 0,
+            name: replaceSpace(text[0]),
+            sum_max: +text[1],
+            sum_cur: 0,
+            status: false,
+        };
+
+        if (editing.editing) {
+            newData.id = data.piggyBanks[editing.index].id;
+            newData.sum_cur = data.piggyBanks[editing.index].sum_cur;
+            newData.status = data.piggyBanks[editing.index].status; ///нельзя редакт закрытую
+            data.piggyBanks[editing.index] = newData;
+            await editItem('piggyBanks', 'PiggyBank', editing.index, newData);
+        } else if (editSum.editSum) {
+            newData.id = data.piggyBanks[editSum.index].id;
+            let value = 0;
+            if (data.piggyBanks[editSum.index].sum_cur + Number(sumEdit) === newData.sum_max) {
+                newData.sum_cur = data.piggyBanks[editSum.index].sum_cur + Number(sumEdit);
+                newData.status = true;
+                value = Number(sumEdit);
+                Alert.alert(
+                    'Поздравляю!',
+                    'Вы закрыли свою цель! Вы можете отслеживать свои закрытые цели в разделе "закрытые". Вы можете удалить их в любое время',
+                );
+            } else if (newData.sum_max < data.piggyBanks[editSum.index].sum_cur + Number(sumEdit)) {
+                let ost = newData.sum_max - data.piggyBanks[editSum.index].sum_cur;
+
+                value = Number(ost);
+
+                newData.sum_cur = newData.sum_max;
+                newData.status = true;
+                setSumEdit(String(ost));
+                Alert.alert(
+                    'Предупреждение!',
+                    'Вы ввели сумму больше оставшейся, цель закрыта, остатки возвращены на счет',
+                );
             } else {
-                dat.id =
-                    NewDat.piggyBanks.length > 0
-                        ? NewDat.piggyBanks[NewDat.piggyBanks.length - 1].id + 1
-                        : 0;
-                NewDat.piggyBanks.push(curData);
+                newData.sum_cur = data.piggyBanks[editSum.index].sum_cur + Number(sumEdit);
+                value = Number(sumEdit);
             }
-            await setData({ fileName: 'PiggyBank', data: NewDat });
-            setText(['', '', ' ']);
-            setState(NewDat);
-            setCounter(counter + 1);
-            setVisible(false);
-            setPickerValue('');
+            data.piggyBanks[editSum.index] = newData;
+            await editItem('piggyBanks', 'PiggyBank', editSum.index, newData);
+            await addMoneyAccount(+pickerValue, value);
+        } else {
+            if (data.piggyBanks.length !== 0) {
+                newData.id = data.piggyBanks[data.piggyBanks.length - 1].id + 1;
+                data.piggyBanks.push(newData);
+                await addItem('piggyBanks', 'PiggyBank', newData);
+            } else {
+                newData.id = 1;
+                data.piggyBanks = [newData];
+                await addItem('piggyBanks', 'PiggyBank', newData);
+            }
         }
+
+        setState(data);
+        setText(['', '']);
+        setPickerValue('');
+        setEditing({ editing: false, index: -1 });
+        setEditSum({ editSum: false, index: -1 });
+        setSumEdit('');
     };
 
-    const clicksum = async () => {
-        if (!text[2].match(/^\d+$/)) {
-            Alert.alert('Не верные данных!', 'Вы ввели неверную сумму');
+    const tryToSave = () => {
+        if (replaceSpace(text[0]) === '') {
+            Alert.alert('Не верные данные!', 'Вы ввели неверное название');
+            return;
+        } else if (
+            !replaceSpace(text[1]).match(/^\d+$/) ||
+            (editSum.editSum && !replaceSpace(sumEdit).match(/^\d+$/)) ||
+            Number(text[1]) === 0 ||
+            (editSum.editSum && Number(sumEdit) === 0)
+        ) {
+            Alert.alert('Не верные данные!', 'Вы ввели неверную сумму');
+            return;
+        } else if (editSum.editSum && pickerValue == '') {
+            Alert.alert('Не верные данные!', 'Вы не ввели счет');
+            return;
+        } else if (editSum.editSum && pickerValue == '') {
+            Alert.alert('Не верные данные!', 'Вы не ввели счет');
+            return;
+        } else if (editSum.editSum && pickerValue == '') {
+            Alert.alert('Не верные данные!', 'Вы не ввели счет');
             return;
         } else {
-            if (pickerValue == '') {
-                Alert.alert('Ошибка!', 'Пожалуйста, заполните все обязательные поля.', [
-                    {
-                        text: 'OK',
-                        onPress: () => {},
-                    },
-                ]);
-            } else {
-                let NewDat: piggyBank = await getData({ fileName: 'PiggyBank' });
-                let dat = curData;
-                dat.name = text[0];
-                dat.id_account = +pickerValue;
-                dat.sum_max = +text[1];
-                dat.sum_cur = +(state.piggyBanks[editsum.index].sum_cur + +text[2]);
-                let res = dat.sum_max - dat.sum_cur;
-                console.log(res);
-                if (dat.sum_cur > dat.sum_max) {
-                    Alert.alert(
-                        'Предупреждение!',
-                        'Вы ввели сумму больше оставшейся, цель закрыта, остатки возвращены на счет',
-                        [
-                            {
-                                text: 'OK',
-                                onPress: () => {},
-                            },
-                        ],
-                    );
-                    let itog = +text[2] - -res;
-                    console.log(itog);
-                    addMoneyAccount(-itog, editsum.index);
-                    dat.sum_cur = dat.sum_max;
-                    dat.status = true;
-                    editsum.editsum = false;
-                    dat.id = editsum.index;
-                    NewDat.piggyBanks[editsum.index] = dat;
-                    setSVisible(false);
-                    await setData({ fileName: 'PiggyBank', data: NewDat });
-                    setText(['', '', ' ']);
-                    setState(NewDat);
-                    setCounter(counter + 1);
-                    setPickerValue('');
-                } else {
-                    if (dat.sum_cur === dat.sum_max) {
-                        Alert.alert(
-                            'Поздравляю!',
-                            'Вы закрыли свою цель! Вы можете отслеживать свои закрытые цели в разделе "закрытые". Вы можете удалить их в любое время',
-                            [
-                                {
-                                    text: 'OK',
-                                    onPress: () => {},
-                                },
-                            ],
-                        );
-                        dat.status = true;
-                    } else {
-                        dat.status = false;
-                    }
-                    if (editsum.editsum) {
-                        dat.id = editsum.index;
-                        NewDat.piggyBanks[editsum.index] = dat;
-                        addMoneyAccount(-+text[2], editsum.index);
-                    } else {
-                        dat.id =
-                            NewDat.piggyBanks.length > 0
-                                ? NewDat.piggyBanks[NewDat.piggyBanks.length - 1].id + 1
-                                : 0;
-                        NewDat.piggyBanks.push(curData);
-                    }
-                    await setData({ fileName: 'PiggyBank', data: NewDat });
-                    setText(['', '', ' ']);
-                    setState(NewDat);
-                    setCounter(counter + 1);
-                    setVisible(false);
-                    setPickerValue('');
-                }
-            }
+            onClick();
+            setModalWindow(false);
         }
     };
 
-    const del = async (index: number) => {
+    const editMode = (index: number) => {
+        if (state.piggyBanks[index].status) {
+            Alert.alert('Внимание!', 'Вы уже закрыли цель!');
+            return;
+        }
+        setText([state.piggyBanks[index].name, state.piggyBanks[index].sum_max.toString()]);
+        setModalWindow(true);
+        setEditing({ editing: true, index: index });
+    };
+
+    const editModeSum = (index: number) => {
+        if (state.piggyBanks[index].status == false) {
+            if (accs.length === 0) {
+                Alert.alert('Внимание!', ' Счетов нет !');
+                return;
+            }
+        } else {
+            Alert.alert('Внимание!', 'Вы уже закрыли цель!');
+            return;
+        }
+
+        setText([state.piggyBanks[index].name, state.piggyBanks[index].sum_max.toString()]);
+        setModalWindow(true);
+        setEditSum({ editSum: true, index: index });
+    };
+
+    const delMode = async (index: number) => {
         Alert.alert('Внимание', 'Вы уверены, что хотите удалить цель?', [
             {
                 text: 'Да',
                 onPress: async () => {
-                    let newDat: piggyBank = JSON.parse(JSON.stringify(state));
-                    newDat.piggyBanks.splice(index, 1);
-                    await setData({ fileName: 'PiggyBank', data: newDat });
-                    setState(newDat);
-                    Alert.alert('Цель успешно удалена!');
+                    let data: piggyBank = JSON.parse(JSON.stringify(state));
+                    data.piggyBanks.splice(index, 1);
+                    await delItem('piggyBanks', 'PiggyBank', index);
+                    setState(data);
                 },
             },
             {
@@ -325,254 +333,180 @@ export default function PiggyBank() {
         ]);
     };
 
+    const addMoneyAccount = async (id_accound: number, value: number) => {
+        let res = await addMoney(
+            +value * -1,
+            state.piggyBanks[editSum.index].id,
+            id_accound,
+            'piggyBank',
+        );
+        if (res === 'not-found') Alert.alert('Ошибка!', 'Счет не найден');
+        if (res === 'no-money') Alert.alert('Ошибка', 'Недостаточно средств');
+    };
+
     return (
-        <View style={{ backgroundColor: '#FFF', height: '100%' }}>
+        <View style={{ height: '100%', backgroundColor: '#fff' }}>
             <ModalWindowOneButton
+                windowName={editing.editing ? 'Редактирование цели' : 'Добавить новую цель'}
                 functionCancelButton={() => {
-                    setText(['', '', ' ']);
-                    setEditing({ editing: false, index: 0 });
+                    setText(['', '']);
                     setPickerValue('');
+                    setEditing({ editing: false, index: -1 });
+                    setEditSum({ editSum: false, index: -1 });
+                    setSumEdit('');
                 }}
                 functionSaveButton={() => {
-                    click(), setVisible(false);
+                    tryToSave();
                 }}
-                visible={visible}
-                setVisible={setVisible}
-                windowName={editing.editing ? `Редактирование цели ` : 'Добавить новую цель'}
+                visible={modalWindow}
+                setVisible={setModalWindow}
             >
-                <Input
-                    textName='Название'
-                    value={text[0].toString()}
-                    setItems={setText}
-                    index={0}
-                    placeholder='Введите название цели'
-                    keyboardType='default'
-                    colorActiveInput={activeModalButton ? '#3EA2FF' : '#FF6E6E'}
-                />
-                <Input
-                    textName='Сумма'
-                    value={text[1].toString()}
-                    setItems={setText}
-                    index={1}
-                    placeholder='Введите сумму'
-                    keyboardType='numeric'
-                    colorActiveInput={activeModalButton ? '#3EA2FF' : '#FF6E6E'}
-                />
-            </ModalWindowOneButton>
-            <ModalWindowOneButton
-                functionCancelButton={() => {
-                    setEditsum({ editsum: false, index: 0 });
-                }}
-                functionSaveButton={() => {
-                    clicksum(), setSVisible(false);
-                }}
-                visible={svisible}
-                setVisible={setSVisible}
-                windowName='Редактирование суммы'
-            >
-                <Input
-                    textName='Текущая сумма'
-                    value={text[2].toString()}
-                    setItems={setText}
-                    index={2}
-                    placeholder='Введите сумму'
-                    keyboardType='numeric'
-                    colorActiveInput={activeModalButton ? '#3EA2FF' : '#FF6E6E'}
-                />
-                <PickerBlock>
-                    <TextName>Счёт</TextName>
-                    <DropDownPicker
-                        open={openPicker}
-                        value={pickerValue}
-                        translation={{
-                            PLACEHOLDER: 'Выберите счёт!',
-                            NOTHING_TO_SHOW: 'Нет счетов для выбора!',
-                        }}
-                        setOpen={setOpenPicker}
-                        setValue={setPickerValue}
-                        items={items}
-                        setItems={setItems}
-                        containerStyle={{ width: '66%', alignSelf: 'flex-end' }}
-                        dropDownDirection='TOP'
-                    />
-                </PickerBlock>
+                {!editSum.editSum ? (
+                    <View>
+                        <Input
+                            textName='Название'
+                            value={text[0].toString()}
+                            setItems={setText}
+                            index={0}
+                            placeholder='Введите название цели'
+                            keyboardType='default'
+                            colorActiveInput={holdActiveInput ? '#3EA2FF' : '#FF6E6E'}
+                        />
+                        <Input
+                            textName='Сумма'
+                            value={text[1].toString()}
+                            setItems={setText}
+                            index={1}
+                            placeholder='Введите сумму'
+                            keyboardType='numeric'
+                            colorActiveInput={holdActiveInput ? '#3EA2FF' : '#FF6E6E'}
+                        />
+                    </View>
+                ) : (
+                    <View>
+                        <InputPG
+                            textName='Сумма'
+                            value={sumEdit}
+                            setValue={setSumEdit}
+                            placeholder='Введите сумму'
+                            keyboardType='numeric'
+                            colorActiveInput={holdActiveInput ? '#3EA2FF' : '#FF6E6E'}
+                        />
+                        <PickerBlock>
+                            <TextName>Счет</TextName>
+                            <DropDownPicker
+                                open={openPicker}
+                                value={pickerValue}
+                                translation={{
+                                    PLACEHOLDER: 'Выберите счёт!',
+                                    NOTHING_TO_SHOW: 'Нет счетов для выбора!',
+                                }}
+                                setOpen={setOpenPicker}
+                                setValue={setPickerValue}
+                                items={accs}
+                                setItems={setAccs}
+                                containerStyle={{
+                                    width: '66%',
+                                    alignSelf: 'flex-end',
+                                }}
+                                dropDownDirection='TOP'
+                            />
+                        </PickerBlock>
+                    </View>
+                )}
             </ModalWindowOneButton>
             <Header
-                name='PyggyBank'
+                name='PiggyBank'
                 style='1'
                 functionLeft={() => {}}
                 functionRight={() => {
-                    setText(['', '', ' ']);
-                    setVisible(true);
-                    setActiveModalButton(true);
+                    setText(['', '']);
+                    setModalWindow(true);
+                    setActiveButtonType(false);
                 }}
                 onModalHide={async () => {
-                    search();
+                    await search();
                 }}
             />
+            <ButtonTypeView>
+                <ButtonType
+                    onPress={() => {
+                        setActiveButtonType(false);
+                        setText(['', '', ' ']);
+                    }}
+                    style={
+                        !activeButtonType
+                            ? {
+                                  borderColor: '#3FDEAE',
+                              }
+                            : {
+                                  borderColor: '#C9C9C9',
+                              }
+                    }
+                >
+                    <ButtonTypeText>Активные</ButtonTypeText>
+                </ButtonType>
+                <ButtonType
+                    onPress={() => {
+                        setActiveButtonType(true);
+                        setText(['', '', ' ']);
+                    }}
+                    style={
+                        activeButtonType
+                            ? {
+                                  borderColor: '#3FDEAE',
+                              }
+                            : {
+                                  borderColor: '#C9C9C9',
+                              }
+                    }
+                >
+                    <ButtonTypeText>Закрытые</ButtonTypeText>
+                </ButtonType>
+            </ButtonTypeView>
             <Scroll>
-                <Container>
-                    <ButtonTypeView>
-                        <ButtonType
-                            onPress={() => {
-                                setActive(false);
-                                setText(['', '', ' ']);
-                            }}
-                            style={
-                                !active ? { borderColor: '#3FDEAE' } : { borderColor: '#C9C9C9' }
-                            }
-                        >
-                            <ButtonTypeText
-                                style={!active ? { color: '#3FDEAE' } : { color: '#C9C9C9' }}
-                            >
-                                Активные
-                            </ButtonTypeText>
-                        </ButtonType>
-                        <ButtonType
-                            onPress={() => {
-                                setActive(true);
-                                setText(['', '', ' ']);
-                            }}
-                            style={active ? { borderColor: '#3FDEAE' } : { borderColor: '#C9C9C9' }}
-                        >
-                            <ButtonTypeText style={{ color: active ? '#3FDEAE' : '#C9C9C9' }}>
-                                Закрытые
-                            </ButtonTypeText>
-                        </ButtonType>
-                    </ButtonTypeView>
-                    {state.piggyBanks &&
-                        state.piggyBanks.map((item, index) => {
-                            if (
-                                (active && item.status == true) ||
-                                (item.status == false && !active)
-                            )
-                                return (
-                                    <CardSwipe
-                                        key={index}
-                                        onDelete={() => {
-                                            del(index);
-                                        }}
-                                        onEdit={() => {
-                                            if (item.status == false) {
-                                                setText([
-                                                    state.piggyBanks[index].name,
-                                                    state.piggyBanks[index].sum_max.toString(),
-                                                    state.piggyBanks[index].sum_cur.toString(),
-                                                ]);
-                                                setVisible(true);
-                                                setEditing({ editing: true, index: index });
-                                                setPickerValue(
-                                                    `${state.piggyBanks[index].id_account}`,
-                                                );
-                                            } else {
-                                                Alert.alert(
-                                                    'Внимание!',
-                                                    'Вы не можете редактировать закрытую цель!',
-                                                );
-                                            }
-                                        }}
-                                        onDoubleClick={() => {
-                                            if (item.status == false) {
-                                                if (items.length > 0) {
-                                                    setText([
-                                                        state.piggyBanks[index].name,
-                                                        state.piggyBanks[index].sum_max.toString(),
-                                                        state.piggyBanks[index].sum_cur.toString(),
-                                                    ]);
-                                                    setSVisible(true);
-                                                    setEditsum({ editsum: true, index: index });
-                                                    setPickerValue(
-                                                        `${state.piggyBanks[index].id_account}`,
-                                                    );
-                                                } else {
-                                                    Alert.alert(
-                                                        'Внимание!',
-                                                        'Вы пробуете добавить средства в цель, не создав предварительно счёт!',
-                                                    );
-                                                }
-                                            } else {
-                                                Alert.alert('Внимание!', 'Вы уже закрыли цель!');
-                                            }
-                                        }}
-                                    >
-                                        <Kopilka>
-                                            <KDetails>
-                                                <KTitle>{item.name}</KTitle>
-                                                <KMoney>
-                                                    {`${item.sum_cur}`}/{`${item.sum_max}`}
-                                                </KMoney>
-                                            </KDetails>
-                                            <ProgressBar
-                                                weight1={`${
-                                                    (+item.sum_cur / +item.sum_max) * 100
-                                                }%`}
-                                            />
-                                            <Text
-                                                style={{
-                                                    textAlign: 'center',
-                                                    marginTop: 8,
-                                                    marginBottom: -30,
-                                                    fontFamily: 'MainFont-Regular',
-                                                }}
-                                            >
-                                                До цели осталось{' '}
-                                                <Text style={{ fontFamily: 'MainFont-Bold' }}>
-                                                    {+item.sum_max - +item.sum_cur}
-                                                </Text>{' '}
-                                                средств
-                                            </Text>
-                                            <TouchableOpacity
-                                                onPress={() => {
-                                                    if (item.status == false) {
-                                                        if (items.length > 0) {
-                                                            setText([
-                                                                state.piggyBanks[index].name,
-                                                                state.piggyBanks[
-                                                                    index
-                                                                ].sum_max.toString(),
-                                                                state.piggyBanks[
-                                                                    index
-                                                                ].sum_cur.toString(),
-                                                            ]);
-                                                            setSVisible(true);
-                                                            setEditsum({
-                                                                editsum: true,
-                                                                index: index,
-                                                            });
-                                                            setPickerValue(
-                                                                `${state.piggyBanks[index].id_account}`,
-                                                            );
-                                                        } else {
-                                                            Alert.alert(
-                                                                'Внимание!',
-                                                                'Вы пробуете добавить средства в цель, не создав предварительно счёт!',
-                                                            );
-                                                        }
-                                                    } else {
-                                                        Alert.alert(
-                                                            'Внимание!',
-                                                            'Вы уже закрыли цель!',
-                                                        );
-                                                    }
-                                                }}
-                                            >
-                                                <Text
-                                                    style={{
-                                                        fontFamily: 'MainFont-Bold',
-                                                        fontSize: 30,
-                                                        textAlign: 'right',
-                                                        marginRight: 10,
-                                                        marginTop: 3,
-                                                    }}
-                                                >
-                                                    +
-                                                </Text>
-                                            </TouchableOpacity>
-                                        </Kopilka>
-                                    </CardSwipe>
-                                );
-                        })}
-                </Container>
+                {state.piggyBanks &&
+                    state.piggyBanks.map((item, index) => {
+                        if (
+                            (activeButtonType && item.status === true) ||
+                            (!activeButtonType && item.status === false)
+                        )
+                            return (
+                                <CardSwipe
+                                    key={index}
+                                    onDelete={() => {
+                                        delMode(index);
+                                    }}
+                                    onEdit={() => {
+                                        editMode(index);
+                                    }}
+                                    onDoubleClick={async () => {
+                                        await getItems(await getAccounts());
+                                        editModeSum(index);
+                                    }}
+                                >
+                                    <CardView>
+                                        <CardHeader>
+                                            <CardTitle>{item.name}</CardTitle>
+                                            <CardMoney>
+                                                {`${item.sum_cur}`}/{`${item.sum_max}`}
+                                            </CardMoney>
+                                        </CardHeader>
+                                        <ProgressBar
+                                            value={(+item.sum_cur / +item.sum_max) * 100}
+                                        />
+                                        <CardMoreInfo>
+                                            До цели осталось
+                                            <CardMoreInfo style={{ fontFamily: 'MainFont-Bold' }}>
+                                                {' '}
+                                                {abbrNum(+item.sum_max - +item.sum_cur)}{' '}
+                                            </CardMoreInfo>
+                                            средств
+                                        </CardMoreInfo>
+                                    </CardView>
+                                </CardSwipe>
+                            );
+                    })}
             </Scroll>
         </View>
     );
