@@ -1,7 +1,7 @@
-import { memo } from "react";
-import { Keyboard, Modal, TouchableWithoutFeedback, View } from "react-native";
-import BackArrowSvg from '../../assets/icon/BackArrow.svg'
-import styled from "styled-components/native";
+import { memo } from 'react';
+import { Keyboard, Modal, TouchableWithoutFeedback, View } from 'react-native';
+import BackArrowSvg from '../../assets/icon/BackArrow.svg';
+import styled from 'styled-components/native';
 
 const HeaderView = styled.View`
     display: flex;
@@ -23,7 +23,7 @@ const ButtonTypeView = styled.View`
     flex-direction: row;
     justify-content: space-evenly;
     align-items: center;
-    margin: 44px 0;
+    margin: 20px 0;
     max-width: 100%;
 `;
 
@@ -34,7 +34,7 @@ const ButtonType = styled.TouchableOpacity`
     height: 35px;
     width: 48%;
     border-radius: 5px;
-    border: 1px solid #C6C3C3;
+    border: 1px solid #c6c3c3;
 `;
 
 const ButtonTypeText = styled.Text`
@@ -42,9 +42,7 @@ const ButtonTypeText = styled.Text`
     font-size: 15px;
 `;
 
-const InputView = styled.View`
-    
-`;
+const InputView = styled.View``;
 
 const ButtonLow = styled.View`
     display: flex;
@@ -62,7 +60,7 @@ const ButtonLowLeft = styled.TouchableOpacity`
     height: 35px;
     width: 58%;
     border-radius: 5px;
-    border: 1px solid #C6C3C3;
+    border: 1px solid #c6c3c3;
 `;
 
 const ButtonLowRight = styled.TouchableOpacity`
@@ -72,11 +70,8 @@ const ButtonLowRight = styled.TouchableOpacity`
     height: 35px;
     width: 38%;
     border-radius: 5px;
-    border: 1px solid #C6C3C3;
+    border: 1px solid #c6c3c3;
 `;
-
-
-
 
 /** 
  * Компонент для отрисовки всего модального окна два двух типов операций
@@ -105,52 +100,120 @@ const ButtonLowRight = styled.TouchableOpacity`
  *              }
  * 
 */
-const ModalWindow = memo((props: 
-    {children: React.ReactNode, 
-    visible: boolean, 
-    setVisible: React.Dispatch<React.SetStateAction<boolean>>, 
-    buttonTextLeft: string, 
-    buttonTextRight: string, 
-    activeModalButton: boolean, 
-    setActiveModalButton: React.Dispatch<React.SetStateAction<boolean>>, 
-    colorActiveLeft: string, 
-    colorActiveRight: string,
-    functionSaveButton: Function,
-    functionCancelButton: Function,
-    functionCloseButton?: Function
-}) => {
-    return (
-        <Modal animationType="slide" transparent={false} visible={props.visible} onRequestClose={() => {props.functionCloseButton && props.functionCloseButton(); props.setVisible(false)}}>
-            <TouchableWithoutFeedback onPress={() => {Keyboard.dismiss()}}>
-                <View>
-                    <HeaderView>
-                        <BackArrowSvg width={25} height={25} onPress={() => {props.functionCloseButton && props.functionCloseButton(); props.setVisible(false)}}/>
-                        <HeaderText>{(props.activeModalButton) ? `${props.buttonTextLeft}` : props.buttonTextRight}</HeaderText>
-                    </HeaderView>
-                    <ButtonTypeView>
-                        <ButtonType onPress={() => props.setActiveModalButton(true)} style={(props.activeModalButton) ? {borderColor: `${props.colorActiveLeft}`} : {borderColor: '#C6C3C3'}}>
-                            <ButtonTypeText style={(props.activeModalButton) ? {color: `${props.colorActiveLeft}`} : {color: '#C6C3C3'}}>{props.buttonTextLeft}</ButtonTypeText>
-                        </ButtonType>
-                        <ButtonType onPress={() => props.setActiveModalButton(false)} style={(props.activeModalButton) ? {borderColor: '#C6C3C3'} : {borderColor: `${props.colorActiveRight}`}}>
-                            <ButtonTypeText style={(props.activeModalButton) ? {color: '#C6C3C3'} : {color: `${props.colorActiveRight}`}}>{props.buttonTextRight}</ButtonTypeText>
-                        </ButtonType>
-                    </ButtonTypeView>
-                    <InputView>
-                        {props.children}
-                    </InputView>
-                    <View style={{borderBottomColor: '#C6C3C3', borderBottomWidth: 1}}/> 
-                    <ButtonLow>
-                        <ButtonLowLeft onPress={() => {props.functionSaveButton()}} style={(props.activeModalButton) ? {backgroundColor: `${props.colorActiveLeft}`} : {backgroundColor: `${props.colorActiveRight}`}}>
-                            <ButtonTypeText style={{color: 'white'}}>Сохранить</ButtonTypeText>
-                        </ButtonLowLeft>
-                        <ButtonLowRight onPress={() => {props.setVisible(false); props.functionCancelButton()}}>
-                            <ButtonTypeText>Отмена</ButtonTypeText>    
-                        </ButtonLowRight>                    
-                    </ButtonLow>  
-                </View>
-            </TouchableWithoutFeedback>
-        </Modal>
-    )
-})
+const ModalWindow = memo(
+    (props: {
+        children: React.ReactNode;
+        visible: boolean;
+        setVisible: React.Dispatch<React.SetStateAction<boolean>>;
+        buttonTextLeft: string;
+        buttonTextRight: string;
+        activeModalButton: boolean;
+        setActiveModalButton: React.Dispatch<React.SetStateAction<boolean>>;
+        colorActiveLeft: string;
+        colorActiveRight: string;
+        functionSaveButton: Function;
+        functionCancelButton: Function;
+    }) => {
+        return (
+            <Modal
+                animationType='slide'
+                transparent={false}
+                visible={props.visible}
+                onRequestClose={() => {
+                    props.setVisible(false);
+                    props.functionCancelButton();
+                }}
+            >
+                <TouchableWithoutFeedback
+                    onPress={() => {
+                        Keyboard.dismiss();
+                    }}
+                >
+                    <View>
+                        <HeaderView>
+                            <BackArrowSvg
+                                width={25}
+                                height={25}
+                                onPress={() => {
+                                    props.setVisible(false);
+                                    props.functionCancelButton();
+                                }}
+                            />
+                            <HeaderText>
+                                {props.activeModalButton
+                                    ? `${props.buttonTextLeft}`
+                                    : props.buttonTextRight}
+                            </HeaderText>
+                        </HeaderView>
+                        <ButtonTypeView>
+                            <ButtonType
+                                onPress={() => props.setActiveModalButton(true)}
+                                style={
+                                    props.activeModalButton
+                                        ? { borderColor: `${props.colorActiveLeft}` }
+                                        : { borderColor: '#C6C3C3' }
+                                }
+                            >
+                                <ButtonTypeText
+                                    style={
+                                        props.activeModalButton
+                                            ? { color: `${props.colorActiveLeft}` }
+                                            : { color: '#C6C3C3' }
+                                    }
+                                >
+                                    {props.buttonTextLeft}
+                                </ButtonTypeText>
+                            </ButtonType>
+                            <ButtonType
+                                onPress={() => props.setActiveModalButton(false)}
+                                style={
+                                    props.activeModalButton
+                                        ? { borderColor: '#C6C3C3' }
+                                        : { borderColor: `${props.colorActiveRight}` }
+                                }
+                            >
+                                <ButtonTypeText
+                                    style={
+                                        props.activeModalButton
+                                            ? { color: '#C6C3C3' }
+                                            : { color: `${props.colorActiveRight}` }
+                                    }
+                                >
+                                    {props.buttonTextRight}
+                                </ButtonTypeText>
+                            </ButtonType>
+                        </ButtonTypeView>
+                        <InputView>{props.children}</InputView>
+                        <View style={{ borderBottomColor: '#C6C3C3', borderBottomWidth: 1 }} />
+                        <ButtonLow>
+                            <ButtonLowLeft
+                                onPress={() => {
+                                    props.functionSaveButton();
+                                }}
+                                style={
+                                    props.activeModalButton
+                                        ? { backgroundColor: `${props.colorActiveLeft}` }
+                                        : { backgroundColor: `${props.colorActiveRight}` }
+                                }
+                            >
+                                <ButtonTypeText style={{ color: 'white' }}>
+                                    Сохранить
+                                </ButtonTypeText>
+                            </ButtonLowLeft>
+                            <ButtonLowRight
+                                onPress={() => {
+                                    props.setVisible(false);
+                                    props.functionCancelButton();
+                                }}
+                            >
+                                <ButtonTypeText>Отмена</ButtonTypeText>
+                            </ButtonLowRight>
+                        </ButtonLow>
+                    </View>
+                </TouchableWithoutFeedback>
+            </Modal>
+        );
+    },
+);
 
-export default ModalWindow
+export default ModalWindow;
