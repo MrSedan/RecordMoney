@@ -323,24 +323,7 @@ export default function Home() {
             datahistory.history[index].comment,
             datahistory.history[index].date,
         ]);
-        let sumaa = datahistory.history[index].sum;
-        dataItems.categories.map((item) => {
-            if (item.id === datahistory.history[index].category) {
-                if (item.category_type === 'Расход') {
-                    sumaa = sumaa * 1;
-                } else {
-                    sumaa = sumaa * -1;
-                }
-            }
-        });
-        await addMoney(
-            sumaa,
-            datahistory.history[editing.index].id,
-            datahistory.history[editing.index].id_account,
-            'home',
-            false,
-            true,
-        );
+        
         setPickerValue(`${datahistory.history[index].category}`);
         setPickerValueAccounts(`${datahistory.history[index].id_account}`);
         setVisibleAddHistory(debtTome);
@@ -463,7 +446,7 @@ export default function Home() {
             onStart();
         }, []),
     );
-
+    
     const handleAddCategory = async () => {
         const maxid = 10;
         let mama: category = JSON.parse(JSON.stringify(dataItems));
@@ -474,17 +457,17 @@ export default function Home() {
             value: 0,
             color: text[0],
             id: 0,
-            name: text[1],
+            name: text[1].replace(/\s+/g, ' ').trim(),
         };
 
         if (dat.id > maxid) {
-            alert(`Cannot add category with ID greater than 11`);
+            alert(`Максимальное количество категорий 11!`);
             return;
         }
         if (text[0] === '' || text[1] === '') {
             alert('Неправильный ввод название или выбор цвета');
             return;
-        }
+        } 
         if (editingcategory.editingcategory) {
             dat.id = mama.categories[editingcategory.index].id;
             mama.categories[editingcategory.index] = dat;
@@ -515,10 +498,19 @@ export default function Home() {
     };
 
     const handleADDHistory = async () => {
-        if (texthistory[0] === '' || pickerValue === '') {
+        if (texthistory[0] === '' || pickerValue === ''  ) {
             Alert.alert('Ошибка', 'Введите корректные данные');
             return;
-        }
+        } else if (!texthistory[0].match(/^\d+$/)) {
+            Alert.alert('Ошибка', 'Введите корректные данные');
+            return;
+        } else if (selectedDate === ''){
+            Alert.alert('Ошибка', 'Введите корректные данные');
+            return;
+        } else if (pickerValueAccounts === ''){
+            Alert.alert('Ошибка', 'Введите корректные данные');
+            return;
+        } 
         let mama: history = JSON.parse(JSON.stringify(datahistory));
         let dateS: string = '';
         let dateP: string = '';
@@ -531,7 +523,7 @@ export default function Home() {
             dateS = `${year}-${month.toString().padStart(2, '0')}-${day
                 .toString()
                 .padStart(2, '0')}`;
-            dateP = `${date.getDate()}  ${monthNames[date.getMonth()]}  ${date.getFullYear()}`;
+            dateP = selectedDate;
         }
         let dat = {
             id: 0,
@@ -539,7 +531,7 @@ export default function Home() {
             category: 0,
             date: dateS,
             sum: Number(texthistory[0]),
-            comment: texthistory[1],
+            comment: texthistory[1].trim(),
         };
 
         if (mama.history.length !== 0) {
@@ -575,6 +567,24 @@ export default function Home() {
                     if (editing.editing) {
                         if (datahistory.history[editing.index]) {
                             dat.id = datahistory.history[editing.index].id;
+                            let sumaa = datahistory.history[editing.index].sum;
+                            dataItems.categories.map((item) => {
+                                if (item.id === datahistory.history[editing.index].category) {
+                                    if (item.category_type === 'Расход') {
+                                        sumaa = sumaa * 1;
+                                    } else {
+                                        sumaa = sumaa * -1;
+                                    }
+                                }
+                            });
+                            await addMoney(
+                                sumaa,
+                                datahistory.history[editing.index].id,
+                                datahistory.history[editing.index].id_account,
+                                'home',
+                                false,
+                                true,
+                            );
                         }
                         mama.history[editing.index] = dat;
                         await editItem('history', 'history', editing.index, dat);
@@ -624,6 +634,24 @@ export default function Home() {
                     if (editing.editing) {
                         if (datahistory.history[editing.index]) {
                             dat.id = datahistory.history[editing.index].id;
+                            let sumaa = datahistory.history[editing.index].sum;
+                            dataItems.categories.map((item) => {
+                                if (item.id === datahistory.history[editing.index].category) {
+                                    if (item.category_type === 'Расход') {
+                                        sumaa = sumaa * 1;
+                                    } else {
+                                        sumaa = sumaa * -1;
+                                    }
+                                }
+                            });
+                            await addMoney(
+                                sumaa,
+                                datahistory.history[editing.index].id,
+                                datahistory.history[editing.index].id_account,
+                                'home',
+                                false,
+                                true,
+                            );
                         }
                         mama.history[editing.index] = dat;
                         await editItem('history', 'history', editing.index, dat);
@@ -838,7 +866,7 @@ export default function Home() {
                 functionSaveButton={handleADDHistory}
                 visible={visibleAddHistory}
                 setVisible={setVisibleAddHistory}
-                windowName='Добавление Расхода'
+                windowName='Добавление Ден. операции'
             >
                 <InputDate
                     functionDate={() => {
@@ -1081,7 +1109,7 @@ export default function Home() {
                         />
                     </View>
                 </ButtonHeader>
-                {dataItems.categories.length > 0 && (
+                {dataItems.categories.length > 0 && items.length > 0 && (
                     <ButtonHeader
                         onPress={() => {
                             setVisibleAddHistory(true);

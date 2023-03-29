@@ -1,9 +1,10 @@
 import { useFocusEffect } from '@react-navigation/native';
 import React, { useCallback, useState } from 'react';
-import { View, Text, Alert } from 'react-native';
+import { View, Text, Alert, Modal, Button } from 'react-native';
 import styled from 'styled-components/native';
-import { emptyAccHistory, emptyDebt, emptyPiggyBank } from '../../models/interfaces';
+import { emptyAccHistory, emptyDebt, emptyPiggyBank , accountHistory} from '../../models/interfaces';
 import { getData, removeAllData, setData } from '../tools/iosys';
+import { LineChart } from "react-native-chart-kit";
 
 const StatContainer = styled.View`
     margin: 10% 2%;
@@ -36,18 +37,45 @@ const ResetButton = styled.TouchableOpacity`
     border-radius: 15px;
     border: 1px solid #ff6e6e;
 `;
+const ButtonGrafic = styled.TouchableOpacity`
+    border-width: 1px;
+    border-style: solid;
+    height: 35px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-start: 0;
+    width: 45%;
+    
+    border-radius: 15px;
+`;
+const Scroll = styled.ScrollView`
+    heigth: 100%;
+`;
 
 export default function Advice() {
     const [history, setHistory] = useState(emptyAccHistory());
     const [debt, setDebt] = useState(emptyDebt());
     const [pig, setPig] = useState(emptyPiggyBank());
+    const [Histogrammdata, setHistogrammdata] = useState<number[]>([]);
+    const [HistogrammLabels, setHistogrammLabels] = useState<string[]>([]);
+    const [visible1, setVisibe1] = useState(false);
+    const [visible2, setVisible2] = useState(false);
+    const [visible3, setVisible3] = useState(false);
+    const [visible4, setVisible4] = useState(false);
 
     const onStart = async () => {
         let data = await getData({ fileName: 'AccountHistory' });
+        let datas: accountHistory = await getData({ fileName: 'AccountHistory' });
         if (data === null) {
             data = emptyAccHistory();
             await setData({ fileName: 'AccountHistory', data });
         }
+        const filteredData = datas.accHistory.filter((item) => (item.page === 'calendar'));
+        const filteredDatas = datas.accHistory.filter((item) => (item.page === 'debt'));
+        if (filteredData.length > 0 ) setVisible3(true);
+        
+        if (filteredDatas.length > 0) setVisible4(true);
         setHistory(data);
         data = await getData({ fileName: 'Debt' });
         if (data === null) {
@@ -75,6 +103,8 @@ export default function Advice() {
                 onPress: async () => {
                     await removeAllData();
                     onStart();
+                    setVisible3(false);
+                    setVisible4(false);
                 },
             },
             {
@@ -83,8 +113,136 @@ export default function Advice() {
         ]);
     };
 
+    const GraficCalendar = async () => {
+        let data: accountHistory = await getData({ fileName: 'AccountHistory' });
+        const filteredData = data.accHistory.filter(
+            (item) => item.page === 'calendar'
+        );
+        const sum = filteredData.map((item) => item.sum);
+        setHistogrammdata(sum);
+        const labels = filteredData.map((item) => {
+            const timestamp = Number(item.date);
+            const date = new Date(timestamp);
+            const zhopa = date
+                .toLocaleDateString('ru-RU', {
+                    day: '2-digit',
+                    year: '2-digit',
+                    month: '2-digit',
+                })
+                .split('/');
+            const day = zhopa[1];
+            const month = zhopa[0];
+            const year = zhopa[2];
+            return [day, month, year].join('.');
+        });
+        setHistogrammLabels(labels);
+        setVisibe1(true);
+    }
+
+    
+
+    const GraficDebt =async () => {
+        let data: accountHistory = await getData({ fileName: 'AccountHistory' });
+        const filteredData = data.accHistory.filter(
+            (item) => item.page === 'debt'
+        );
+        const sum = filteredData.map((item) => item.sum);
+        setHistogrammdata(sum);
+        const labels = filteredData.map((item) => {
+            const timestamp = Number(item.date);
+            const date = new Date(timestamp);
+            const zhopa = date
+                .toLocaleDateString('ru-RU', {
+                    day: '2-digit',
+                    year: '2-digit',
+                    month: '2-digit',
+                })
+                .split('/');
+            const day = zhopa[1];
+            const month = zhopa[0];
+            const year = zhopa[2];
+            return [day, month, year].join('.');
+        });
+        setHistogrammLabels(labels);
+        setVisible2(true);
+    }
+
+
+
     return (
+         
         <View style={{ backgroundColor: '#fff', height: '100%' }}>
+            <Modal
+                visible={visible2}
+                animationType='slide'
+                onRequestClose={() => setVisible2(false)}
+            >
+                <LineChart
+                data={{
+                labels: HistogrammLabels,
+                datasets: [
+                    {
+                    data: Histogrammdata
+                    }
+                ]}}
+                width={410} // from react-native
+                height={320}
+                yAxisInterval={1} // optional, defaults to 1
+                chartConfig={{
+                backgroundGradientFrom: "#1E2923",
+                backgroundGradientTo: "#08130D",decimalPlaces: 2, // optional, defaults to 2dp
+                color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+                labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+                style: {
+                    borderRadius: 16
+                },
+                
+                }}
+                bezier
+                style={{
+                marginVertical: 8,
+                borderRadius: 16
+                }}
+            />
+                <Button title='Закрыть' onPress={() => {setVisible2(false)}}></Button>
+                
+            </Modal>
+            <Modal
+                visible={visible1}
+                animationType='slide'
+                onRequestClose={() => setVisibe1(false)}
+            >
+                <LineChart
+                data={{
+                labels: HistogrammLabels,
+                datasets: [
+                    {
+                    data: Histogrammdata
+                    }
+                ]}}
+                width={410} // from react-native
+                height={320}
+                yAxisInterval={1} // optional, defaults to 1
+                chartConfig={{
+                backgroundGradientFrom: "#1E2923",
+                backgroundGradientTo: "#08130D",decimalPlaces: 2, // optional, defaults to 2dp
+                color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+                labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+                style: {
+                    borderRadius: 16
+                },
+                
+                }}
+                bezier
+                style={{
+                marginVertical: 8,
+                borderRadius: 16
+                }}
+            />
+                <Button title='Закрыть' onPress={() => {setVisibe1(false)}}></Button>
+                
+            </Modal>
+            <Scroll>
             <StatContainer>
                 <TextRow>
                     <StatName>Всего расходов:</StatName>
@@ -148,6 +306,22 @@ export default function Advice() {
                     </Text>
                 </ResetButton>
             </StatContainer>
+            { visible3 && visible4 && (
+            <View style = {{ flexDirection: 'row', marginBottom: 30,  margin: 5, justifyContent: 'space-around'}}>
+                <ButtonGrafic onPress={GraficCalendar}>
+                    <Text style={{ fontFamily: 'MainFont-Bold', fontSize: 15, color: '#f7c183' }}>
+                        Календарь
+                    </Text>
+                </ButtonGrafic>
+                <ButtonGrafic onPress={GraficDebt}>
+                    <Text style={{ fontFamily: 'MainFont-Bold', fontSize: 16, color: '#3FDEAE' }}>
+                        Долги
+                    </Text>
+                </ButtonGrafic>
+            </View>
+            )}
+            
+            </Scroll>
         </View>
     );
 }
