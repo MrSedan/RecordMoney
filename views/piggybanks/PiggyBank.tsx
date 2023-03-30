@@ -18,6 +18,7 @@ import {
     addItem,
     delItem,
     replaceSpace,
+    borderBillionMillionThousand,
 } from '../tools/iosys';
 import { addMoney, getAccounts } from '../tools/account';
 import Account from '../accounts/Account';
@@ -83,7 +84,7 @@ const CardMoney = styled.Text`
     font-family: 'MainFont-Regular';
     font-weight: 400;
     font-size: 12px;
-    letter-spacing: 1px;
+
     text-align: center;
 `;
 
@@ -104,7 +105,7 @@ const ProgressBarView = styled.View`
     margin: 3px 0;
     background-color: #fff;
     border: 1px solid #e0dfdf;
-    border-raduis: 16px;
+    border-radius: 16px;
 `;
 
 const ProgressBarCase = styled.View`
@@ -451,7 +452,15 @@ export default function PiggyBank() {
                               }
                     }
                 >
-                    <ButtonTypeText>Активные</ButtonTypeText>
+                    <ButtonTypeText
+                        style={{
+                            color: !activeButtonType ? '#3FDEAE' : '#C9C9C9',
+                            fontSize: 15,
+                            fontFamily: 'MainFont-Regular',
+                        }}
+                    >
+                        Активные
+                    </ButtonTypeText>
                 </ButtonType>
                 <ButtonType
                     onPress={() => {
@@ -468,7 +477,15 @@ export default function PiggyBank() {
                               }
                     }
                 >
-                    <ButtonTypeText>Закрытые</ButtonTypeText>
+                    <ButtonTypeText
+                        style={{
+                            color: activeButtonType ? '#3FDEAE' : '#C9C9C9',
+                            fontSize: 15,
+                            fontFamily: 'MainFont-Regular',
+                        }}
+                    >
+                        Закрытые
+                    </ButtonTypeText>
                 </ButtonType>
             </ButtonTypeView>
             <Scroll>
@@ -496,7 +513,10 @@ export default function PiggyBank() {
                                         <CardHeader>
                                             <CardTitle>{item.name}</CardTitle>
                                             <CardMoney>
-                                                {`${item.sum_cur}`}/{`${item.sum_max}`}
+                                                {`${borderBillionMillionThousand(item.sum_cur)}`} /
+                                                {` ${borderBillionMillionThousand(
+                                                    item.sum_max,
+                                                )} руб`}
                                             </CardMoney>
                                         </CardHeader>
                                         <ProgressBar
@@ -508,7 +528,7 @@ export default function PiggyBank() {
                                                 {' '}
                                                 {abbrNum(+item.sum_max - +item.sum_cur)}{' '}
                                             </CardMoreInfo>
-                                            средств
+                                            руб
                                         </CardMoreInfo>
                                     </CardView>
                                 </CardSwipe>
