@@ -21,19 +21,20 @@ import CalendarFocusedSvg from './assets/icon/CalendarFocused.svg';
 import WalletFocusedSvg from './assets/icon/WalletFocused.svg';
 import PiggyBankFocusedSvg from './assets/icon/PiggyBankFocused.svg';
 import StatFocusedSvg from './assets/icon/StatActive.svg';
+import { StatusBar } from 'expo-status-bar';
 
 const Tab = createBottomTabNavigator();
 
 export default function App() {
     const [loaded, setLoaded] = useState(false);
 
-  const loadFonts =async () => {
-    await Font.loadAsync({
-      "MainFont-Regular": require("./assets/font/Montserrat-Regular.ttf"),
-      "MainFont-Bold": require("./assets/font/Montserrat-Bold.ttf"),
-      "MainFont-Light": require("./assets/font/Montserrat-Light.ttf")
-    });
-  };
+    const loadFonts = async () => {
+        await Font.loadAsync({
+            'MainFont-Regular': require('./assets/font/Montserrat-Regular.ttf'),
+            'MainFont-Bold': require('./assets/font/Montserrat-Bold.ttf'),
+            'MainFont-Light': require('./assets/font/Montserrat-Light.ttf'),
+        });
+    };
 
     useEffect(() => {
         async function loadApp() {
@@ -48,7 +49,8 @@ export default function App() {
     }
 
     return (
-        <View style={{ flex: 1 }}>
+        <View style={{ flex: 1, backgroundColor: '#fff' }}>
+            <StatusBar backgroundColor='#fff' />
             <NavigationContainer>
                 <Tab.Navigator
                     screenOptions={({ route }) => ({
