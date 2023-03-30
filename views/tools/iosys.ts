@@ -146,3 +146,7 @@ export function abbrNum(num: number) {
 export function replaceSpace(str: string) {
     return str.replace(/\s+/g, ' ').trim();
 }
+
+export function borderBillionMillionThousand(num: number) {
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+}
