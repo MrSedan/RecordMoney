@@ -120,7 +120,15 @@ export default function CardSwipe(props: {
     ).current;
 
     return (
-        <Vieww>
+        <Vieww
+            style={{
+                shadowColor: '#000',
+                shadowOffset: { width: 2, height: 2 },
+                shadowOpacity: 0.25,
+                shadowRadius: 5,
+                elevation: 5,
+            }}
+        >
             <CardView
                 style={{
                     transform: [{ translateX: pan.x }, { translateY: 0 }],
