@@ -24,6 +24,7 @@
     "react-dom": "18.1.0",
     "react-native": "0.70.5",
     "react-native-calendars": "^1.1293.0",
+    "react-native-chart-kit": "^6.12.0",
     "react-native-circular-chart": "^1.0.9",
     "react-native-dropdown-picker": "^5.4.6",
     "react-native-modal": "^13.0.1",
