@@ -28,8 +28,7 @@ import {
     emptyCategories,
     emptyHistory,
     history,
-    accountHistory,
-    emptyAccHistory,
+    emptyAccount, 
 } from '../../models/interfaces';
 import Input from '../modular_components/Input';
 import ModalWindow from '../modular_components/ModalWindow';
@@ -102,7 +101,7 @@ const HeaderViewModal = styled.View`
     max-width: 100%;
 `;
 
-const ButtonColor = styled.Button``;
+
 const Scroll = styled.ScrollView`
     // margin: 0;
     // height: 100%;
@@ -233,7 +232,7 @@ export default function Home() {
     const [numColumns, setNumColumns] = useState(2);
     const [dataItems, setDataItems] = useState(emptyCategories());
     const [datahistory, setDatahistory] = useState(emptyHistory());
-    const [totalValue, setTotalValue] = useState(0);
+    const [history, setHistory] = useState(emptyAccount())
     const [activeModalButton, setActiveModalButton] = useState(true);
     const [text, setText] = useState(['', '', '', '']);
     const [texthistory, settexthistory] = useState(['', '', '', '']);
@@ -295,17 +294,6 @@ export default function Home() {
         await delItem('history', 'history', index);
         setDatahistory(data);
         setDataItems(calculateValues(dataItems, data));
-        let sum = 0;
-
-        data.history.forEach((item) => {
-            const category = dataItems.categories.find((cat) => cat.id === item.category);
-            if (category && category.category_type === 'Доход') {
-                sum += item.sum;
-            } else {
-                sum -= item.sum;
-            }
-        });
-        setTotalValue(sum);
 
         await addMoney(
             sumAccounts,
@@ -357,19 +345,12 @@ export default function Home() {
         Newhistory.history = Newhistory.history.filter(
             (item) => item.category !== NewDat.categories[index].id,
         );
-        let sum = 0;
-        Newhistory.history.forEach((item) => {
-            const category = dataItems.categories.find((cat) => cat.id === item.category);
-            if (category && category.category_type === 'Доход') {
-                sum += item.sum;
-            } else {
-                sum -= item.sum;
-            }
-        });
+        
+        
 
         NewDat.categories.splice(index, 1);
 
-        setTotalValue(sum);
+        
         delItem('categories', 'category', index);
         setDataItems(NewDat);
         setData({ fileName: 'history', data: Newhistory });
@@ -401,6 +382,12 @@ export default function Home() {
     const onStart = async () => {
         let dataC: category = await getData({ fileName: 'category' });
         let dataH: history = await getData({ fileName: 'history' });
+        let data = await getData({ fileName: 'Account' });
+        if (data === null) {
+            data = emptyAccount();
+            await setData({ fileName: 'Account', data });
+        }
+        setHistory(data);
 
         Animated.timing(animateContainerOpacity, {
             toValue: 1,
@@ -418,7 +405,7 @@ export default function Home() {
         await getAccount(await await getAccounts());
         if (dataH === null) {
             dataH = emptyHistory();
-            setTotalValue(0);
+            
 
             await setData({ fileName: 'history', data: dataH });
         }
@@ -427,18 +414,8 @@ export default function Home() {
         );
         setDatahistory(JSON.parse(JSON.stringify(dataH)));
 
-        let sum = 0;
-        if (dataH.history.length > 0) {
-            dataH.history.forEach((item) => {
-                const category = dataC.categories.find((cat) => cat.id === item.category);
-                if (category && category.category_type === 'Доход') {
-                    sum += item.sum;
-                } else {
-                    sum -= item.sum;
-                }
-            });
-            setTotalValue(sum);
-        }
+        
+        
     };
 
     useFocusEffect(
@@ -599,6 +576,7 @@ export default function Home() {
             setSelectedDate('');
             settexthistory(['', '', '', '', '']);
             setPickerValueAccounts('');
+            
             setOpenPickerAccounts(false);
             setOpenPicker(false);
             setEditing({ editing: false, index: 0 });
@@ -671,17 +649,12 @@ export default function Home() {
         }
 
         setDataItems(calculateValues(dataItems, mama));
-        let sum = 0;
-
-        mama.history.forEach((item) => {
-            const category = dataItems.categories.find((cat) => cat.id === item.category);
-            if (category && category.category_type === 'Доход') {
-                sum += item.sum;
-            } else {
-                sum -= item.sum;
-            }
-        });
-        setTotalValue(sum);
+        let data = await getData({ fileName: 'Account' });
+        if (data === null) {
+            data = emptyAccount();
+            await setData({ fileName: 'Account', data });
+        }
+        setHistory(data);
         setVisibleAddHistory(false);
     };
 
@@ -776,10 +749,11 @@ export default function Home() {
                         Цвет
                     </Text>
                     <View style={{ marginRight: '37%' }}>
-                        <ButtonColor
+                        <Button
                             title='выбери цвет'
                             onPress={() => setVisible2(true)}
-                        ></ButtonColor>
+                            color = {selectedColor}
+                        />
                     </View>
                 </PickerBlock>
                 <Input
@@ -861,7 +835,7 @@ export default function Home() {
             </ModalWindowHistory>
             <ModalWindowOneButton
                 functionCancelButton={() => {
-                    settexthistory(['', '', '', '']);
+                    settexthistory(['', '', '', '']), setPickerValue(''),setSelectedDate(''), setPickerValueAccounts('');
                 }}
                 functionSaveButton={handleADDHistory}
                 visible={visibleAddHistory}
@@ -1091,8 +1065,8 @@ export default function Home() {
                 </Animated.View>
 
                 <View style={styles.ViewInDiagrams}>
-                    <Text style={styles.TextInDiagramsfirst}>Текущий счет</Text>
-                    <Text style={styles.TextInDiagramsSecond}>{totalValue.toFixed(2)} руб</Text>
+                    <Text style={styles.TextInDiagramsfirst}>Сумма счетов</Text>
+                    <Text style={styles.TextInDiagramsSecond}>{history.accounts.length > 0 && history.accounts.reduce((a,b) => a+ Math.abs(b.sum), 0)} {history.accounts.length === 0 && '0'} руб</Text>
                 </View>
             </View>
             <ButtonView>
