@@ -1,22 +1,26 @@
-import { Alert, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Text, Modal, View } from 'react-native';
 import styled from 'styled-components/native';
 
 import { useCallback, useState } from 'react';
 import { account, emptyAccount } from '../../models/interfaces';
 import { useFocusEffect } from '@react-navigation/native';
-import { addItem, editItem, getData, setData } from '../tools/iosys';
+import { addItem, editItem, getData, setData, borderBillionMillionThousand } from '../tools/iosys';
 import ModalWindowOneButton from '../modular_components/ModalWindowOneButton';
 import Input from '../modular_components/Input';
 import { removeAccount } from '../tools/account';
 import CardWithButtons from '../modular_components/CardWithButtons';
+import PlusSvg from '../../assets/icon/plus.svg';
+
+const getRandomColor = () => {
+    const red = Math.floor(Math.random() * 256);
+    const green = Math.floor(Math.random() * 256);
+    const blue = Math.floor(Math.random() * 256);
+    const alpha = 0.5;
+    return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
+};
 
 const ActiveIndicator = styled.View`
-    background-color: #6fe6c2;
-    height: 20px;
-    width: 20px;
-`;
-const InactiveIndicator = styled.View`
-    background-color: #d9d9d9;
+    background-color: ${getRandomColor};
     height: 20px;
     width: 20px;
 `;
@@ -26,11 +30,63 @@ const Scroll = styled.ScrollView`
     height: 100%;
     max-height: 100%;
 `;
-const Container = styled.View`
-    height: 100%;
+
+const ModalInfo = styled.View`
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
+    justify-content: flex-end;
+    align-items: center;
+    background-color: #fff;
+    width: 70%;
+    height: 30%;
+    margin: 50% 15%;
+    border-radius: 10px;
+    padding: 7%;
+`;
+
+const AlertTextContainer = styled.View`
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    margin-bottom: 15%;
+`;
+
+const AlertInView = styled.View`
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+`;
+
+const AlertMessage = styled.Text`
+    font-family: 'MainFont-Regular';
+    font-size: 16px;
+    margin-bottom: 10px;
+    width: 30%;
+`;
+
+const AlertButtonCantainer = styled.View`
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+    height: 17%;
+`;
+
+const AlertButton = styled.TouchableOpacity`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    // border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+    width: auto;
+    background-color: rgba(0, 0, 0, 0.1);
+    padding: 3%;
+`;
+
+const AlertButtonText = styled.Text`
+    font-family: 'MainFont-Regular';
+    color: #000;
 `;
 
 export default function Account(props: {
@@ -40,7 +96,9 @@ export default function Account(props: {
 }) {
     const [state, setState] = useState(emptyAccount());
     const [text, setText] = useState(['', '']);
+    const [touchItemIndex, setTouchItemIndex] = useState(-1);
     const [editing, setEditing] = useState({ editing: false, index: 0 });
+    const [visible, setVisible] = useState(false);
 
     useFocusEffect(
         useCallback(() => {
@@ -51,6 +109,7 @@ export default function Account(props: {
                     await setData({ fileName: 'Account', data: data });
                 }
                 setState(data);
+                console.log(data);
             };
             onStart();
         }, []),
@@ -123,6 +182,7 @@ export default function Account(props: {
         props.setVisible(true);
         setEditing({ editing: true, index: index });
     };
+
     return (
         <View style={{ backgroundColor: '#FFF', height: '100%' }}>
             <ModalWindowOneButton
@@ -158,18 +218,91 @@ export default function Account(props: {
                     colorActiveInput='#3EA2FF'
                 />
             </ModalWindowOneButton>
+            <Modal
+                animationType='fade'
+                transparent={true}
+                visible={visible}
+                onRequestClose={() => {
+                    setVisible(false);
+                    setTouchItemIndex(-1);
+                }}
+            >
+                <View style={{ flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.3)' }}>
+                    <ModalInfo>
+                        <PlusSvg
+                            width={25}
+                            height={25}
+                            rotation={45}
+                            onPress={() => {
+                                setTouchItemIndex(-1);
+                                setVisible(false);
+                            }}
+                            style={{ position: 'absolute', left: 13, top: 13 }}
+                        />
+                        <AlertTextContainer>
+                            <AlertInView>
+                                <AlertMessage style={{ textDecorationLine: 'underline' }}>
+                                    Cчет:
+                                </AlertMessage>
+                                <AlertMessage style={{ width: '70%', textAlign: 'center' }}>
+                                    {touchItemIndex !== -1
+                                        ? state.accounts[touchItemIndex].name
+                                        : ''}
+                                </AlertMessage>
+                            </AlertInView>
+                            <AlertInView>
+                                <AlertMessage style={{ textDecorationLine: 'underline' }}>
+                                    Сумма:
+                                </AlertMessage>
+                                <AlertMessage style={{ width: '70%', textAlign: 'center' }}>
+                                    {touchItemIndex !== -1
+                                        ? borderBillionMillionThousand(
+                                              state.accounts[touchItemIndex].sum,
+                                          )
+                                        : ''}{' '}
+                                    руб
+                                </AlertMessage>
+                            </AlertInView>
+                        </AlertTextContainer>
+                        <AlertButtonCantainer>
+                            <AlertButton
+                                style={{ width: '60%' }}
+                                onPress={() => {
+                                    if (touchItemIndex !== -1) {
+                                        openEditModal(touchItemIndex);
+                                        setTouchItemIndex(-1);
+                                        setVisible(false);
+                                    }
+                                }}
+                            >
+                                <AlertButtonText>Редактировать</AlertButtonText>
+                            </AlertButton>
+                            <AlertButton
+                                style={{ backgroundColor: '#FF8484' }}
+                                onPress={() => {
+                                    if (touchItemIndex !== -1) {
+                                        del(touchItemIndex);
+                                        setTouchItemIndex(-1);
+                                        setVisible(false);
+                                    }
+                                }}
+                            >
+                                <AlertButtonText style={{ color: '#fff' }}>Удалить</AlertButtonText>
+                            </AlertButton>
+                        </AlertButtonCantainer>
+                    </ModalInfo>
+                </View>
+            </Modal>
             <Scroll>
-                <Container>
-                    {state.accounts &&
-                        state.accounts.map((item, index) => {
+                {state.accounts &&
+                    state.accounts.map((item, index) => {
+                        {
                             return (
                                 <CardWithButtons
                                     key={index}
-                                    editModal={() => {
-                                        openEditModal(index);
-                                    }}
-                                    del={() => {
-                                        del(index);
+                                    func={() => {
+                                        setTouchItemIndex(index);
+                                        setVisible(true);
                                     }}
                                 >
                                     <View
@@ -187,19 +320,19 @@ export default function Account(props: {
                                                 alignItems: 'center',
                                             }}
                                         >
-                                            {index == 0 ? (
-                                                <ActiveIndicator />
-                                            ) : (
-                                                <InactiveIndicator />
-                                            )}
-                                            <Text style={{ marginLeft: 10 }}>{item.name}</Text>
+                                            <ActiveIndicator />
+                                            <Text style={{ marginLeft: 10 }}>
+                                                {item.name.length > 10
+                                                    ? `${item.name.slice(0, 10)}...`
+                                                    : item.name}
+                                            </Text>
                                         </View>
-                                        <Text>{`${item.sum}`} руб.</Text>
+                                        <Text>{borderBillionMillionThousand(item.sum)} руб</Text>
                                     </View>
                                 </CardWithButtons>
                             );
-                        })}
-                </Container>
+                        }
+                    })}
             </Scroll>
         </View>
     );
