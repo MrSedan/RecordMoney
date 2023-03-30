@@ -4,7 +4,15 @@ import styled from 'styled-components/native';
 import { useCallback, useState } from 'react';
 import { account, debt, emptyAccount, emptyDebt } from '../../models/interfaces';
 import { useFocusEffect } from '@react-navigation/native';
-import { addItem, delItem, editItem, getData, setData } from '../tools/iosys';
+import {
+    addItem,
+    delItem,
+    editItem,
+    getData,
+    setData,
+    borderBillionMillionThousand,
+    replaceSpace,
+} from '../tools/iosys';
 import ModalWindow from '../modular_components/ModalWindow';
 import Input from '../modular_components/Input';
 import DropDownPicker from 'react-native-dropdown-picker';
@@ -214,13 +222,14 @@ export default function Debt() {
     };
 
     const tryToSave = () => {
-        if (text[0].trim() == '' || pickerValue == '' || !text[1].trim().match(/^\d+$/)) {
-            Alert.alert('Ошибка!', 'Пожалуйста, заполните все обязательные поля корректно.', [
-                {
-                    text: 'OK',
-                    onPress: () => {},
-                },
-            ]);
+        if (replaceSpace(text[0]) === '') {
+            Alert.alert('Не верные данные!', 'Вы ввели неверное название');
+            return;
+        } else if (!replaceSpace(text[1]).match(/^\d+$/) || Number(text[1]) === 0) {
+            Alert.alert('Не верные данные!', 'Вы ввели неверную сумму');
+            return;
+        } else if (pickerValue == '') {
+            Alert.alert('Не верные данные!', 'Вы не ввели счет');
         } else {
             onClick();
             setVisible(false);
@@ -228,10 +237,21 @@ export default function Debt() {
     };
 
     const del = async (index: number) => {
-        let newDat: debt = JSON.parse(JSON.stringify(state));
-        newDat.debts.splice(index, 1);
-        delItem('debts', 'Debt', index);
-        setState(newDat);
+        Alert.alert('Внимание', 'Вы уверены, что хотите удалить долг?', [
+            {
+                text: 'Да',
+                onPress: async () => {
+                    let newDat: debt = JSON.parse(JSON.stringify(state));
+                    newDat.debts.splice(index, 1);
+                    delItem('debts', 'Debt', index);
+                    setState(newDat);
+                },
+            },
+            {
+                text: 'Нет',
+                onPress: () => {},
+            },
+        ]);
     };
 
     // TODO: Сделать выбор контакта из телефонной книги...
@@ -280,7 +300,7 @@ export default function Debt() {
         Alert.alert(
             'Внимание',
             'Вы уверены, что хотите закрыть долг?' +
-                `Деньги поступят на счет "${getAcc(item.id_account)}"`,
+                ` Деньги поступят на счет "${getAcc(item.id_account)}"`,
             [
                 {
                     text: 'Да',
@@ -490,23 +510,12 @@ export default function Debt() {
                                             submit(index);
                                         }}
                                     >
-                                        {/* <CardView>
-                                                <CardTitle>
-
-                                                </CardTitle>
-                                                   
-                                                    //     <Text>{item.name}</Text>
-                                                    //     <Text>{item.date}</Text>
-                                                    //     <Text>{getAcc(item.id_account)}</Text>
-                                                    //     <Text>{`${item.sum}`} руб.</Text>
-                                                    // </View>
-                                                    // <Text>{item.contact}</Text>
-                                                    // <Text>{item.comment}</Text>
-                                            </CardView> */}
                                         <CardView>
                                             <CardViewBlock>
                                                 <CardTitle>{item.name}</CardTitle>
-                                                <CardMoreInfo>{item.sum} руб</CardMoreInfo>
+                                                <CardMoreInfo>
+                                                    {borderBillionMillionThousand(item.sum)} руб
+                                                </CardMoreInfo>
                                                 <CardMoreInfo>{item.contact}</CardMoreInfo>
                                             </CardViewBlock>
                                             <CardViewBlock style={{ justifyContent: 'flex-end' }}>
