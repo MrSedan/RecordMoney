@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, Dimensions } from 'react-native';
+import { View } from 'react-native';
 import Modal from 'react-native-modal';
 import styled from 'styled-components/native';
 import PlusSvg from '../../assets/icon/plus.svg';
