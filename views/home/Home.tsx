@@ -269,6 +269,20 @@ export default function Home() {
         'ноября',
         'декабря',
     ];
+    const animateContainerOpacity = useRef(new Animated.Value(0)).current;
+    const colors = [
+        '#FF0000',
+        '#FFA500',
+        '#FFFF00',
+        '#008000',
+        '#0000FF',
+        '#800080',
+        '#FFC0CB',
+        '#A52A2A',
+        '#808080',
+    ];
+    const [selectedColor, setSelectedColor] = useState('');
+    const [selectedBlockIndex, setSelectedBlockIndex] = useState(-1);
 
     const deleteCardHistory = async (index: number) => {
         let data: history = JSON.parse(JSON.stringify(datahistory));
@@ -478,7 +492,7 @@ export default function Home() {
         if (texthistory[0] === '' || pickerValue === ''  ) {
             Alert.alert('Ошибка', 'Введите корректные данные');
             return;
-        } else if (!texthistory[0].match(/^\d+$/)) {
+        } else if (!texthistory[0].match(/^\d+$/) ) {
             Alert.alert('Ошибка', 'Введите корректные данные');
             return;
         } else if (selectedDate === ''){
@@ -487,7 +501,10 @@ export default function Home() {
         } else if (pickerValueAccounts === ''){
             Alert.alert('Ошибка', 'Введите корректные данные');
             return;
-        } 
+        } else if (texthistory[0] === '0') {
+            Alert.alert('Ошибка', 'Введите корректные данные');
+            return;
+        }
         let mama: history = JSON.parse(JSON.stringify(datahistory));
         let dateS: string = '';
         let dateP: string = '';
@@ -658,20 +675,7 @@ export default function Home() {
         setVisibleAddHistory(false);
     };
 
-    const animateContainerOpacity = useRef(new Animated.Value(0)).current;
-    const colors = [
-        '#FF0000',
-        '#FFA500',
-        '#FFFF00',
-        '#008000',
-        '#0000FF',
-        '#800080',
-        '#FFC0CB',
-        '#A52A2A',
-        '#808080',
-    ];
-    const [selectedColor, setSelectedColor] = useState('');
-    const [selectedBlockIndex, setSelectedBlockIndex] = useState(-1);
+    
 
     const handleColorSelect = (color: string, index: number) => {
         setSelectedColor(color);
