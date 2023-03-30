@@ -1,10 +1,18 @@
-import { Alert, ScrollView, View, Text, Modal, Button } from 'react-native';
+import { Alert, ScrollView, View, Modal } from 'react-native';
 import { useCallback, useState } from 'react';
 import { account, calendar, emptyCalendar } from '../../models/interfaces';
 import { useFocusEffect } from '@react-navigation/native';
 import React from 'react';
 import { LocaleConfig, Calendar as Cal } from 'react-native-calendars';
-import { getData, setData, addItem, delItem, editItem } from '../tools/iosys';
+import {
+    getData,
+    setData,
+    addItem,
+    delItem,
+    editItem,
+    replaceSpace,
+    borderBillionMillionThousand,
+} from '../tools/iosys';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { getAccounts, addMoney } from '../tools/account';
 
@@ -16,10 +24,7 @@ import InputDate from './additionally/InputDate';
 import ModalWindow from '../modular_components/ModalWindow';
 import DateTimePicker from 'react-native-modal-datetime-picker';
 
-import PlusSvg from '../../assets/icon/plus.svg';
-import PlusBlackSvg from '../../assets/icon/PlusBlack.svg';
 import PlusWhiteSvg from '../../assets/icon/PlusWhite.svg';
-import MinusBlackSvg from '../../assets/icon/MinusBlack.svg';
 import MinusWhiteSvg from '../../assets/icon/MinusWhite.svg';
 
 interface DataType {
@@ -196,7 +201,7 @@ export default function Calendar() {
     const [openPicker, setOpenPicker] = useState(false); // поле со списком
     const [pickerValue, setPickerValue] = useState(''); // выбранный счет
     const [items, setItems] = useState<{ label: string; value: string }[]>([]); // все счета для поля
-    const [idCard, setIdCard] = useState(-1);
+    // const [idCard, setIdCard] = useState(-1);
 
     function getItems(accounts: account['accounts']) {
         let data: { label: string; value: string }[] = [];
@@ -208,8 +213,6 @@ export default function Calendar() {
 
     const search = async () => {
         let data: calendar = await getData({ fileName: path });
-        console.log(data);
-
         if (data === null) {
             data = emptyCalendar();
             await setData({ fileName: path, data: data });
@@ -230,7 +233,7 @@ export default function Calendar() {
         let data = {
             id: 0,
             id_account: +pickerValue,
-            name: text[0],
+            name: replaceSpace(text[0]),
             date: text[1],
             sum: +text[2],
             type: activeModalButton ? '1' : '2',
@@ -263,13 +266,16 @@ export default function Calendar() {
     };
 
     const tryToSave = () => {
-        if (!text[2].match(/^\d+$/)) {
-            Alert.alert('Не верные данных!', 'Вы ввели неверную сумму');
+        if (replaceSpace(text[0]) === '') {
+            Alert.alert('Не верные данные!', 'Вы ввели неверное название');
+            return;
+        } else if (!replaceSpace(text[2]).match(/^\d+$/) || Number(text[2]) === 0) {
+            Alert.alert('Не верные данные!', 'Вы ввели неверную сумму');
             return;
         } else if (pickerValue == '') {
-            Alert.alert('Не верные данных!', 'Вы не ввели счет');
+            Alert.alert('Не верные данные!', 'Вы не ввели счет');
         } else if (text[1] == '') {
-            Alert.alert('Не верные данных!', 'Вы не ввели дату');
+            Alert.alert('Не верные данные!', 'Вы не ввели дату');
         } else {
             onClick();
             setVisible(false);
@@ -292,36 +298,94 @@ export default function Calendar() {
     };
 
     const deleteCard = async (index: number) => {
-        let data: calendar = JSON.parse(JSON.stringify(state));
-        data.cards.splice(index, 1);
-        await delItem('cards', path, index);
-        setState(data);
-        setCounter(JSON.parse(JSON.stringify(reformat(data))));
+        Alert.alert(
+            'Внимание',
+            'Вы уверены, что хотите удалить операцию? (если вы ее закрыли, то удаление будет визуально)',
+            [
+                {
+                    text: 'Да',
+                    onPress: async () => {
+                        let data: calendar = JSON.parse(JSON.stringify(state));
+                        data.cards.splice(index, 1);
+                        await delItem('cards', path, index);
+                        setState(data);
+                        setCounter(JSON.parse(JSON.stringify(reformat(data))));
+                    },
+                },
+                {
+                    text: 'Нет',
+                    onPress: () => {},
+                },
+            ],
+        );
     };
 
-    const addMoneyAccount = async (
-        id: number,
-        value: number,
-        type: string,
-        id_acc: number,
-        date: string,
-        closed: boolean,
-    ) => {
-        let res = '';
-        type === '1'
-            ? (res = await addMoney(value, id, id_acc, 'calendar'))
-            : (res = await addMoney(value * -1, id, id_acc, 'calendar'));
+    // const addMoneyAccount = async (
+    //     id: number,
+    //     value: number,
+    //     type: string,
+    //     id_acc: number,
+    //     date: string,
+    //     closed: boolean,
+    // ) => {
+    //     let res = '';
+    //     type === '1'
+    //         ? (res = await addMoney(value, id, id_acc, 'calendar'))
+    //         : (res = await addMoney(value * -1, id, id_acc, 'calendar'));
 
-        if (res === 'not-found') Alert.alert('Ошибка!', 'Счет не найден');
-        if (res === 'no-money') Alert.alert('Ошибка', 'Недостаточно средств');
-        if (res === 'ok') {
-            let data: calendar = JSON.parse(JSON.stringify(state));
-            data.cards[idCard].close = true;
-            await editItem('cards', path, idCard, data.cards[idCard]);
-            setState(data);
-        }
-        setIdCard(-1);
-        setWinInfo(false);
+    //     if (res === 'not-found') Alert.alert('Ошибка!', 'Счет не найден');
+    //     if (res === 'no-money') Alert.alert('Ошибка', 'Недостаточно средств');
+    //     if (res === 'ok') {
+    //         let data: calendar = JSON.parse(JSON.stringify(state));
+    //         data.cards[idCard].close = true;
+    //         await editItem('cards', path, idCard, data.cards[idCard]);
+    //         setState(data);
+    //     }
+    //     setIdCard(-1);
+    //     setWinInfo(false);
+    // };
+
+    const addMoneyAccount = async (index: number) => {
+        let data: calendar = JSON.parse(JSON.stringify(state));
+        Alert.alert('Внимание', 'Вы уверены, что хотите провести операцию?', [
+            {
+                text: 'Да',
+                onPress: async () => {
+                    const res =
+                        data.cards[index].type === '1'
+                            ? await addMoney(
+                                  data.cards[index].sum,
+                                  data.cards[index].id,
+                                  data.cards[index].id_account,
+                                  'calendar',
+                              )
+                            : await addMoney(
+                                  data.cards[index].sum * -1,
+                                  data.cards[index].id,
+                                  data.cards[index].id_account,
+                                  'calendar',
+                              );
+
+                    if (res == 'no-money') {
+                        Alert.alert('Ошибка!', 'Недостаточно средств');
+                        return;
+                    } else if (res == 'not-found') {
+                        Alert.alert('Ошибка!', 'Счет не был найден!');
+                        return;
+                    } else if (res == 'ok') {
+                        data.cards[index].close = true;
+                        await editItem('cards', path, index, data.cards[index]);
+                        setState(data);
+                        console.log(data);
+                    }
+                    await getItems(await getAccounts());
+                },
+            },
+            {
+                text: 'Нет',
+                onPress: () => {},
+            },
+        ]);
     };
 
     LocaleConfig.locales['ru'] = {
@@ -381,12 +445,6 @@ export default function Calendar() {
             }}
         >
             <ModalWindow
-                functionCloseButton={() => {
-                    setText(['', '', '', '']);
-                    setSelectedDate('');
-                    setPickerValue('');
-                    setEditing({ edit: false, index: 0 });
-                }}
                 functionCancelButton={() => {
                     setText(['', '', '', '']);
                     setSelectedDate('');
@@ -471,7 +529,7 @@ export default function Calendar() {
                     />
                 )}
             </ModalWindow>
-            <Modal
+            {/* <Modal
                 animationType='fade'
                 transparent={true}
                 visible={winInfo}
@@ -563,7 +621,7 @@ export default function Calendar() {
                         )}
                     </ModalInfo>
                 </View>
-            </Modal>
+            </Modal> */}
             <Header
                 name='Calendar'
                 style='1'
@@ -616,9 +674,7 @@ export default function Calendar() {
                     // Month format in calendar title. Formatting values: http://arshaw.com/xdate/#Formatting
                     monthFormat={monthNames[+'MM']}
                     // Можно отловить на каком месяце находится юзер
-                    onMonthChange={(month) => {
-                        console.log('month changed', month);
-                    }}
+                    onMonthChange={(month) => {}}
                     // Hide month navigation arrows. Default = false
                     hideArrows={true}
                     // Do not show days of other months in month page. Default = false
@@ -664,8 +720,9 @@ export default function Calendar() {
                                             editModal(index);
                                         }}
                                         onDoubleClick={() => {
-                                            setIdCard(index);
-                                            setWinInfo(true);
+                                            // setIdCard(index);
+                                            // setWinInfo(true);
+                                            addMoneyAccount(index);
                                         }}
                                     >
                                         <CardView>
@@ -698,7 +755,9 @@ export default function Calendar() {
                                                     {item.name}
                                                 </CardText>
                                                 <CardText>{PeopleDate(item.date)}</CardText>
-                                                <CardText>{item.sum} руб</CardText>
+                                                <CardText>
+                                                    {borderBillionMillionThousand(item.sum)} руб
+                                                </CardText>
                                             </MainCardView>
                                         </CardView>
                                     </CardSwipe>
