@@ -123,16 +123,16 @@ export default function Advice() {
         const labels = filteredData.map((item) => {
             const timestamp = Number(item.date);
             const date = new Date(timestamp);
-            const zhopa = date
+            const dates = date
                 .toLocaleDateString('ru-RU', {
                     day: '2-digit',
                     year: '2-digit',
                     month: '2-digit',
                 })
                 .split('/');
-            const day = zhopa[1];
-            const month = zhopa[0];
-            const year = zhopa[2];
+            const day = dates[1];
+            const month = dates[0];
+            const year = dates[2];
             return [day, month, year].join('.');
         });
         setHistogrammLabels(labels);
@@ -151,16 +151,16 @@ export default function Advice() {
         const labels = filteredData.map((item) => {
             const timestamp = Number(item.date);
             const date = new Date(timestamp);
-            const zhopa = date
+            const dates = date
                 .toLocaleDateString('ru-RU', {
                     day: '2-digit',
                     year: '2-digit',
                     month: '2-digit',
                 })
                 .split('/');
-            const day = zhopa[1];
-            const month = zhopa[0];
-            const year = zhopa[2];
+            const day = dates[1];
+            const month = dates[0];
+            const year = dates[2];
             return [day, month, year].join('.');
         });
         setHistogrammLabels(labels);
