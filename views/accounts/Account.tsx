@@ -49,6 +49,7 @@ const AlertTextContainer = styled.View`
     flex-direction: column;
     justify-content: space-evenly;
     margin-bottom: 15%;
+    width: 100%;
 `;
 
 const AlertInView = styled.View`
@@ -81,7 +82,7 @@ const AlertButton = styled.TouchableOpacity`
     border-radius: 5px;
     width: auto;
     background-color: rgba(0, 0, 0, 0.1);
-    padding: 3%;
+    padding: 2%;
 `;
 
 const AlertButtonText = styled.Text`

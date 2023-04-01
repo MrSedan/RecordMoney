@@ -67,6 +67,7 @@ const ModalWindowOneButton = memo(
         windowName: string;
         functionSaveButton: Function;
         functionCancelButton: Function;
+        colorActive?: string;
     }) => {
         return (
             <Modal
@@ -100,7 +101,7 @@ const ModalWindowOneButton = memo(
                                 onPress={() => {
                                     props.functionSaveButton();
                                 }}
-                                style={{ backgroundColor: '#3EA2FF' }}
+                                style={{ backgroundColor: `${props.colorActive}` || '#3EA2FF' }}
                             >
                                 <ButtonTypeText style={{ color: 'white' }}>
                                     Сохранить
