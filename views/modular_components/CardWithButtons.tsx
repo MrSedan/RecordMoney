@@ -31,15 +31,13 @@ const Card = styled.View`
  */
 export default function CardWithButtons(props: { children: React.ReactNode; func?: Function }) {
     return (
-        <View>
-            <TouchableOpacity
-                onLongPress={() => {
-                    props.func && props.func();
-                }}
-                delayLongPress={300}
-            >
-                <Card>{props.children}</Card>
-            </TouchableOpacity>
-        </View>
+        <TouchableOpacity
+            onLongPress={() => {
+                props.func && props.func();
+            }}
+            delayLongPress={300}
+        >
+            <Card>{props.children}</Card>
+        </TouchableOpacity>
     );
 }

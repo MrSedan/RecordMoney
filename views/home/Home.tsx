@@ -19,7 +19,7 @@ import Header from '../modular_components/Header';
 import styled from 'styled-components/native';
 import BackArrowSvg from '../../assets/icon/BackArrow.svg';
 import PlusSvg from '../../assets/icon/plus.svg';
-import Item from './Item';
+// import Item from './Item';
 import React, { useState, useCallback, useRef } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import {
@@ -28,7 +28,7 @@ import {
     emptyCategories,
     emptyHistory,
     history,
-    emptyAccount, 
+    emptyAccount,
 } from '../../models/interfaces';
 import Input from '../modular_components/Input';
 import ModalWindow from '../modular_components/ModalWindow';
@@ -40,16 +40,17 @@ import DateTimePicker from 'react-native-modal-datetime-picker';
 import { getCategory } from './category';
 import ModalWindowOneButton from '../modular_components/ModalWindowOneButton';
 import { addMoney, getAccounts } from '../tools/account';
-import { getData, setData, addItem, delItem, editItem } from '../tools/iosys';
+import {
+    getData,
+    setData,
+    addItem,
+    delItem,
+    editItem,
+    borderBillionMillionThousand,
+} from '../tools/iosys';
 import CardWithButtons from '../modular_components/CardWithButtons';
+import { PeopleDate } from '../calendar/Calendar';
 
-const ButtonView = styled.View`
-    display: flex;
-    margin: 0px 20px 0px;
-    flex-direction: row;
-    max-width: 100%;
-    justify-content: space-between;
-`;
 const Container = styled.View`
     height: 100%;
     // display: flex;
@@ -95,35 +96,34 @@ const ButtonHeader = styled.TouchableOpacity`
 const HeaderViewModal = styled.View`
     display: flex;
     flex-direction: row;
-    justify-content: flex-start;
+    justify-content: space-between;
     align-items: center;
-    margin: 0 0 0 25px;
+    margin: 10px 20px 2%;
     max-width: 100%;
 `;
 
-
 const Scroll = styled.ScrollView`
-    // margin: 0;
-    // height: 100%;
-    // max-height: 100%;
+    height: 95%;
+    margin-bottom: 5%;
 `;
 
 const PickerBlock = styled.View`
     display: flex;
-    width: 100%;
-    justify-content: space-between;
-    padding: 0 20px;
     flex-direction: row;
-    margin-bottom: 20px;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0 15px 15px;
+    max-width: 100%;
 `;
 const HeaderText = styled.Text`
+    font-family: 'MainFont-Regular';
     font-size: 20px;
     margin-left: 17px;
 `;
 
 const CardView = styled.View`
     display: flex;
-    flex: 1;
+    flex-direction: row;
 `;
 
 const styles = StyleSheet.create({
@@ -136,18 +136,19 @@ const styles = StyleSheet.create({
         fontSize: 25,
         color: '#7D8895',
         fontWeight: '400',
+        textAlign: 'center',
     },
     TextInDiagramsSecond: {
         fontSize: 40,
         color: '#000000',
+        textAlign: 'center',
     },
     ViewInDiagrams: {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        height: 398,
-        width: '100%',
-        left: 0,
+        height: '100%',
+        width: '50%',
         position: 'absolute',
     },
     modalContainer: {
@@ -157,6 +158,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-around',
         alignItems: 'center',
         padding: 20,
+        height: '50%',
     },
     colorBlock: {
         width: 50,
@@ -170,30 +172,171 @@ const styles = StyleSheet.create({
 
 // render item  and category
 
-const renderItem = ({
-    item,
-}: {
-    item: {
-        id: number;
-        name: string;
-        category_icon: number;
-        category_type: string;
-        color: string;
-        value: number;
-    };
-}) => (
-    <Item
-        category_id={item.id}
-        category_name={item.name}
-        category_icon={item.category_icon}
-        category_type={item.category_type}
-        color={item.color}
-        value={item.value}
-    />
-);
+// const renderItem = ({
+//     item,
+// }: {
+//     item: {
+//         id: number;
+//         name: string;
+//         category_icon: number;
+//         category_type: string;
+//         color: string;
+//         value: number;
+//     };
+// }) => (
+//     <Item
+//         category_id={item.id}
+//         category_name={item.name}
+//         category_icon={item.category_icon}
+//         category_type={item.category_type}
+//         color={item.color}
+//         value={item.value}
+//     />
+// );
 
+//Circle//////////////////////////////
+const CircleContainerBox = styled.View`
+    height: 50%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+`;
+
+const CircleContainer = styled.View`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+`;
+
+const ButtonView = styled.View`
+    display: flex;
+    flex-direction: row;
+    width: 85%;
+    justify-content: space-between;
+`;
 ////////////////////////////////
 
+//FlatList//////////////////////////////
+const FlatlistView = styled.ScrollView`
+    width: 100%;
+    height: 40%;
+    margin: 0 0 25% 0;
+`;
+
+const FlatListViewIn = styled.View`
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+`;
+
+const Item = styled.View`
+    margin: 4%;
+    display: flex;
+    flex-direction: column;
+    padding: 3%;
+    width: 41%;
+    height: 90px;
+    background-color: #fafafa;
+    border-radius: 15px;
+    justify-content: space-evenly;
+`;
+
+const CircleCard = styled.View`
+    width: 15px;
+    height: 15px;
+    border-radius: 7.5px;
+`;
+
+const CardHeader = styled.View`
+    width: 90%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+`;
+
+const CardTextTitle = styled.Text`
+    margin-left: 5%;
+    font-size: 14px;
+    font-family: 'MainFont-Regular';
+`;
+const CardTextSum = styled.Text`
+    font-size: 18px;
+    font-family: 'MainFont-Regular';
+    color: #94c3f6;
+`;
+////////////////////////////////
+
+const ModalInfo = styled.View`
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    background-color: #fff;
+    width: 70%;
+    height: auto;
+    margin: 50% 15%;
+    border-radius: 10px;
+    padding: 7%;
+`;
+
+const AlertTextContainer = styled.View`
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    margin: 10% 0;
+    width: 100%;
+`;
+
+const AlertInView = styled.View`
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+`;
+
+const AlertMessage = styled.Text`
+    font-family: 'MainFont-Regular';
+    font-size: 16px;
+    margin-bottom: 10px;
+    width: 30%;
+`;
+
+const AlertButtonCantainer = styled.View`
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+    height: 29px;
+`;
+
+const AlertButton = styled.TouchableOpacity`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 5px;
+    width: auto;
+    background-color: rgba(0, 0, 0, 0.1);
+    padding: 2%;
+`;
+
+const AlertButtonText = styled.Text`
+    font-family: 'MainFont-Regular';
+    color: #000;
+`;
+
+const TextName = styled.Text`
+    font-family: 'MainFont-Regular';
+    text-align: center;
+    width: 33%;
+    margin-right: 1%;
+    padding-bottom: 2px;
+    font-size: 15px;
+`;
 // summation of transactions by category
 
 function calculateValues(categories: category, history: history): category {
@@ -232,7 +375,7 @@ export default function Home() {
     const [numColumns, setNumColumns] = useState(2);
     const [dataItems, setDataItems] = useState(emptyCategories());
     const [datahistory, setDatahistory] = useState(emptyHistory());
-    const [history, setHistory] = useState(emptyAccount())
+    const [history, setHistory] = useState(emptyAccount());
     const [activeModalButton, setActiveModalButton] = useState(true);
     const [text, setText] = useState(['', '', '', '']);
     const [texthistory, settexthistory] = useState(['', '', '', '']);
@@ -255,6 +398,10 @@ export default function Home() {
     const [itemsAccounts, setitemsAccounts] = useState<{ label: string; value: string }[]>([]);
     const [editing, setEditing] = useState({ editing: false, index: 0 });
     const [categorytype, setcategorytype] = useState(true);
+
+    const [touchItemIndex, setTouchItemIndex] = useState({ move: 0, index: -1 });
+    const [visible3, setVisible3] = useState(false);
+
     const monthNames = [
         'января',
         'февраля',
@@ -325,7 +472,7 @@ export default function Home() {
             datahistory.history[index].comment,
             datahistory.history[index].date,
         ]);
-        
+
         setPickerValue(`${datahistory.history[index].category}`);
         setPickerValueAccounts(`${datahistory.history[index].id_account}`);
         setVisibleAddHistory(debtTome);
@@ -359,12 +506,9 @@ export default function Home() {
         Newhistory.history = Newhistory.history.filter(
             (item) => item.category !== NewDat.categories[index].id,
         );
-        
-        
 
         NewDat.categories.splice(index, 1);
 
-        
         delItem('categories', 'category', index);
         setDataItems(NewDat);
         setData({ fileName: 'history', data: Newhistory });
@@ -416,10 +560,9 @@ export default function Home() {
         }
 
         await getItems(await getCategory());
-        await getAccount(await await getAccounts());
+        await getAccount(await getAccounts());
         if (dataH === null) {
             dataH = emptyHistory();
-            
 
             await setData({ fileName: 'history', data: dataH });
         }
@@ -427,9 +570,6 @@ export default function Home() {
             calculateValues(JSON.parse(JSON.stringify(dataC)), JSON.parse(JSON.stringify(dataH))),
         );
         setDatahistory(JSON.parse(JSON.stringify(dataH)));
-
-        
-        
     };
 
     useFocusEffect(
@@ -437,7 +577,7 @@ export default function Home() {
             onStart();
         }, []),
     );
-    
+
     const handleAddCategory = async () => {
         const maxid = 10;
         let mama: category = JSON.parse(JSON.stringify(dataItems));
@@ -458,7 +598,7 @@ export default function Home() {
         if (text[0] === '' || text[1] === '') {
             alert('Неправильный ввод название или выбор цвета');
             return;
-        } 
+        }
         if (editingcategory.editingcategory) {
             dat.id = mama.categories[editingcategory.index].id;
             mama.categories[editingcategory.index] = dat;
@@ -489,16 +629,16 @@ export default function Home() {
     };
 
     const handleADDHistory = async () => {
-        if (texthistory[0] === '' || pickerValue === ''  ) {
+        if (texthistory[0] === '' || pickerValue === '') {
             Alert.alert('Ошибка', 'Введите корректные данные');
             return;
-        } else if (!texthistory[0].match(/^\d+$/) ) {
+        } else if (!texthistory[0].match(/^\d+$/)) {
             Alert.alert('Ошибка', 'Введите корректные данные');
             return;
-        } else if (selectedDate === ''){
+        } else if (selectedDate === '') {
             Alert.alert('Ошибка', 'Введите корректные данные');
             return;
-        } else if (pickerValueAccounts === ''){
+        } else if (pickerValueAccounts === '') {
             Alert.alert('Ошибка', 'Введите корректные данные');
             return;
         } else if (texthistory[0] === '0') {
@@ -593,7 +733,7 @@ export default function Home() {
             setSelectedDate('');
             settexthistory(['', '', '', '', '']);
             setPickerValueAccounts('');
-            
+
             setOpenPickerAccounts(false);
             setOpenPicker(false);
             setEditing({ editing: false, index: 0 });
@@ -675,8 +815,6 @@ export default function Home() {
         setVisibleAddHistory(false);
     };
 
-    
-
     const handleColorSelect = (color: string, index: number) => {
         setSelectedColor(color);
 
@@ -695,38 +833,41 @@ export default function Home() {
             style={{
                 backgroundColor: '#fff',
                 height: '100%',
-                display: 'flex',
-                justifyContent: 'space-between',
             }}
         >
+            {/* окно с выбором цвета */}
             <Modal
                 visible={visible2}
                 animationType='slide'
                 onRequestClose={() => setVisible2(false)}
             >
-                <View style={styles.modalContainer}>
-                    {colors.map((color, index) => (
-                        <TouchableOpacity
-                            key={color}
-                            style={[
-                                styles.colorBlock,
-                                { backgroundColor: color },
-                                selectedBlockIndex === index && {
-                                    borderColor: 'black',
-                                    borderWidth: 3,
-                                },
-                            ]}
-                            onPress={() => handleColorSelect(color, index)}
-                            onPressOut={() => setSelectedBlockIndex(-1)}
-                        />
-                    ))}
+                <View style={{ flex: 1, justifyContent: 'flex-start' }}>
+                    <View style={styles.modalContainer}>
+                        {colors.map((color, index) => (
+                            <TouchableOpacity
+                                key={color}
+                                style={[
+                                    styles.colorBlock,
+                                    { backgroundColor: color },
+                                    selectedBlockIndex === index && {
+                                        borderColor: 'black',
+                                        borderWidth: 3,
+                                    },
+                                ]}
+                                onPress={() => handleColorSelect(color, index)}
+                                onPressOut={() => setSelectedBlockIndex(-1)}
+                            />
+                        ))}
+                    </View>
+                    <Button title='Добавить цвет' onPress={handleAddColor} />
                 </View>
-                <Button title='Добавить цвет' onPress={handleAddColor} />
             </Modal>
 
+            {/* окно с созданием категории */}
             <ModalWindow
                 functionCancelButton={() => {
                     setText(['', '', '', '']);
+                    setEditingcategory({ editingcategory: false, index: -1 });
                 }}
                 functionSaveButton={() => {
                     handleAddCategory();
@@ -756,7 +897,7 @@ export default function Home() {
                         <Button
                             title='выбери цвет'
                             onPress={() => setVisible2(true)}
-                            color = {selectedColor}
+                            color={selectedColor}
                         />
                     </View>
                 </PickerBlock>
@@ -771,6 +912,7 @@ export default function Home() {
                 />
             </ModalWindow>
 
+            {/* Окно с карточками истории операций */}
             <ModalWindowHistory
                 visible={visibleHistory}
                 setVisible={setVisibleHistory}
@@ -786,50 +928,68 @@ export default function Home() {
                                 return (
                                     <CardWithButtons
                                         key={index}
-                                        editModal={() => {
-                                            editModalHistory(index);
-                                        }}
-                                        del={() => {
-                                            deleteCardHistory(index);
+                                        func={() => {
+                                            setTouchItemIndex({ move: 2, index: index });
+                                            setVisible3(true);
                                         }}
                                     >
-                                        <View>
-                                            <Circle
-                                                radius={10}
-                                                color={
-                                                    category && category.color
-                                                        ? category.color
-                                                        : '#000000'
-                                                }
-                                            />
-                                            <View style={{ position: 'absolute', marginTop: '3%' }}>
-                                                <Text
-                                                    style={{ color: '#303841', marginLeft: '30%' }}
-                                                >
-                                                    {category && category.name
-                                                        ? category.name
-                                                        : 'No category name available'}
-                                                </Text>
-                                                <Text
-                                                    style={{
-                                                        color: '#7D8895',
-                                                        marginTop: '20%',
-                                                        marginLeft: '8%',
-                                                    }}
-                                                >
-                                                    {item.date}
-                                                </Text>
-                                            </View>
-                                            <Text
+                                        <View
+                                            style={{
+                                                width: '100%',
+                                            }}
+                                        >
+                                            <View
                                                 style={{
-                                                    color: '#94C3F6',
-                                                    marginTop: '4%',
-                                                    marginLeft: '60%',
-                                                    fontSize: 20,
+                                                    flex: 1,
+                                                    width: '100%',
+                                                    justifyContent: 'space-between',
+                                                    flexDirection: 'row',
                                                 }}
                                             >
-                                                {item.sum} руб
-                                            </Text>
+                                                <View
+                                                    style={{
+                                                        flex: 1,
+                                                        width: '100%',
+                                                        justifyContent: 'flex-start',
+                                                        flexDirection: 'row',
+                                                    }}
+                                                >
+                                                    <Circle
+                                                        radius={10}
+                                                        color={
+                                                            category && category.color
+                                                                ? category.color
+                                                                : '#000000'
+                                                        }
+                                                    />
+
+                                                    <Text
+                                                        style={{
+                                                            color: '#000',
+                                                            marginLeft: '5%',
+                                                            fontFamily: 'MainFont-Regular',
+                                                        }}
+                                                    >
+                                                        {category && category.name
+                                                            ? category.name.length > 12
+                                                                ? `${category.name.slice(0, 12)}...`
+                                                                : category.name
+                                                            : 'No category name available'}
+                                                    </Text>
+                                                </View>
+                                                <Text
+                                                    style={{
+                                                        color: '#8D97A2',
+                                                        fontFamily: 'MainFont-Regular',
+                                                    }}
+                                                >
+                                                    {PeopleDate(item.date)}
+                                                </Text>
+                                            </View>
+
+                                            <CardTextSum>
+                                                {borderBillionMillionThousand(item.sum)} руб
+                                            </CardTextSum>
                                         </View>
                                     </CardWithButtons>
                                 );
@@ -837,14 +997,21 @@ export default function Home() {
                         })}
                 </Container>
             </ModalWindowHistory>
+
+            {/* Окно с созданием операции */}
             <ModalWindowOneButton
                 functionCancelButton={() => {
-                    settexthistory(['', '', '', '']), setPickerValue(''),setSelectedDate(''), setPickerValueAccounts('');
+                    settexthistory(['', '', '', '']),
+                        setPickerValue(''),
+                        setSelectedDate(''),
+                        setPickerValueAccounts('');
+                    setEditing({ editing: false, index: -1 });
                 }}
                 functionSaveButton={handleADDHistory}
                 visible={visibleAddHistory}
                 setVisible={setVisibleAddHistory}
-                windowName='Добавление Ден. операции'
+                windowName={editing.editing ? 'Редактирование операции' : 'Создание операции'}
+                colorActive={activeModalButtonHistory ? '#3EA2FF' : '#FF6E6E'}
             >
                 <InputDate
                     functionDate={() => {
@@ -857,20 +1024,10 @@ export default function Home() {
                     }}
                     placeholder='Введите дату'
                     keyboardType='default'
-                    colorActiveInput={activeModalButtonAddCategory ? '#3EA2FF' : '#FF6E6E'}
+                    colorActiveInput={activeModalButtonHistory ? '#3EA2FF' : '#FF6E6E'}
                 />
                 <PickerBlock>
-                    <Text
-                        style={{
-                            fontSize: 15,
-                            textAlign: 'center',
-                            width: 'auto',
-                            marginLeft: 20,
-                            textAlignVertical: 'center',
-                        }}
-                    >
-                        Категория
-                    </Text>
+                    <TextName>Категория</TextName>
                     <DropDownPicker
                         open={openPicker}
                         value={pickerValue}
@@ -880,7 +1037,7 @@ export default function Home() {
                         setItems={setItems}
                         containerStyle={{ width: '66%', alignSelf: 'flex-end', zIndex: 9999 }}
                         placeholder='Выберите категорию'
-                        dropDownDirection='DEFAULT'
+                        dropDownDirection='BOTTOM'
                     />
                 </PickerBlock>
 
@@ -891,7 +1048,7 @@ export default function Home() {
                     index={0}
                     placeholder='Введите сумму '
                     keyboardType='numeric'
-                    colorActiveInput={activeModalButtonAddCategory ? '#3EA2FF' : '#FF6E6E'}
+                    colorActiveInput={activeModalButtonHistory ? '#3EA2FF' : '#FF6E6E'}
                 />
                 <Input
                     textName='Комментарий'
@@ -900,20 +1057,10 @@ export default function Home() {
                     index={1}
                     placeholder='Введите комментарий'
                     keyboardType='default'
-                    colorActiveInput={activeModalButtonAddCategory ? '#3EA2FF' : '#FF6E6E'}
+                    colorActiveInput={activeModalButtonHistory ? '#3EA2FF' : '#FF6E6E'}
                 />
                 <PickerBlock>
-                    <Text
-                        style={{
-                            fontSize: 15,
-                            textAlign: 'center',
-                            width: 'auto',
-                            marginLeft: 20,
-                            textAlignVertical: 'center',
-                        }}
-                    >
-                        Счет
-                    </Text>
+                    <TextName>Счет</TextName>
                     <DropDownPicker
                         open={openPickerAccounts}
                         value={pickerValueAccounts}
@@ -951,13 +1098,14 @@ export default function Home() {
                 )}
             </ModalWindowOneButton>
 
+            {/* Окно с выводом категорий */}
             <Modal
                 animationType='slide'
                 transparent={false}
                 visible={visible}
                 onRequestClose={() => setVisible(false)}
             >
-                <View>
+                <View style={{ height: '100%' }}>
                     <HeaderViewModal>
                         <BackArrowSvg
                             width={25}
@@ -966,11 +1114,11 @@ export default function Home() {
                                 setVisible(false);
                             }}
                         />
-                        <HeaderText>{activeModalButton ? 'Доход' : 'Расход'}</HeaderText>
+                        <HeaderText>{categorytype ? 'Доход' : 'Расход'}</HeaderText>
                         <ButtonHeader
                             onPress={() => {
                                 setVisibleAddCategory(true);
-                                setActiveModalButtonAddCategory(activeModalButton);
+                                setActiveModalButtonAddCategory(categorytype);
                             }}
                             style={{ shadowColor: '#625E5E', elevation: 10 }}
                         >
@@ -982,7 +1130,6 @@ export default function Home() {
                             margin: 5,
 
                             flexDirection: 'row',
-                            marginBottom: 40,
                             justifyContent: 'space-around',
                         }}
                     >
@@ -994,6 +1141,7 @@ export default function Home() {
                         >
                             <Text
                                 style={{
+                                    fontFamily: 'MainFont-Regular',
                                     color: categorytype ? '#3EA2FF' : '#C9C9C9',
                                     fontSize: 19,
                                 }}
@@ -1009,6 +1157,7 @@ export default function Home() {
                         >
                             <Text
                                 style={{
+                                    fontFamily: 'MainFont-Regular',
                                     color: !categorytype ? '#FF6E6E' : '#C9C9C9',
                                     fontSize: 19,
                                 }}
@@ -1028,15 +1177,23 @@ export default function Home() {
                                         return (
                                             <CardWithButtons
                                                 key={index}
-                                                del={() => {
-                                                    deleteCardCategory(index);
-                                                }}
-                                                editModal={() => {
-                                                    editModalCategory(index);
+                                                func={() => {
+                                                    setTouchItemIndex({ move: 1, index: index });
+                                                    setVisible3(true);
                                                 }}
                                             >
                                                 <CardView>
-                                                    <Text>{item.name}</Text>
+                                                    <CircleCard
+                                                        style={{ backgroundColor: `${item.color}` }}
+                                                    ></CircleCard>
+                                                    <Text
+                                                        style={{
+                                                            marginLeft: 6,
+                                                            fontFamily: 'MainFont-Regular',
+                                                        }}
+                                                    >
+                                                        {item.name}
+                                                    </Text>
                                                 </CardView>
                                             </CardWithButtons>
                                         );
@@ -1046,65 +1203,277 @@ export default function Home() {
                 </View>
             </Modal>
 
+            {/* Окно с доп инфой по категориям и истории */}
+            <Modal
+                animationType='fade'
+                transparent={true}
+                visible={visible3}
+                onRequestClose={() => {
+                    setVisible3(false);
+                    setTouchItemIndex({ move: 0, index: -1 });
+                }}
+            >
+                <View style={{ flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.3)' }}>
+                    <ModalInfo>
+                        <PlusSvg
+                            width={25}
+                            height={25}
+                            rotation={45}
+                            onPress={() => {
+                                setTouchItemIndex({ move: 0, index: -1 });
+                                setVisible3(false);
+                            }}
+                            style={{ position: 'absolute', left: 13, top: 13 }}
+                        />
+
+                        {touchItemIndex.move == 1 ? (
+                            <AlertTextContainer>
+                                <AlertInView style={{ justifyContent: 'flex-start' }}>
+                                    <AlertMessage style={{ textDecorationLine: 'underline' }}>
+                                        Цвет:
+                                    </AlertMessage>
+                                    <View
+                                        style={{
+                                            marginLeft: '20%',
+                                            height: '70%',
+                                            width: '30%',
+                                            backgroundColor:
+                                                touchItemIndex.index !== -1
+                                                    ? `${
+                                                          dataItems.categories[touchItemIndex.index]
+                                                              .color
+                                                      }`
+                                                    : '#fff',
+                                        }}
+                                    ></View>
+                                </AlertInView>
+                                <AlertInView>
+                                    <AlertMessage style={{ textDecorationLine: 'underline' }}>
+                                        Название:
+                                    </AlertMessage>
+                                    <AlertMessage style={{ width: '70%', textAlign: 'center' }}>
+                                        {touchItemIndex.index !== -1
+                                            ? dataItems.categories[touchItemIndex.index].name
+                                            : ''}
+                                    </AlertMessage>
+                                </AlertInView>
+                            </AlertTextContainer>
+                        ) : (
+                            <AlertTextContainer>
+                                <AlertInView>
+                                    <AlertMessage
+                                        style={{ width: '50%', textDecorationLine: 'underline' }}
+                                    >
+                                        Категория:
+                                    </AlertMessage>
+                                    <AlertMessage style={{ width: '50%', textAlign: 'center' }}>
+                                        {touchItemIndex.index !== -1
+                                            ? dataItems.categories[
+                                                  dataItems.categories.findIndex(
+                                                      (item) =>
+                                                          item.id ===
+                                                          datahistory.history[touchItemIndex.index]
+                                                              .category,
+                                                  )
+                                              ].name
+                                            : ''}
+                                    </AlertMessage>
+                                </AlertInView>
+                                <AlertInView>
+                                    <AlertMessage style={{ textDecorationLine: 'underline' }}>
+                                        Дата:
+                                    </AlertMessage>
+                                    <AlertMessage style={{ width: '70%', textAlign: 'center' }}>
+                                        {touchItemIndex.index !== -1
+                                            ? PeopleDate(
+                                                  datahistory.history[touchItemIndex.index].date,
+                                              )
+                                            : ''}
+                                    </AlertMessage>
+                                </AlertInView>
+                                <AlertInView>
+                                    <AlertMessage style={{ textDecorationLine: 'underline' }}>
+                                        Сумма:
+                                    </AlertMessage>
+                                    <AlertMessage style={{ width: '70%', textAlign: 'center' }}>
+                                        {touchItemIndex.index !== -1
+                                            ? `${borderBillionMillionThousand(
+                                                  datahistory.history[touchItemIndex.index].sum,
+                                              )} руб`
+                                            : ''}
+                                    </AlertMessage>
+                                </AlertInView>
+                                <AlertInView>
+                                    <AlertMessage
+                                        style={{
+                                            width: '39%',
+                                            textDecorationLine: 'underline',
+                                        }}
+                                    >
+                                        Коммент:
+                                    </AlertMessage>
+                                    <AlertMessage style={{ width: '61%', textAlign: 'center' }}>
+                                        {touchItemIndex.index !== -1
+                                            ? datahistory.history[touchItemIndex.index].comment
+                                            : ''}
+                                    </AlertMessage>
+                                </AlertInView>
+                                <AlertInView>
+                                    <AlertMessage
+                                        style={{
+                                            width: '39%',
+                                            textDecorationLine: 'underline',
+                                        }}
+                                    >
+                                        Счет:
+                                    </AlertMessage>
+                                    <AlertMessage style={{ width: '61%', textAlign: 'center' }}>
+                                        {touchItemIndex.index !== -1
+                                            ? `${
+                                                  itemsAccounts[
+                                                      itemsAccounts.findIndex(
+                                                          (item) =>
+                                                              +item.value ===
+                                                              datahistory.history[
+                                                                  touchItemIndex.index
+                                                              ].id_account,
+                                                      )
+                                                  ].label
+                                              } руб`
+                                            : ''}
+                                    </AlertMessage>
+                                </AlertInView>
+                            </AlertTextContainer>
+                        )}
+                        <AlertButtonCantainer>
+                            <AlertButton
+                                style={{ width: '60%' }}
+                                onPress={() => {
+                                    if (touchItemIndex.index !== -1) {
+                                        if (touchItemIndex.move == 1) {
+                                            editModalCategory(touchItemIndex.index);
+                                            setTouchItemIndex({ move: 0, index: -1 });
+                                            setVisible3(false);
+                                        }
+                                        if (touchItemIndex.move == 2) {
+                                            editModalHistory(touchItemIndex.index);
+                                            setTouchItemIndex({ move: 0, index: -1 });
+                                            setVisible3(false);
+                                        }
+                                    }
+                                }}
+                            >
+                                <AlertButtonText>Редактировать</AlertButtonText>
+                            </AlertButton>
+                            <AlertButton
+                                style={{ backgroundColor: '#FF8484' }}
+                                onPress={() => {
+                                    if (touchItemIndex.index !== -1) {
+                                        if (touchItemIndex.move == 1) {
+                                            deleteCardCategory(touchItemIndex.index);
+                                            setTouchItemIndex({ move: 0, index: -1 });
+                                            setVisible3(false);
+                                        }
+                                        if (touchItemIndex.move == 2) {
+                                            deleteCardHistory(touchItemIndex.index);
+                                            setTouchItemIndex({ move: 0, index: -1 });
+                                            setVisible3(false);
+                                        }
+                                    }
+                                }}
+                            >
+                                <AlertButtonText>Удалить</AlertButtonText>
+                            </AlertButton>
+                        </AlertButtonCantainer>
+                    </ModalInfo>
+                </View>
+            </Modal>
+
             <Header
                 name='Home'
                 style='2'
                 functionLeft={() => {}}
-                functionRight={() => {
+                functionRight={async () => {
+                    await getAccount(await getAccounts());
                     setVisibleHistory(true);
                 }}
                 onModalHide={async () => {
                     onStart();
                 }}
             />
-
-            <View style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Animated.View style={{ opacity: animateContainerOpacity }}>
-                    <DonutChart
-                        data={dataItems.categories.filter((item) => {
-                            return item.value > 0;
-                        })}
-                        size={350}
-                    />
-                </Animated.View>
-
-                <View style={styles.ViewInDiagrams}>
-                    <Text style={styles.TextInDiagramsfirst}>Сумма счетов</Text>
-                    <Text style={styles.TextInDiagramsSecond}>{history.accounts.length > 0 && history.accounts.reduce((a,b) => a+ Math.abs(b.sum), 0)} {history.accounts.length === 0 && '0'} руб</Text>
-                </View>
-            </View>
-            <ButtonView>
-                <ButtonHeader
-                    onPress={() => {
-                        setVisible(true);
-                        setActiveModalButton(true);
-                    }}
-                >
-                    <View>
-                        <Image
-                            source={require('../../assets/icon/Sorting.png')}
-                            style={styles.image}
-                        />
-                    </View>
-                </ButtonHeader>
-                {dataItems.categories.length > 0 && items.length > 0 && (
-                    <ButtonHeader
-                        onPress={() => {
-                            setVisibleAddHistory(true);
-                            setactiveModalButtonHistory(true);
-                        }}
-                    >
-                        <View>
-                            <Image
-                                source={require('../../assets/icon/plus.png')}
-                                style={styles.image}
+            <View
+                style={{
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    width: '100%',
+                }}
+            >
+                <CircleContainerBox>
+                    <CircleContainer>
+                        <Animated.View style={{ opacity: animateContainerOpacity }}>
+                            <DonutChart
+                                data={dataItems.categories.filter((item) => {
+                                    return item.value > 0;
+                                })}
+                                size={300}
                             />
+                        </Animated.View>
+                        <View style={styles.ViewInDiagrams}>
+                            <Text style={styles.TextInDiagramsfirst}>Сумма счетов</Text>
+                            <Text style={styles.TextInDiagramsSecond}>
+                                {history.accounts.length > 0 &&
+                                    borderBillionMillionThousand(
+                                        history.accounts.reduce((a, b) => a + Math.abs(b.sum), 0),
+                                    )}
+                                {history.accounts.length === 0 && '0'} руб
+                            </Text>
                         </View>
-                    </ButtonHeader>
-                )}
-            </ButtonView>
+                    </CircleContainer>
+                    <ButtonView style={{ position: 'absolute', bottom: 0 }}>
+                        <ButtonHeader
+                            onPress={() => {
+                                setVisible(true);
+                                setActiveModalButton(true);
+                            }}
+                        >
+                            <View>
+                                <Image
+                                    source={require('../../assets/icon/Sorting.png')}
+                                    style={styles.image}
+                                />
+                            </View>
+                        </ButtonHeader>
+                        {dataItems.categories.length > 0 && items.length > 0 && (
+                            <ButtonHeader
+                                onPress={async () => {
+                                    await getAccount(await getAccounts());
+                                    setVisibleAddHistory(true);
+                                    setactiveModalButtonHistory(true);
+                                }}
+                            >
+                                <View>
+                                    <Image
+                                        source={require('../../assets/icon/plus.png')}
+                                        style={styles.image}
+                                    />
+                                </View>
+                            </ButtonHeader>
+                        )}
+                    </ButtonView>
+                </CircleContainerBox>
+                <View
+                    style={{
+                        borderBottomColor: '#C6C3C3',
+                        borderBottomWidth: 1,
+                        marginTop: 5,
+                        // marginBottom: 14,
+                    }}
+                />
 
-            <FlatList
+                {/* <FlatlistView
                 style={{ display: 'flex', alignContent: 'flex-start' }}
                 data={dataItems.categories}
                 renderItem={renderItem}
@@ -1112,7 +1481,30 @@ export default function Home() {
                 keyExtractor={(item) => {
                     return item.id.toString();
                 }}
-            />
+            /> */}
+                <FlatlistView>
+                    <FlatListViewIn>
+                        {dataItems.categories &&
+                            dataItems.categories.map((item, index) => {
+                                {
+                                    return (
+                                        <Item key={index}>
+                                            <CardHeader>
+                                                <CircleCard
+                                                    style={{ backgroundColor: `${item.color}` }}
+                                                ></CircleCard>
+                                                <CardTextTitle>{item.name}</CardTextTitle>
+                                            </CardHeader>
+                                            <CardTextSum>
+                                                {borderBillionMillionThousand(item.value)} руб
+                                            </CardTextSum>
+                                        </Item>
+                                    );
+                                }
+                            })}
+                    </FlatListViewIn>
+                </FlatlistView>
+            </View>
         </View>
     );
 }
