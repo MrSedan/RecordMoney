@@ -69,7 +69,7 @@ function reformat(item: DataType) {
     return datas;
 }
 
-function PeopleDate(date: string) {
+export function PeopleDate(date: string) {
     const [year, month, day] = date.split('-').map(Number);
     const normalDate = new Date(year, month - 1, day);
     return `${normalDate.getDate()}  ${
