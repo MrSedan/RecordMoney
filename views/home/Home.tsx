@@ -170,29 +170,7 @@ const styles = StyleSheet.create({
 
 ////////////////////////////////
 
-// render item  and category
 
-// const renderItem = ({
-//     item,
-// }: {
-//     item: {
-//         id: number;
-//         name: string;
-//         category_icon: number;
-//         category_type: string;
-//         color: string;
-//         value: number;
-//     };
-// }) => (
-//     <Item
-//         category_id={item.id}
-//         category_name={item.name}
-//         category_icon={item.category_icon}
-//         category_type={item.category_type}
-//         color={item.color}
-//         value={item.value}
-//     />
-// );
 
 //Circle//////////////////////////////
 const CircleContainerBox = styled.View`
@@ -398,7 +376,6 @@ export default function Home() {
     const [itemsAccounts, setitemsAccounts] = useState<{ label: string; value: string }[]>([]);
     const [editing, setEditing] = useState({ editing: false, index: 0 });
     const [categorytype, setcategorytype] = useState(true);
-
     const [touchItemIndex, setTouchItemIndex] = useState({ move: 0, index: -1 });
     const [visible3, setVisible3] = useState(false);
 
@@ -513,6 +490,9 @@ export default function Home() {
         setDataItems(NewDat);
         setData({ fileName: 'history', data: Newhistory });
         setDatahistory(Newhistory);
+        let datas = await getData({ fileName: 'Account' });
+
+        setHistory(datas);
     };
 
     const editModalCategory = (index: number) => {
@@ -524,9 +504,13 @@ export default function Home() {
     function getItems(accounts: category['categories']) {
         let data: { label: string; value: string }[] = [];
         accounts.map((item) => {
-            data.push({ label: item.name, value: item.id.toString() });
+            data.push({ label: item.name +', '+item.category_type, value: item.id.toString() });
         });
-        setItems(data);
+        setItems(data)
+        console.log(data, data.length);
+        console.log(items, items.length);
+        
+        
     }
 
     function getAccount(accounts: account['accounts']) {
@@ -558,7 +542,7 @@ export default function Home() {
 
             await setData({ fileName: 'category', data: dataC });
         }
-
+        
         await getItems(await getCategory());
         await getAccount(await getAccounts());
         if (dataH === null) {
@@ -590,8 +574,9 @@ export default function Home() {
             id: 0,
             name: text[1].replace(/\s+/g, ' ').trim(),
         };
-
-        if (dat.id > maxid) {
+        console.log(mama.categories.length);
+        
+        if (mama.categories.length> maxid) {
             alert(`Максимальное количество категорий 11!`);
             return;
         }
@@ -622,7 +607,7 @@ export default function Home() {
 
         await setData({ fileName: 'category', data: mama });
         setText(['', '', '', '']);
-
+        setSelectedColor('');
         await getItems(await getCategory());
         setVisibleAddCategory(false);
         setEditingcategory({ editingcategory: false, index: 0 });
@@ -826,6 +811,7 @@ export default function Home() {
         setVisible2(false);
 
         setSelectedBlockIndex(-1);
+        
     };
 
     return (
@@ -1028,17 +1014,23 @@ export default function Home() {
                 />
                 <PickerBlock>
                     <TextName>Категория</TextName>
+                    
                     <DropDownPicker
+                        
                         open={openPicker}
                         value={pickerValue}
                         setOpen={setOpenPicker}
                         setValue={setPickerValue}
                         items={items}
                         setItems={setItems}
-                        containerStyle={{ width: '66%', alignSelf: 'flex-end', zIndex: 9999 }}
+                        containerStyle={{ width: '66%', alignSelf: 'flex-end' ,position:'relative'}}
+                        zIndex={2}
                         placeholder='Выберите категорию'
                         dropDownDirection='BOTTOM'
+                       
+                        
                     />
+                    
                 </PickerBlock>
 
                 <Input
@@ -1070,7 +1062,8 @@ export default function Home() {
                         setItems={setitemsAccounts}
                         containerStyle={{ width: '66%', alignSelf: 'flex-end' }}
                         placeholder='Выберите аккаунт'
-                        dropDownDirection='TOP'
+                        dropDownDirection='BOTTOM'
+                        zIndex={1}
                     />
                 </PickerBlock>
                 {isDatePickerVisible && (
@@ -1115,10 +1108,15 @@ export default function Home() {
                             }}
                         />
                         <HeaderText>{categorytype ? 'Доход' : 'Расход'}</HeaderText>
+                        
                         <ButtonHeader
                             onPress={() => {
+                                if (dataItems.categories.length <= 10) {
                                 setVisibleAddCategory(true);
                                 setActiveModalButtonAddCategory(categorytype);
+                            } else {
+                                Alert.alert('ВЫ ДОСТИГЛИ ЛИМИТА КАТЕГОРИЙ (10)!!!!');
+                            }
                             }}
                             style={{ shadowColor: '#625E5E', elevation: 10 }}
                         >
@@ -1390,7 +1388,7 @@ export default function Home() {
             </Modal>
 
             <Header
-                name='Home'
+                name='Категории'
                 style='2'
                 functionLeft={() => {}}
                 functionRight={async () => {
@@ -1473,15 +1471,7 @@ export default function Home() {
                     }}
                 />
 
-                {/* <FlatlistView
-                style={{ display: 'flex', alignContent: 'flex-start' }}
-                data={dataItems.categories}
-                renderItem={renderItem}
-                numColumns={numColumns}
-                keyExtractor={(item) => {
-                    return item.id.toString();
-                }}
-            /> */}
+                
                 <FlatlistView>
                     <FlatListViewIn>
                         {dataItems.categories &&
