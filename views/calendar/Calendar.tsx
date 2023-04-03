@@ -26,6 +26,7 @@ import DateTimePicker from 'react-native-modal-datetime-picker';
 
 import PlusWhiteSvg from '../../assets/icon/PlusWhite.svg';
 import MinusWhiteSvg from '../../assets/icon/MinusWhite.svg';
+import PlusSvg from '../../assets/icon/plus.svg';
 
 interface DataType {
     cards: {
@@ -69,7 +70,7 @@ function reformat(item: DataType) {
     return datas;
 }
 
-function PeopleDate(date: string) {
+export function PeopleDate(date: string) {
     const [year, month, day] = date.split('-').map(Number);
     const normalDate = new Date(year, month - 1, day);
     return `${normalDate.getDate()}  ${
@@ -130,14 +131,60 @@ const TextName = styled.Text`
 const ModalInfo = styled.View`
     display: flex;
     flex-direction: column;
-    justify-content: space-evenly;
+    justify-content: flex-end;
     align-items: center;
     background-color: #fff;
     width: 70%;
-    height: 50%;
-    margin: 15%;
+    height: auto;
+    margin: 50% 15%;
     border-radius: 10px;
-    padding: 20px;
+    padding: 7% 7% 9% 7%;
+`;
+
+const AlertTextContainer = styled.View`
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    margin: 10% 0;
+    width: 100%;
+`;
+
+const AlertInView = styled.View`
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+`;
+
+const AlertMessage = styled.Text`
+    font-family: 'MainFont-Regular';
+    font-size: 16px;
+    margin-bottom: 10px;
+    width: 30%;
+`;
+
+const AlertButtonCantainer = styled.View`
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 100%;
+    height: 29px;
+`;
+
+const AlertButton = styled.TouchableOpacity`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 5px;
+    width: auto;
+    background-color: rgba(0, 0, 0, 0.1);
+    padding: 2%;
+    margin: 0 0 5px 0;
+`;
+
+const AlertButtonText = styled.Text`
+    font-family: 'MainFont-Regular';
+    color: #000;
 `;
 
 const AlertTitle = styled.Text`
@@ -146,29 +193,6 @@ const AlertTitle = styled.Text`
     width: 100%;
     font-size: 18px;
     margin-bottom: 5%;
-`;
-
-const AlertInView = styled.View`
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    width: 80%;
-`;
-
-const AlertMessage = styled.Text`
-    font-family: 'MainFont-Regular';
-    font-size: 14px;
-    margin-bottom: 10px;
-`;
-
-const AlertButton = styled.Text`
-    font-family: 'MainFont-Regular';
-    color: #000;
-    text-align: center;
-    border: 1px solid rgba(0, 0, 0, 0.2);
-    border-radius: 5px;
-    padding: 2% 15%;
-    background-color: rgba(0, 0, 0, 0.1);
 `;
 
 const monthNames = [
@@ -201,7 +225,7 @@ export default function Calendar() {
     const [openPicker, setOpenPicker] = useState(false); // поле со списком
     const [pickerValue, setPickerValue] = useState(''); // выбранный счет
     const [items, setItems] = useState<{ label: string; value: string }[]>([]); // все счета для поля
-    // const [idCard, setIdCard] = useState(-1);
+    const [idCard, setIdCard] = useState(-1);
 
     function getItems(accounts: account['accounts']) {
         let data: { label: string; value: string }[] = [];
@@ -293,6 +317,11 @@ export default function Calendar() {
             state.cards[index].sum.toString(),
             state.cards[index].comment,
         ]);
+        if (state.cards[index].type == '1') {
+            setActiveModalButton(true);
+        } else {
+            setActiveModalButton(false);
+        }
         setVisible(true);
         setEditing({ edit: true, index: index });
     };
@@ -320,73 +349,74 @@ export default function Calendar() {
         );
     };
 
-    // const addMoneyAccount = async (
-    //     id: number,
-    //     value: number,
-    //     type: string,
-    //     id_acc: number,
-    //     date: string,
-    //     closed: boolean,
-    // ) => {
-    //     let res = '';
-    //     type === '1'
-    //         ? (res = await addMoney(value, id, id_acc, 'calendar'))
-    //         : (res = await addMoney(value * -1, id, id_acc, 'calendar'));
+    const addMoneyAccount = async (
+        id: number,
+        value: number,
+        type: string,
+        id_acc: number,
+        date: string,
+        closed: boolean,
+    ) => {
+        let res = '';
+        type === '1'
+            ? (res = await addMoney(value, id, id_acc, 'calendar'))
+            : (res = await addMoney(value * -1, id, id_acc, 'calendar'));
 
-    //     if (res === 'not-found') Alert.alert('Ошибка!', 'Счет не найден');
-    //     if (res === 'no-money') Alert.alert('Ошибка', 'Недостаточно средств');
-    //     if (res === 'ok') {
-    //         let data: calendar = JSON.parse(JSON.stringify(state));
-    //         data.cards[idCard].close = true;
-    //         await editItem('cards', path, idCard, data.cards[idCard]);
-    //         setState(data);
-    //     }
-    //     setIdCard(-1);
-    //     setWinInfo(false);
-    // };
-
-    const addMoneyAccount = async (index: number) => {
-        let data: calendar = JSON.parse(JSON.stringify(state));
-        Alert.alert('Внимание', 'Вы уверены, что хотите провести операцию?', [
-            {
-                text: 'Да',
-                onPress: async () => {
-                    const res =
-                        data.cards[index].type === '1'
-                            ? await addMoney(
-                                  data.cards[index].sum,
-                                  data.cards[index].id,
-                                  data.cards[index].id_account,
-                                  'calendar',
-                              )
-                            : await addMoney(
-                                  data.cards[index].sum * -1,
-                                  data.cards[index].id,
-                                  data.cards[index].id_account,
-                                  'calendar',
-                              );
-
-                    if (res == 'no-money') {
-                        Alert.alert('Ошибка!', 'Недостаточно средств');
-                        return;
-                    } else if (res == 'not-found') {
-                        Alert.alert('Ошибка!', 'Счет не был найден!');
-                        return;
-                    } else if (res == 'ok') {
-                        data.cards[index].close = true;
-                        await editItem('cards', path, index, data.cards[index]);
-                        setState(data);
-                        console.log(data);
-                    }
-                    await getItems(await getAccounts());
-                },
-            },
-            {
-                text: 'Нет',
-                onPress: () => {},
-            },
-        ]);
+        if (res === 'not-found') Alert.alert('Ошибка!', 'Счет не найден');
+        if (res === 'no-money') Alert.alert('Ошибка', 'Недостаточно средств');
+        if (res === 'ok') {
+            let data: calendar = JSON.parse(JSON.stringify(state));
+            data.cards[idCard].close = true;
+            await editItem('cards', path, idCard, data.cards[idCard]);
+            setState(data);
+        }
+        setIdCard(-1);
+        setWinInfo(false);
     };
+
+    // const addMoneyAccount = async (index: number) => {
+    //     let data: calendar = JSON.parse(JSON.stringify(state));
+
+    //     Alert.alert('Внимание', 'Вы уверены, что хотите провести операцию?', [
+    //         {
+    //             text: 'Да',
+    //             onPress: async () => {
+    //                 const res =
+    //                     data.cards[index].type === '1'
+    //                         ? await addMoney(
+    //                               data.cards[index].sum,
+    //                               data.cards[index].id,
+    //                               data.cards[index].id_account,
+    //                               'calendar',
+    //                           )
+    //                         : await addMoney(
+    //                               data.cards[index].sum * -1,
+    //                               data.cards[index].id,
+    //                               data.cards[index].id_account,
+    //                               'calendar',
+    //                           );
+
+    //                 if (res == 'no-money') {
+    //                     Alert.alert('Ошибка!', 'Недостаточно средств');
+    //                     return;
+    //                 } else if (res == 'not-found') {
+    //                     Alert.alert('Ошибка!', 'Счет не был найден!');
+    //                     return;
+    //                 } else if (res == 'ok') {
+    //                     data.cards[index].close = true;
+    //                     await editItem('cards', path, index, data.cards[index]);
+    //                     setState(data);
+    //                     console.log(data);
+    //                 }
+    //                 await getItems(await getAccounts());
+    //             },
+    //         },
+    //         {
+    //             text: 'Нет',
+    //             onPress: () => {},
+    //         },
+    //     ]);
+    // };
 
     LocaleConfig.locales['ru'] = {
         monthNames: [
@@ -529,7 +559,7 @@ export default function Calendar() {
                     />
                 )}
             </ModalWindow>
-            {/* <Modal
+            <Modal
                 animationType='fade'
                 transparent={true}
                 visible={winInfo}
@@ -540,12 +570,22 @@ export default function Calendar() {
             >
                 <View style={{ flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.3)' }}>
                     <ModalInfo>
+                        <PlusSvg
+                            width={25}
+                            height={25}
+                            rotation={45}
+                            onPress={() => {
+                                setIdCard(-1);
+                                setWinInfo(false);
+                            }}
+                            style={{ position: 'absolute', left: 13, top: 13 }}
+                        />
                         <AlertTitle>Дополнительная информация</AlertTitle>
                         <AlertInView>
-                            <AlertMessage style={{ textDecorationLine: 'underline' }}>
+                            <AlertMessage style={{ width: '60%', textDecorationLine: 'underline' }}>
                                 Тип операции:
                             </AlertMessage>
-                            <AlertMessage>
+                            <AlertMessage style={{ width: '40%', textAlign: 'center' }}>
                                 {idCard !== -1
                                     ? state.cards[0].type === '1'
                                         ? 'Доход'
@@ -554,10 +594,10 @@ export default function Calendar() {
                             </AlertMessage>
                         </AlertInView>
                         <AlertInView>
-                            <AlertMessage style={{ textDecorationLine: 'underline' }}>
+                            <AlertMessage style={{ width: '40%', textDecorationLine: 'underline' }}>
                                 Название:
                             </AlertMessage>
-                            <AlertMessage>
+                            <AlertMessage style={{ width: '60%', textAlign: 'center' }}>
                                 {idCard !== -1 ? state.cards[idCard].name : ''}
                             </AlertMessage>
                         </AlertInView>
@@ -565,7 +605,7 @@ export default function Calendar() {
                             <AlertMessage style={{ textDecorationLine: 'underline' }}>
                                 Дата:
                             </AlertMessage>
-                            <AlertMessage>
+                            <AlertMessage style={{ width: '70%', textAlign: 'center' }}>
                                 {idCard !== -1 ? PeopleDate(state.cards[idCard].date) : ''}
                             </AlertMessage>
                         </AlertInView>
@@ -573,57 +613,59 @@ export default function Calendar() {
                             <AlertMessage style={{ textDecorationLine: 'underline' }}>
                                 Сумма:
                             </AlertMessage>
-                            <AlertMessage>
+                            <AlertMessage style={{ width: '70%', textAlign: 'center' }}>
                                 {idCard !== -1 ? state.cards[idCard].sum : ''} руб.
                             </AlertMessage>
                         </AlertInView>
                         <AlertInView>
-                            <AlertMessage style={{ textDecorationLine: 'underline' }}>
-                                Комментарий:
+                            <AlertMessage style={{ width: '40%', textDecorationLine: 'underline' }}>
+                                Коммент:
                             </AlertMessage>
-                            <AlertMessage>
+                            <AlertMessage style={{ width: '60%', textAlign: 'center' }}>
                                 {idCard !== -1 ? state.cards[idCard].comment : ''}
                             </AlertMessage>
                         </AlertInView>
                         <AlertInView>
-                            <AlertMessage style={{ textDecorationLine: 'underline' }}>
+                            <AlertMessage style={{ width: '50%', textDecorationLine: 'underline' }}>
                                 Завершено:
                             </AlertMessage>
-                            <AlertMessage>
+                            <AlertMessage style={{ width: '50%', textAlign: 'center' }}>
                                 {idCard !== -1 ? (state.cards[idCard].close ? 'Да' : 'Нет') : ''}
                             </AlertMessage>
                         </AlertInView>
-                        <AlertButton
-                            onPress={() => {
-                                setIdCard(-1);
-                                setWinInfo(false);
-                            }}
-                        >
-                            Ok
-                        </AlertButton>
-                        {idCard !== -1 && state.cards[idCard].close === false ? (
+                        <AlertButtonCantainer>
                             <AlertButton
                                 onPress={() => {
-                                    addMoneyAccount(
-                                        state.cards[idCard].id,
-                                        state.cards[idCard].sum,
-                                        state.cards[idCard].type,
-                                        state.cards[idCard].id_account,
-                                        state.cards[idCard].date,
-                                        state.cards[idCard].close,
-                                    );
+                                    setIdCard(-1);
+                                    setWinInfo(false);
                                 }}
                             >
-                                Провести операцию
+                                <AlertButtonText>Ok</AlertButtonText>
                             </AlertButton>
-                        ) : (
-                            <View></View>
-                        )}
+                            {idCard !== -1 && state.cards[idCard].close === false ? (
+                                <AlertButton
+                                    onPress={() => {
+                                        addMoneyAccount(
+                                            state.cards[idCard].id,
+                                            state.cards[idCard].sum,
+                                            state.cards[idCard].type,
+                                            state.cards[idCard].id_account,
+                                            state.cards[idCard].date,
+                                            state.cards[idCard].close,
+                                        );
+                                    }}
+                                >
+                                    <AlertButtonText>Провести операцию</AlertButtonText>
+                                </AlertButton>
+                            ) : (
+                                <View></View>
+                            )}
+                        </AlertButtonCantainer>
                     </ModalInfo>
                 </View>
-            </Modal> */}
+            </Modal>
             <Header
-                name='Calendar'
+                name='Календарь'
                 style='1'
                 functionLeft={() => {}}
                 functionRight={() => {
@@ -719,10 +761,15 @@ export default function Calendar() {
                                         onEdit={() => {
                                             editModal(index);
                                         }}
-                                        onDoubleClick={() => {
-                                            // setIdCard(index);
-                                            // setWinInfo(true);
-                                            addMoneyAccount(index);
+                                        onDoubleClick={async () => {
+                                            setIdCard(index);
+                                            setWinInfo(true);
+                                            // await search();
+                                            // if (item.close) {
+                                            //     Alert.alert('Внимание', 'Вы уже закрыли цель');
+                                            // } else {
+                                            //     addMoneyAccount(index);
+                                            // }
                                         }}
                                     >
                                         <CardView>
