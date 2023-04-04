@@ -2,7 +2,6 @@ export interface category {
     categories: {
         id: number;
         name: string;
-        category_icon: number;
         category_type: string;
         color: string;
         value: number;

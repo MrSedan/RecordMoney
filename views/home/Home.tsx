@@ -335,7 +335,7 @@ function calculateValues(categories: category, history: history): category {
                 const cat = {
                     id: categ.id,
                     name: categ.name,
-                    category_icon: categ.category_icon,
+                    
                     category_type: categ.category_type,
                     color: categ.color,
                     value: sum,
@@ -604,6 +604,9 @@ export default function Home() {
             }
             setDataItems(mama);
         }
+        if (dat.category_type === 'Доход'){
+            setcategorytype(true);
+        }else {setcategorytype(false);}
 
         await setData({ fileName: 'category', data: mama });
         setText(['', '', '', '']);
@@ -1115,7 +1118,7 @@ export default function Home() {
                                 setVisibleAddCategory(true);
                                 setActiveModalButtonAddCategory(categorytype);
                             } else {
-                                Alert.alert('ВЫ ДОСТИГЛИ ЛИМИТА КАТЕГОРИЙ (10)!!!!');
+                                Alert.alert('вы достигли лимита категорий (10)');
                             }
                             }}
                             style={{ shadowColor: '#625E5E', elevation: 10 }}
@@ -1126,7 +1129,6 @@ export default function Home() {
                     <View
                         style={{
                             margin: 5,
-
                             flexDirection: 'row',
                             justifyContent: 'space-around',
                         }}
@@ -1444,7 +1446,7 @@ export default function Home() {
                                 />
                             </View>
                         </ButtonHeader>
-                        {dataItems.categories.length > 0 && items.length > 0 && (
+                        {dataItems.categories.length > 0 && history.accounts.length > 0 && (
                             <ButtonHeader
                                 onPress={async () => {
                                     await getAccount(await getAccounts());
