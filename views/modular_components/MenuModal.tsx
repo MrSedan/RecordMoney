@@ -65,7 +65,7 @@ export default function MenuModal(props: {
                             props.setVisible(false);
                         }}
                     />
-                    <TextHeader>Accounts</TextHeader>
+                    <TextHeader>Счета</TextHeader>
                     <ButtonHeader
                         onPress={() => {
                             setAccountVisible(true);

@@ -1,4 +1,4 @@
-import { Text, View, Alert, Button, TouchableOpacity } from 'react-native';
+import { Text, View, Alert, Button, TouchableOpacity, Modal } from 'react-native';
 import Header from '../modular_components/Header';
 import styled from 'styled-components/native';
 import { useCallback, useState } from 'react';
@@ -22,6 +22,7 @@ import DateTimePicker from 'react-native-modal-datetime-picker';
 import InputContact from '../modular_components/InputContact';
 import * as Contacts from 'expo-contacts';
 import CardSwipe from '../modular_components/CardSwipe';
+import PlusSvg from '../../assets/icon/plus.svg';
 
 //Button up ///////////////////////////////
 const ButtonTypeView = styled.View`
@@ -104,6 +105,74 @@ const TextName = styled.Text`
     font-size: 15px;
 `;
 /////////////////////////////////////////////
+//ModalWinInfo///////////////////////////////
+const ModalInfo = styled.View`
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+    background-color: #fff;
+    width: 70%;
+    height: 50%;
+    margin: 50% 15%;
+    border-radius: 10px;
+    padding: 7%;
+`;
+
+const AlertTextContainer = styled.View`
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    margin-bottom: 15%;
+    width: 100%;
+`;
+
+const AlertInView = styled.View`
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+`;
+
+const AlertMessage = styled.Text`
+    font-family: 'MainFont-Regular';
+    font-size: 16px;
+    margin-bottom: 10px;
+    width: 30%;
+`;
+
+const AlertButtonCantainer = styled.View`
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    width: 100%;
+    height: 17%;
+`;
+
+const AlertButton = styled.TouchableOpacity`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    // border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+    width: auto;
+    background-color: rgba(0, 0, 0, 0.1);
+    padding: 2%;
+`;
+
+const AlertButtonText = styled.Text`
+    font-family: 'MainFont-Regular';
+    color: #000;
+`;
+
+const AlertTitle = styled.Text`
+    font-family: 'MainFont-Bold';
+    text-align: center;
+    width: 100%;
+    font-size: 18px;
+    margin-bottom: 5%;
+`;
+/////////////////////////////////////////////
 
 const monthNames = [
     'января',
@@ -125,6 +194,8 @@ export default function Debt() {
     const [debtTome, setDebt] = useState(true);
     const [text, setText] = useState(['', '', '', '', '']);
     const [visible, setVisible] = useState(false);
+    const [winInfo, setWinInfo] = useState(false);
+    const [idCard, setIdCard] = useState(-1);
     const [activeModalButton, setActiveModalButton] = useState(true);
     const [items, setItems] = useState<{ label: string; value: string }[]>([]);
     const [openPicker, setOpenPicker] = useState(false);
@@ -297,37 +368,28 @@ export default function Debt() {
 
     const submit = async (index: number) => {
         const item = state.debts[index];
-        Alert.alert(
-            'Внимание',
-            'Вы уверены, что хотите закрыть долг?' +
-                ` Деньги поступят на счет "${getAcc(item.id_account)}"`,
-            [
-                {
-                    text: 'Да',
-                    onPress: async () => {
-                        if (item.type == '2') item.sum = -item.sum;
-                        const res = await addMoney(item.sum, item.id, item.id_account, 'debt');
-                        if (res == 'no-money') {
-                            Alert.alert('Ошибка!', 'Недостаточно средств');
-                            return;
-                        } else if (res == 'not-found') {
-                            Alert.alert('Ошибка!', 'Счет не был найден!');
-                            return;
-                        }
-                        await delItem('debts', 'Debt', index);
-                        const newDebt: debt = JSON.parse(JSON.stringify(state));
-                        newDebt.debts.splice(index, 1);
-                        setState(newDebt);
-                        Alert.alert('Долг был успешно закрыт!');
-                        await getItems(await getAccounts());
-                    },
-                },
-                {
-                    text: 'Нет',
-                    onPress: () => {},
-                },
-            ],
-        );
+
+        if (item.type == '2') item.sum = -item.sum;
+        const res = await addMoney(item.sum, item.id, item.id_account, 'debt');
+        if (res == 'no-money') {
+            setIdCard(-1);
+            setWinInfo(false);
+            Alert.alert('Ошибка!', 'Недостаточно средств');
+            return;
+        } else if (res == 'not-found') {
+            setIdCard(-1);
+            setWinInfo(false);
+            Alert.alert('Ошибка!', 'Счет не был найден!');
+            return;
+        }
+        await delItem('debts', 'Debt', index);
+        const newDebt: debt = JSON.parse(JSON.stringify(state));
+        newDebt.debts.splice(index, 1);
+        setState(newDebt);
+        Alert.alert('Долг был успешно закрыт!');
+        await getItems(await getAccounts());
+        setIdCard(-1);
+        setWinInfo(false);
     };
 
     return (
@@ -439,8 +501,83 @@ export default function Debt() {
                     />
                 )}
             </ModalWindow>
+            <Modal
+                animationType='fade'
+                transparent={true}
+                visible={winInfo}
+                onRequestClose={() => {
+                    setIdCard(-1);
+                    setWinInfo(false);
+                }}
+            >
+                <View style={{ flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.3)' }}>
+                    <ModalInfo>
+                        <PlusSvg
+                            width={25}
+                            height={25}
+                            rotation={45}
+                            onPress={() => {
+                                setIdCard(-1);
+                                setWinInfo(false);
+                            }}
+                            style={{ position: 'absolute', left: 13, top: 13 }}
+                        />
+                        <AlertTitle>Дополнительная информация</AlertTitle>
+                        <AlertInView>
+                            <AlertMessage style={{ width: '38%', textDecorationLine: 'underline' }}>
+                                Название:
+                            </AlertMessage>
+                            <AlertMessage style={{ width: '62%', textAlign: 'center' }}>
+                                {idCard !== -1 ? state.debts[idCard].name : ''}
+                            </AlertMessage>
+                        </AlertInView>
+                        <AlertInView>
+                            <AlertMessage style={{ width: '25%', textDecorationLine: 'underline' }}>
+                                Сумма:
+                            </AlertMessage>
+                            <AlertMessage style={{ width: '75%', textAlign: 'center' }}>
+                                {idCard !== -1 ? state.debts[idCard].sum : ''}
+                            </AlertMessage>
+                        </AlertInView>
+                        <AlertInView>
+                            <AlertMessage style={{ width: '35%', textDecorationLine: 'underline' }}>
+                                Крайняя дата:
+                            </AlertMessage>
+                            <AlertMessage style={{ width: '65%', textAlign: 'center' }}>
+                                {idCard !== -1 ? state.debts[idCard].date : ''}
+                            </AlertMessage>
+                        </AlertInView>
+                        <AlertInView>
+                            <AlertMessage style={{ width: '35%', textDecorationLine: 'underline' }}>
+                                Контакт:
+                            </AlertMessage>
+                            <AlertMessage style={{ width: '65%', textAlign: 'center' }}>
+                                {idCard !== -1 ? state.debts[idCard].contact : ''}
+                            </AlertMessage>
+                        </AlertInView>
+                        <AlertInView>
+                            <AlertMessage style={{ width: '35%', textDecorationLine: 'underline' }}>
+                                Коммент:
+                            </AlertMessage>
+                            <AlertMessage style={{ width: '65%', textAlign: 'center' }}>
+                                {idCard !== -1 ? state.debts[idCard].comment : ''}
+                            </AlertMessage>
+                        </AlertInView>
+                        <AlertButtonCantainer>
+                            <AlertButton
+                                onPress={() => {
+                                    submit(idCard);
+                                    setIdCard(-1);
+                                }}
+                            >
+                                <AlertButtonText>Провести операцию</AlertButtonText>
+                            </AlertButton>
+                        </AlertButtonCantainer>
+                    </ModalInfo>
+                </View>
+            </Modal>
             <Header
-                name='Debt'
+                name='Долги'
                 style='1'
                 functionLeft={() => {}}
                 functionRight={() => {
@@ -507,7 +644,9 @@ export default function Debt() {
                                             openEditModal(index);
                                         }}
                                         onDoubleClick={() => {
-                                            submit(index);
+                                            setIdCard(index);
+                                            setWinInfo(true);
+                                            // submit(index);
                                         }}
                                     >
                                         <CardView>

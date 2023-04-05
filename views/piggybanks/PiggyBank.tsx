@@ -424,7 +424,7 @@ export default function PiggyBank() {
                 )}
             </ModalWindowOneButton>
             <Header
-                name='PiggyBank'
+                name='Копилка'
                 style='1'
                 functionLeft={() => {}}
                 functionRight={() => {
