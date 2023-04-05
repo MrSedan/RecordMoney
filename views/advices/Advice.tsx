@@ -10,6 +10,10 @@ import {
 } from '../../models/interfaces';
 import { getData, removeAllData, setData } from '../tools/iosys';
 import { LineChart } from 'react-native-chart-kit';
+import Trash from '../../assets/icon/Trash.svg';
+import CalendarBlack from '../../assets/icon/CalanderBlack.svg';
+import WalletBlack from '../../assets/icon/WalletBlack.svg';
+import Accounts from '../../assets/icon/Accounts.svg';
 
 const StatContainer = styled.View`
     margin: 40px 2% 10%;
@@ -37,26 +41,32 @@ const ResetButton = styled.TouchableOpacity`
     margin: 10px 0 0;
     display: flex;
     align-items: center;
-    background-color: #fff;
+    background-color: #ff6e6e;
     padding: 10px 0;
     border-radius: 15px;
-    border: 1px solid #ff6e6e;
+    border: 2px solid #000;
 `;
 const ButtonGrafic = styled.TouchableOpacity`
     border-width: 1px;
     border-style: solid;
-    height: 35px;
+    height: 60px;
     display: flex;
     justify-content: center;
     align-items: center;
     margin-start: 0;
-    width: 45%;
-
+    width: 30%;
     border-radius: 15px;
+    border: 2px solid #000;
 `;
 const Scroll = styled.ScrollView`
     heigth: 100%;
 `;
+
+const ContainerButton = styled.View`
+    justify-content: space-evenly;
+    flex-direction: row;
+`;
+
 
 export default function Advice() {
     const [history, setHistory] = useState(emptyAccHistory());
@@ -309,46 +319,70 @@ export default function Advice() {
                         </Text>
                     </TextRow>
                     <ResetButton onPress={tryToReset}>
-                        <Text
-                            style={{ fontFamily: 'MainFont-Bold', fontSize: 15, color: '#FF6E6E' }}
-                        >
-                            Удалить все данные
-                        </Text>
+                        <Trash
+                        width={40}
+                        height={40}
+                        color={'#FF6E6E'}
+                        />
                     </ResetButton>
                 </StatContainer>
-                {visible3 && visible4 && (
-                    <View
-                        style={{
-                            flexDirection: 'row',
-                            marginBottom: 30,
-                            margin: 5,
-                            justifyContent: 'space-around',
-                        }}
-                    >
-                        <ButtonGrafic onPress={GraficCalendar}>
+               <ContainerButton>
+                {visible3 && (
+                        
+                        <ButtonGrafic onPress={GraficCalendar} style = {{backgroundColor: '#f7c183'}}>
+                            <CalendarBlack
+                                width={33}
+                                height={33}
+                            />
                             <Text
                                 style={{
                                     fontFamily: 'MainFont-Bold',
                                     fontSize: 15,
-                                    color: '#f7c183',
+                                    
                                 }}
                             >
                                 Календарь
                             </Text>
                         </ButtonGrafic>
-                        <ButtonGrafic onPress={GraficDebt}>
-                            <Text
-                                style={{
-                                    fontFamily: 'MainFont-Bold',
-                                    fontSize: 16,
-                                    color: '#3FDEAE',
-                                }}
-                            >
-                                Долги
-                            </Text>
-                        </ButtonGrafic>
-                    </View>
+                      
                 )}
+                {visible4 && (
+                   
+                    <ButtonGrafic onPress={GraficDebt} style = {{backgroundColor: '#3FDEAE'}}>
+                        <WalletBlack
+                            width={33}
+                            height={33}
+                        />
+                    <Text
+                        style={{
+                            fontFamily: 'MainFont-Bold',
+                            fontSize: 15,
+                            
+                        }}
+                    >
+                        Долги
+                    </Text>
+                </ButtonGrafic>
+                
+                )}
+                <ButtonGrafic onPress={() => {Alert.alert('Данная функция будет добавлена в обновлениях')}} style = {{backgroundColor: '#9966cc'}}>
+                    <Accounts
+                        width={33}
+                        height={33}
+                    />
+                    <Text
+                        style={{
+                            fontFamily: 'MainFont-Bold',
+                            fontSize: 15,
+                            
+                            
+                        }}
+                    >
+                        Счета
+                    </Text>
+                </ButtonGrafic>
+                
+                </ContainerButton>
             </Scroll>
         </View>
     );
