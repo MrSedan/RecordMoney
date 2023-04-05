@@ -199,6 +199,7 @@ export default function Account(props: {
                     setEditing({ editing: false, index: 0 });
                 }}
                 functionSaveButton={tryToSave}
+                colorActive='#3EA2FF'
             >
                 <Input
                     textName='Название'
