@@ -532,10 +532,10 @@ export default function Debt() {
                             </AlertMessage>
                         </AlertInView>
                         <AlertInView>
-                            <AlertMessage style={{ width: '25%', textDecorationLine: 'underline' }}>
+                            <AlertMessage style={{ width: '29%', textDecorationLine: 'underline' }}>
                                 Сумма:
                             </AlertMessage>
-                            <AlertMessage style={{ width: '75%', textAlign: 'center' }}>
+                            <AlertMessage style={{ width: '70%', textAlign: 'center' }}>
                                 {idCard !== -1 ? state.debts[idCard].sum : ''}
                             </AlertMessage>
                         </AlertInView>

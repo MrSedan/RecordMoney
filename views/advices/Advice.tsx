@@ -47,7 +47,7 @@ const ResetButton = styled.TouchableOpacity`
     border: 2px solid #000;
 `;
 const ButtonGrafic = styled.TouchableOpacity`
-    border-width: 1px;
+    
     border-style: solid;
     height: 60px;
     display: flex;
@@ -55,8 +55,6 @@ const ButtonGrafic = styled.TouchableOpacity`
     align-items: center;
     margin-start: 0;
     width: 30%;
-    border-radius: 15px;
-    border: 2px solid #000;
 `;
 const Scroll = styled.ScrollView`
     heigth: 100%;
