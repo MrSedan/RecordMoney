@@ -587,7 +587,7 @@ export default function Calendar() {
                             </AlertMessage>
                             <AlertMessage style={{ width: '40%', textAlign: 'center' }}>
                                 {idCard !== -1
-                                    ? state.cards[0].type === '1'
+                                    ? state.cards[idCard].type === '1'
                                         ? 'Доход'
                                         : 'Платеж'
                                     : ''}
