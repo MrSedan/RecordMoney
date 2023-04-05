@@ -13,6 +13,7 @@ const HeaderView = styled.View`
 `;
 
 const HeaderText = styled.Text`
+    font-family: 'MainFont-Regular';
     font-size: 20px;
     margin-left: 17px;
 `;
@@ -47,7 +48,7 @@ const ModalWindowHistory = memo(
                                 props.setVisible(false);
                             }}
                         />
-                        <HeaderText>Statistics</HeaderText>
+                        <HeaderText>История операций</HeaderText>
                     </HeaderView>
                     <ScrollView style={{ marginBottom: '5%' }}>
                         <InputView>{props.children}</InputView>

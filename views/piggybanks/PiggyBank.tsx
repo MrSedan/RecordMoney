@@ -368,6 +368,7 @@ export default function PiggyBank() {
                 }}
                 visible={modalWindow}
                 setVisible={setModalWindow}
+                colorActive='#3EA2FF'
             >
                 {!editSum.editSum ? (
                     <View>
