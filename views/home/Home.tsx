@@ -1069,7 +1069,7 @@ export default function Home() {
                         items={itemsAccounts}
                         setItems={setitemsAccounts}
                         containerStyle={{ width: '66%', alignSelf: 'flex-end' }}
-                        placeholder='Выберите аккаунт'
+                        placeholder='Выберите счет'
                         dropDownDirection='BOTTOM'
                         zIndex={1}
                     />
