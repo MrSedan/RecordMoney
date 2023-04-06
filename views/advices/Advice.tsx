@@ -15,6 +15,10 @@ import CalendarBlack from '../../assets/icon/CalanderBlack.svg';
 import WalletBlack from '../../assets/icon/WalletBlack.svg';
 import Accounts from '../../assets/icon/Accounts.svg';
 
+
+
+
+
 const StatContainer = styled.View`
     margin: 40px 2% 10%;
     background-color: #fff;
@@ -49,12 +53,13 @@ const ResetButton = styled.TouchableOpacity`
 const ButtonGrafic = styled.TouchableOpacity`
     
     border-style: solid;
-    height: 60px;
+    height: 110px;
     display: flex;
     justify-content: center;
     align-items: center;
     margin-start: 0;
     width: 30%;
+    border-radius: 15px;
 `;
 const Scroll = styled.ScrollView`
     heigth: 100%;
@@ -63,6 +68,7 @@ const Scroll = styled.ScrollView`
 const ContainerButton = styled.View`
     justify-content: space-evenly;
     flex-direction: row;
+    height: 200px;
 `;
 
 
