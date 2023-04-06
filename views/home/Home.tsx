@@ -404,6 +404,8 @@ export default function Home() {
         '#FFC0CB',
         '#A52A2A',
         '#808080',
+        '#3FDEAE',
+        '#9966cc',
     ];
     const [selectedColor, setSelectedColor] = useState('');
     const [selectedBlockIndex, setSelectedBlockIndex] = useState(-1);
@@ -441,6 +443,9 @@ export default function Home() {
             true,
             false,
         );
+        let datas = await getData({ fileName: 'Account' });
+
+        setHistory(datas);
     };
 
     const editModalHistory = async (index: number) => {
@@ -1248,10 +1253,10 @@ export default function Home() {
                                     ></View>
                                 </AlertInView>
                                 <AlertInView>
-                                    <AlertMessage style={{ textDecorationLine: 'underline' }}>
+                                    <AlertMessage style={{ width: '38%', textDecorationLine: 'underline' }}>
                                         Название:
                                     </AlertMessage>
-                                    <AlertMessage style={{ width: '70%', textAlign: 'center' }}>
+                                    <AlertMessage style={{ width: '62%', textAlign: 'center' }}>
                                         {touchItemIndex.index !== -1
                                             ? dataItems.categories[touchItemIndex.index].name
                                             : ''}
