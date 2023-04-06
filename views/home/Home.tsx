@@ -170,8 +170,6 @@ const styles = StyleSheet.create({
 
 ////////////////////////////////
 
-
-
 //Circle//////////////////////////////
 const CircleContainerBox = styled.View`
     height: 50%;
@@ -335,7 +333,7 @@ function calculateValues(categories: category, history: history): category {
                 const cat = {
                     id: categ.id,
                     name: categ.name,
-                    
+
                     category_type: categ.category_type,
                     color: categ.color,
                     value: sum,
@@ -509,13 +507,11 @@ export default function Home() {
     function getItems(accounts: category['categories']) {
         let data: { label: string; value: string }[] = [];
         accounts.map((item) => {
-            data.push({ label: item.name +', '+item.category_type, value: item.id.toString() });
+            data.push({ label: item.name + ', ' + item.category_type, value: item.id.toString() });
         });
-        setItems(data)
+        setItems(data);
         console.log(data, data.length);
         console.log(items, items.length);
-        
-        
     }
 
     function getAccount(accounts: account['accounts']) {
@@ -547,7 +543,7 @@ export default function Home() {
 
             await setData({ fileName: 'category', data: dataC });
         }
-        
+
         await getItems(await getCategory());
         await getAccount(await getAccounts());
         if (dataH === null) {
@@ -580,8 +576,8 @@ export default function Home() {
             name: text[1].replace(/\s+/g, ' ').trim(),
         };
         console.log(mama.categories.length);
-        
-        if (mama.categories.length> maxid) {
+
+        if (mama.categories.length > maxid) {
             alert(`Максимальное количество категорий 11!`);
             return;
         }
@@ -609,9 +605,11 @@ export default function Home() {
             }
             setDataItems(mama);
         }
-        if (dat.category_type === 'Доход'){
+        if (dat.category_type === 'Доход') {
             setcategorytype(true);
-        }else {setcategorytype(false);}
+        } else {
+            setcategorytype(false);
+        }
 
         await setData({ fileName: 'category', data: mama });
         setText(['', '', '', '']);
@@ -819,7 +817,6 @@ export default function Home() {
         setVisible2(false);
 
         setSelectedBlockIndex(-1);
-        
     };
 
     return (
@@ -1022,23 +1019,23 @@ export default function Home() {
                 />
                 <PickerBlock>
                     <TextName>Категория</TextName>
-                    
+
                     <DropDownPicker
-                        
                         open={openPicker}
                         value={pickerValue}
                         setOpen={setOpenPicker}
                         setValue={setPickerValue}
                         items={items}
                         setItems={setItems}
-                        containerStyle={{ width: '66%', alignSelf: 'flex-end' ,position:'relative'}}
+                        containerStyle={{
+                            width: '66%',
+                            alignSelf: 'flex-end',
+                            position: 'relative',
+                        }}
                         zIndex={2}
                         placeholder='Выберите категорию'
                         dropDownDirection='BOTTOM'
-                       
-                        
                     />
-                    
                 </PickerBlock>
 
                 <Input
@@ -1069,7 +1066,7 @@ export default function Home() {
                         items={itemsAccounts}
                         setItems={setitemsAccounts}
                         containerStyle={{ width: '66%', alignSelf: 'flex-end' }}
-                        placeholder='Выберите аккаунт'
+                        placeholder='Выберите счет'
                         dropDownDirection='BOTTOM'
                         zIndex={1}
                     />
@@ -1116,15 +1113,15 @@ export default function Home() {
                             }}
                         />
                         <HeaderText>{categorytype ? 'Доход' : 'Расход'}</HeaderText>
-                        
+
                         <ButtonHeader
                             onPress={() => {
                                 if (dataItems.categories.length <= 10) {
-                                setVisibleAddCategory(true);
-                                setActiveModalButtonAddCategory(categorytype);
-                            } else {
-                                Alert.alert('вы достигли лимита категорий (10)');
-                            }
+                                    setVisibleAddCategory(true);
+                                    setActiveModalButtonAddCategory(categorytype);
+                                } else {
+                                    Alert.alert('вы достигли лимита категорий (10)');
+                                }
                             }}
                             style={{ shadowColor: '#625E5E', elevation: 10 }}
                         >
@@ -1253,7 +1250,9 @@ export default function Home() {
                                     ></View>
                                 </AlertInView>
                                 <AlertInView>
-                                    <AlertMessage style={{ width: '38%', textDecorationLine: 'underline' }}>
+                                    <AlertMessage
+                                        style={{ width: '38%', textDecorationLine: 'underline' }}
+                                    >
                                         Название:
                                     </AlertMessage>
                                     <AlertMessage style={{ width: '62%', textAlign: 'center' }}>
@@ -1478,7 +1477,6 @@ export default function Home() {
                     }}
                 />
 
-                
                 <FlatlistView>
                     <FlatListViewIn>
                         {dataItems.categories &&
