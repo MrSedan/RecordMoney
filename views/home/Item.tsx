@@ -3,28 +3,6 @@ import styled from 'styled-components/native';
 import { TouchableOpacity, Text, View } from 'react-native';
 import Circle from './smallCircle';
 
-import { borderBillionMillionThousand } from '../tools/iosys';
-
-// type ItemProps = {
-//     category_id: number;
-//     category_name: string;
-//     category_icon: Number;
-//     category_type: string;
-//     color: string;
-//     value: number;
-// };
-
-const CardZAD = styled.View`
-    display: flex;
-    align-content: flex-start;
-    justify-content: flex-start;
-    align-items: flex-start;
-    width: 50%;
-    flex-wrap: wrap;
-    flex-direction: row;
-    margin: 10px 0px 2px 0px;
-`;
-
 const Card = styled.View`
     margin: 5%;
     display: flex;
@@ -33,19 +11,6 @@ const Card = styled.View`
     height: 90px;
 
     background-color: #000;
-`;
-
-const FlatListsss = styled.View`
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    // width: 170px;
-    height: 90px;
-    border: 1px solid #fafafa;
-    border-radius: 20px;
-    background-color: #000;
-    padding: 10px;
-    margin: 5px;
 `;
 
 const Item = (props: {
