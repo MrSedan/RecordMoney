@@ -32,13 +32,6 @@ export async function getAccounts() {
  * @param count - количество денег, что поступят на счет
  * @param id_account - идентификатор счета, с которым происходит операция
  * @returns Возвращает строку, которая содержит `ok` (операция проведена), либо `not-found` (счет не найден), либо `no-money` (недостаточно средств).
- * @example ```ts
- * try {
- *  addMoney(-900, 0)
- * } catch {
- * console.log("Недостаточно средств")
- * }
- * ```
  */
 export async function addMoney(
     count: number,
@@ -50,15 +43,11 @@ export async function addMoney(
 ): Promise<'not-found' | 'ok' | 'no-money'> {
     let data: account = JSON.parse(JSON.stringify(await getData({ fileName: 'Account' })));
     let historyAcc: accountHistory = await getData({ fileName: 'AccountHistory' });
-    console.log(historyAcc);
-
     let status: 'not-found' | 'ok' | 'no-money' = 'not-found';
     for (let index = 0; index < data.accounts.length; index++) {
         const item = data.accounts[index];
         if (item.id == Number(id_acc)) {
             if (item.sum + count < 0) {
-                console.log('я тут');
-
                 status = 'no-money';
                 break;
             }
@@ -74,8 +63,6 @@ export async function addMoney(
                         const ind = historyAcc.accHistory.findIndex(
                             (item) => item.page === pageEvent && item.id_operation === id_operat,
                         );
-                        console.log('delete', ind);
-
                         historyAcc.accHistory.splice(ind, 1);
                     } else {
                         if (onEdit) {
@@ -129,7 +116,7 @@ export async function addMoney(
             break;
         }
     }
-    return status; // Не нашел счет
+    return status;
 }
 
 export async function removeAccount(id_account: string | number) {

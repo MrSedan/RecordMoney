@@ -4,12 +4,22 @@ import styled from 'styled-components/native';
 import { useCallback, useState } from 'react';
 import { account, emptyAccount } from '../../models/interfaces';
 import { useFocusEffect } from '@react-navigation/native';
-import { addItem, editItem, getData, setData, borderBillionMillionThousand } from '../tools/iosys';
+import {
+    addItem,
+    editItem,
+    getData,
+    setData,
+    borderBillionMillionThousand,
+    replaceSpace,
+} from '../tools/iosys';
 import ModalWindowOneButton from '../modular_components/ModalWindowOneButton';
 import Input from '../modular_components/Input';
 import { removeAccount } from '../tools/account';
 import CardWithButtons from '../modular_components/CardWithButtons';
 import PlusSvg from '../../assets/icon/plus.svg';
+import InputPG from '../piggybanks/InputPG';
+import DropDownPicker from 'react-native-dropdown-picker';
+import TransferSvg from '../../assets/icon/transfer.svg';
 
 const getRandomColor = () => {
     const red = Math.floor(Math.random() * 256);
@@ -90,6 +100,26 @@ const AlertButtonText = styled.Text`
     color: #000;
 `;
 
+//PickerBlock//////////////////////////////
+const PickerBlock = styled.View`
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0 15px 15px;
+    max-width: 100%;
+`;
+
+const TextName = styled.Text`
+    font-family: 'MainFont-Regular';
+    text-align: center;
+    width: 33%;
+    margin-right: 1%;
+    padding-bottom: 2px;
+    font-size: 15px;
+`;
+/////////////////////////////////////////////
+
 export default function Account(props: {
     visible: boolean;
     setVisible: React.Dispatch<React.SetStateAction<boolean>>;
@@ -100,18 +130,31 @@ export default function Account(props: {
     const [touchItemIndex, setTouchItemIndex] = useState(-1);
     const [editing, setEditing] = useState({ editing: false, index: 0 });
     const [visible, setVisible] = useState(false);
+    const [sumEdit, setSumEdit] = useState('');
+    const [openPicker, setOpenPicker] = useState(false);
+    const [pickerValue, setPickerValue] = useState('');
+    const [modalWindow, setModalWindow] = useState(false);
+    const [accs, setAccs] = useState<{ label: string; value: string }[]>([]);
+
+    const getItems = (accounts: account['accounts']) => {
+        let data: { label: string; value: string }[] = [];
+        accounts.map((item) => {
+            data.push({ label: `${item.name} ${item.sum}`, value: item.id.toString() });
+        });
+        setAccs(data);
+    };
+    const onStart = async () => {
+        let data: account = await getData({ fileName: 'Account' });
+        if (data === null) {
+            data = emptyAccount();
+            await setData({ fileName: 'Account', data: data });
+        }
+        setState(data);
+        getItems(data.accounts);
+    };
 
     useFocusEffect(
         useCallback(() => {
-            const onStart = async () => {
-                let data: account = await getData({ fileName: 'Account' });
-                if (data === null) {
-                    data = emptyAccount();
-                    await setData({ fileName: 'Account', data: data });
-                }
-                setState(data);
-                console.log(data);
-            };
             onStart();
         }, []),
     );
@@ -121,7 +164,9 @@ export default function Account(props: {
         let dat = {
             id: 0,
             name: text[0].trim(),
-            sum: Number(text[1].trim() != '' ? text[1].trim() : ''),
+            sum:
+                Math.round(+(text[1].trim() != '' ? text[1].trim().replace(',', '.') : '') * 100) /
+                100,
         };
         if (editing.editing) {
             dat.id = newDat.accounts[editing.index].id;
@@ -140,7 +185,7 @@ export default function Account(props: {
     };
 
     const tryToSave = () => {
-        if (text[0].trim() == '' || !text[1].trim().match(/^\d+$/)) {
+        if (text[0].trim() == '' || !text[1].trim().match(/^\d+([\.,]\d{1,2})?$/)) {
             Alert.alert('Ошибка!', 'Пожалуйста, заполните все обязательные поля корректно.', [
                 {
                     text: 'OK',
@@ -182,6 +227,35 @@ export default function Account(props: {
         setText([state.accounts[index].name, state.accounts[index].sum.toString()]);
         props.setVisible(true);
         setEditing({ editing: true, index: index });
+    };
+
+    const transfer = async () => {
+        if (pickerValue == '') {
+            Alert.alert('Внимание!', 'Вы не выбрали счет!');
+            return;
+        }
+        if (!replaceSpace(sumEdit).match(/^\d+([\.,]\d{1,2})?$/)) {
+            Alert.alert('Внимание!', 'Введите корректную сумму!');
+            return;
+        }
+        if (state.accounts[touchItemIndex].sum - +sumEdit < 0) {
+            Alert.alert('Внимание!', 'На счету недостаточно средств!');
+            return;
+        }
+        let newState: account = JSON.parse(JSON.stringify(state));
+        console.log(touchItemIndex, pickerValue);
+
+        newState.accounts[touchItemIndex].sum -= Math.round(+sumEdit.replace(',', '.') * 100) / 100;
+        newState.accounts.filter((item) => item.id == +pickerValue)[0].sum +=
+            Math.round(+sumEdit.replace(',', '.') * 100) / 100;
+        setState(newState);
+        await setData({ fileName: 'Account', data: newState });
+
+        setOpenPicker(false);
+        setPickerValue('');
+        setSumEdit('');
+        setModalWindow(false);
+        setTouchItemIndex(-1);
     };
 
     return (
@@ -241,6 +315,18 @@ export default function Account(props: {
                             }}
                             style={{ position: 'absolute', left: 13, top: 13 }}
                         />
+                        <TransferSvg
+                            width={25}
+                            height={25}
+                            style={{ position: 'absolute', right: 13, top: 13 }}
+                            onPress={() => {
+                                if (touchItemIndex !== -1) {
+                                    getItems(state.accounts);
+                                    setModalWindow(true);
+                                    setVisible(false);
+                                }
+                            }}
+                        />
                         <AlertTextContainer>
                             <AlertInView>
                                 <AlertMessage style={{ textDecorationLine: 'underline' }}>
@@ -268,7 +354,7 @@ export default function Account(props: {
                         </AlertTextContainer>
                         <AlertButtonCantainer>
                             <AlertButton
-                                style={{ width: '60%' }}
+                                style={{ width: '40%' }}
                                 onPress={() => {
                                     if (touchItemIndex !== -1) {
                                         openEditModal(touchItemIndex);
@@ -280,7 +366,7 @@ export default function Account(props: {
                                 <AlertButtonText>Редактировать</AlertButtonText>
                             </AlertButton>
                             <AlertButton
-                                style={{ backgroundColor: '#FF8484' }}
+                                style={{ backgroundColor: '#FF8484', width: '30%' }}
                                 onPress={() => {
                                     if (touchItemIndex !== -1) {
                                         del(touchItemIndex);
@@ -295,6 +381,60 @@ export default function Account(props: {
                     </ModalInfo>
                 </View>
             </Modal>
+            <ModalWindowOneButton
+                windowName='Перевод'
+                functionCancelButton={() => {
+                    setOpenPicker(false);
+                    setPickerValue('');
+                    setSumEdit('');
+                    setModalWindow(false);
+                    setTouchItemIndex(-1);
+                }}
+                functionSaveButton={() => {
+                    transfer();
+                }}
+                visible={modalWindow}
+                setVisible={setModalWindow}
+                colorActive='#3EA2FF'
+            >
+                <View>
+                    <InputPG
+                        textName='Сумма'
+                        value={sumEdit}
+                        setValue={setSumEdit}
+                        placeholder={`Не более ${
+                            touchItemIndex !== -1 ? state.accounts[touchItemIndex].sum : ''
+                        }`}
+                        keyboardType='numeric'
+                        colorActiveInput='#3EA2FF'
+                    />
+                    <PickerBlock>
+                        <TextName>Счет</TextName>
+                        <DropDownPicker
+                            open={openPicker}
+                            value={pickerValue}
+                            translation={{
+                                PLACEHOLDER: 'Выберите счёт!',
+                                NOTHING_TO_SHOW: 'Нет счетов для выбора!',
+                            }}
+                            setOpen={setOpenPicker}
+                            setValue={setPickerValue}
+                            items={accs.filter((item) => {
+                                return (
+                                    touchItemIndex !== -1 &&
+                                    item.value != accs[touchItemIndex].value
+                                );
+                            })}
+                            setItems={setAccs}
+                            containerStyle={{
+                                width: '66%',
+                                alignSelf: 'flex-end',
+                            }}
+                            dropDownDirection='TOP'
+                        />
+                    </PickerBlock>
+                </View>
+            </ModalWindowOneButton>
             <Scroll>
                 {state.accounts &&
                     state.accounts.map((item, index) => {
