@@ -47,6 +47,7 @@ import {
     delItem,
     editItem,
     borderBillionMillionThousand,
+    replaceSpace,
 } from '../tools/iosys';
 import CardWithButtons from '../modular_components/CardWithButtons';
 import { PeopleDate } from '../calendar/Calendar';
@@ -623,7 +624,7 @@ export default function Home() {
         if (texthistory[0] === '' || pickerValue === '') {
             Alert.alert('Ошибка', 'Введите корректные данные');
             return;
-        } else if (!texthistory[0].match(/^\d+$/)) {
+        } else if (!texthistory[0].match(/^\d+([\.,]\d{1,2})?$/)) {
             Alert.alert('Ошибка', 'Введите корректные данные');
             return;
         } else if (selectedDate === '') {
@@ -655,7 +656,7 @@ export default function Home() {
             id_account: 0,
             category: 0,
             date: dateS,
-            sum: Number(texthistory[0]),
+            sum: Math.round(+replaceSpace(texthistory[0]).replace(',', '.') * 100) / 100,
             comment: texthistory[1].trim(),
         };
 

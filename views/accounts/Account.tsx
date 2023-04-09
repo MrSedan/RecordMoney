@@ -121,7 +121,9 @@ export default function Account(props: {
         let dat = {
             id: 0,
             name: text[0].trim(),
-            sum: Number(text[1].trim() != '' ? text[1].trim() : ''),
+            sum:
+                Math.round(+(text[1].trim() != '' ? text[1].trim().replace(',', '.') : '') * 100) /
+                100,
         };
         if (editing.editing) {
             dat.id = newDat.accounts[editing.index].id;
@@ -140,7 +142,7 @@ export default function Account(props: {
     };
 
     const tryToSave = () => {
-        if (text[0].trim() == '' || !text[1].trim().match(/^\d+$/)) {
+        if (text[0].trim() == '' || !text[1].trim().match(/^\d+([\.,]\d{1,2})?$/)) {
             Alert.alert('Ошибка!', 'Пожалуйста, заполните все обязательные поля корректно.', [
                 {
                     text: 'OK',

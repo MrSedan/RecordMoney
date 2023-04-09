@@ -266,7 +266,7 @@ export default function Debt() {
             id_account: 0,
             name: text[0].trim(),
             type: activeModalButton ? '1' : '2',
-            sum: Number(text[1]),
+            sum: Math.round(+replaceSpace(text[1]).replace(',', '.') * 100) / 100,
             contact: selectedContact.trim(),
             date: dateS,
             comment: text[3].trim(),
@@ -296,7 +296,7 @@ export default function Debt() {
         if (replaceSpace(text[0]) === '') {
             Alert.alert('Не верные данные!', 'Вы ввели неверное название');
             return;
-        } else if (!replaceSpace(text[1]).match(/^\d+$/) || Number(text[1]) === 0) {
+        } else if (!replaceSpace(text[1]).match(/^\d+([\.,]\d{1,2})?$/) || Number(text[1]) === 0) {
             Alert.alert('Не верные данные!', 'Вы ввели неверную сумму');
             return;
         } else if (pickerValue == '') {

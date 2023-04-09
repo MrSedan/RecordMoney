@@ -202,7 +202,7 @@ export default function PiggyBank() {
         let newData = {
             id: 0,
             name: replaceSpace(text[0]),
-            sum_max: +text[1],
+            sum_max: Math.round(+replaceSpace(text[1]).replace(',', '.') * 100) / 100,
             sum_cur: 0,
             status: false,
         };
@@ -214,17 +214,18 @@ export default function PiggyBank() {
             data.piggyBanks[editing.index] = newData;
             await editItem('piggyBanks', 'PiggyBank', editing.index, newData);
         } else if (editSum.editSum) {
+            let se = Math.round(+replaceSpace(sumEdit).replace(',', '.') * 100) / 100;
             newData.id = data.piggyBanks[editSum.index].id;
             let value = 0;
-            if (data.piggyBanks[editSum.index].sum_cur + Number(sumEdit) === newData.sum_max) {
-                newData.sum_cur = data.piggyBanks[editSum.index].sum_cur + Number(sumEdit);
+            if (data.piggyBanks[editSum.index].sum_cur + se === newData.sum_max) {
+                newData.sum_cur = data.piggyBanks[editSum.index].sum_cur + se;
                 newData.status = true;
-                value = Number(sumEdit);
+                value = se;
                 Alert.alert(
                     'Поздравляю!',
                     'Вы закрыли свою цель! Вы можете отслеживать свои закрытые цели в разделе "закрытые". Вы можете удалить их в любое время',
                 );
-            } else if (newData.sum_max < data.piggyBanks[editSum.index].sum_cur + Number(sumEdit)) {
+            } else if (newData.sum_max < data.piggyBanks[editSum.index].sum_cur + se) {
                 let ost = newData.sum_max - data.piggyBanks[editSum.index].sum_cur;
 
                 value = Number(ost);
@@ -237,8 +238,8 @@ export default function PiggyBank() {
                     'Вы ввели сумму больше оставшейся, цель закрыта, остатки возвращены на счет',
                 );
             } else {
-                newData.sum_cur = data.piggyBanks[editSum.index].sum_cur + Number(sumEdit);
-                value = Number(sumEdit);
+                newData.sum_cur = data.piggyBanks[editSum.index].sum_cur + se;
+                value = se;
             }
             data.piggyBanks[editSum.index] = newData;
             await editItem('piggyBanks', 'PiggyBank', editSum.index, newData);
@@ -276,8 +277,8 @@ export default function PiggyBank() {
             Alert.alert('Не верные данные!', 'Вы ввели неверное название');
             return;
         } else if (
-            !replaceSpace(text[1]).match(/^\d+$/) ||
-            (editSum.editSum && !replaceSpace(sumEdit).match(/^\d+$/)) ||
+            !replaceSpace(text[1]).match(/^\d+([\.,]\d{1,2})?$/) ||
+            (editSum.editSum && !replaceSpace(sumEdit).match(/^\d+([\.,]\d{1,2})?$/)) ||
             Number(text[1]) === 0 ||
             (editSum.editSum && Number(sumEdit) === 0)
         ) {

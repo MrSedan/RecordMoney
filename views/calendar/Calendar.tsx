@@ -259,7 +259,7 @@ export default function Calendar() {
             id_account: +pickerValue,
             name: replaceSpace(text[0]),
             date: text[1],
-            sum: +text[2],
+            sum: Math.round(+replaceSpace(text[2]).replace(',', '.') * 100) / 100,
             type: activeModalButton ? '1' : '2',
             comment: text[3],
             close: false,
@@ -293,7 +293,7 @@ export default function Calendar() {
         if (replaceSpace(text[0]) === '') {
             Alert.alert('Не верные данные!', 'Вы ввели неверное название');
             return;
-        } else if (!replaceSpace(text[2]).match(/^\d+$/) || Number(text[2]) === 0) {
+        } else if (!replaceSpace(text[2]).match(/^\d+([\.,]\d{1,2})?$/) || Number(text[2]) === 0) {
             Alert.alert('Не верные данные!', 'Вы ввели неверную сумму');
             return;
         } else if (pickerValue == '') {
