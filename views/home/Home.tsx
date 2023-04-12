@@ -1430,8 +1430,13 @@ export default function Home() {
                             <Text style={styles.TextInDiagramsfirst}>Сумма счетов</Text>
                             <Text style={styles.TextInDiagramsSecond}>
                                 {history.accounts.length > 0 &&
-                                    borderBillionMillionThousand(
-                                        history.accounts.reduce((a, b) => a + Math.abs(b.sum), 0),
+                                    +borderBillionMillionThousand(
+                                        Math.round(
+                                            history.accounts.reduce(
+                                                (a, b) => a + Math.abs(b.sum),
+                                                0,
+                                            ) * 100,
+                                        ) / 100,
                                     )}
                                 {history.accounts.length === 0 && '0'} руб
                             </Text>
@@ -1492,7 +1497,10 @@ export default function Home() {
                                                 <CardTextTitle>{item.name}</CardTextTitle>
                                             </CardHeader>
                                             <CardTextSum>
-                                                {borderBillionMillionThousand(item.value)} руб
+                                                {borderBillionMillionThousand(
+                                                    Math.round(item.value * 100) / 100,
+                                                )}{' '}
+                                                руб
                                             </CardTextSum>
                                         </Item>
                                     );
