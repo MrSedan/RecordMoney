@@ -15,10 +15,6 @@ import CalendarBlack from '../../assets/icon/CalanderBlack.svg';
 import WalletBlack from '../../assets/icon/WalletBlack.svg';
 import Accounts from '../../assets/icon/Accounts.svg';
 
-
-
-
-
 const StatContainer = styled.View`
     margin: 40px 2% 10%;
     background-color: #fff;
@@ -51,7 +47,6 @@ const ResetButton = styled.TouchableOpacity`
     border: 2px solid #000;
 `;
 const ButtonGrafic = styled.TouchableOpacity`
-    
     border-style: solid;
     height: 110px;
     display: flex;
@@ -70,7 +65,6 @@ const ContainerButton = styled.View`
     flex-direction: row;
     height: 200px;
 `;
-
 
 export default function Advice() {
     const [history, setHistory] = useState(emptyAccHistory());
@@ -268,10 +262,13 @@ export default function Advice() {
                         <StatName>Всего расходов:</StatName>
                         <Text style={{ fontFamily: 'MainFont-Bold', fontSize: 15 }}>
                             {history.accHistory.length > 0 &&
-                                history.accHistory
-                                    .filter((item) => item.type == '2')
-                                    .reduce((a, b) => a + Math.abs(b.sum), 0)
-                                    .toString()}
+                                (
+                                    Math.round(
+                                        history.accHistory
+                                            .filter((item) => item.type == '2')
+                                            .reduce((a, b) => a + Math.abs(b.sum), 0) * 100,
+                                    ) / 100
+                                ).toString()}
                             {history.accHistory.length == 0 && '0'} руб.
                         </Text>
                     </TextRow>
@@ -279,10 +276,13 @@ export default function Advice() {
                         <StatName>Всего доходов:</StatName>
                         <Text style={{ fontFamily: 'MainFont-Bold', fontSize: 15 }}>
                             {history.accHistory.length > 0 &&
-                                history.accHistory
-                                    .filter((item) => item.type == '1')
-                                    .reduce((a, b) => a + Math.abs(b.sum), 0)
-                                    .toString()}
+                                (
+                                    Math.round(
+                                        history.accHistory
+                                            .filter((item) => item.type == '1')
+                                            .reduce((a, b) => a + Math.abs(b.sum), 0) * 100,
+                                    ) / 100
+                                ).toString()}
                             {history.accHistory.length == 0 && '0'} руб.
                         </Text>
                     </TextRow>
@@ -304,10 +304,13 @@ export default function Advice() {
                         <StatName>Вы должны: </StatName>
                         <Text style={{ fontFamily: 'MainFont-Bold', fontSize: 15 }}>
                             {debt.debts.length > 0 &&
-                                debt.debts
-                                    .filter((item) => item.type == '2')
-                                    .reduce((a, b) => a + b.sum, 0)
-                                    .toString()}
+                                (
+                                    Math.round(
+                                        debt.debts
+                                            .filter((item) => item.type == '2')
+                                            .reduce((a, b) => a + b.sum, 0) * 100,
+                                    ) / 100
+                                ).toString()}
                             {debt.debts.length == 0 && '0'} руб.
                         </Text>
                     </TextRow>
@@ -315,77 +318,66 @@ export default function Advice() {
                         <StatName>Вам должны: </StatName>
                         <Text style={{ fontFamily: 'MainFont-Bold', fontSize: 15 }}>
                             {debt.debts.length > 0 &&
-                                debt.debts
-                                    .filter((item) => item.type == '1')
-                                    .reduce((a, b) => a + b.sum, 0)
-                                    .toString()}
+                                (
+                                    Math.round(
+                                        debt.debts
+                                            .filter((item) => item.type == '1')
+                                            .reduce((a, b) => a + b.sum, 0) * 100,
+                                    ) / 100
+                                ).toString()}
                             {debt.debts.length == 0 && '0'} руб.
                         </Text>
                     </TextRow>
                     <ResetButton onPress={tryToReset}>
-                        <Trash
-                        width={40}
-                        height={40}
-                        color={'#FF6E6E'}
-                        />
+                        <Trash width={40} height={40} color={'#FF6E6E'} />
                     </ResetButton>
                 </StatContainer>
-               <ContainerButton>
-                {visible3 && (
-                        
-                        <ButtonGrafic onPress={GraficCalendar} style = {{backgroundColor: '#f7c183'}}>
-                            <CalendarBlack
-                                width={33}
-                                height={33}
-                            />
+                <ContainerButton>
+                    {visible3 && (
+                        <ButtonGrafic
+                            onPress={GraficCalendar}
+                            style={{ backgroundColor: '#f7c183' }}
+                        >
+                            <CalendarBlack width={33} height={33} />
                             <Text
                                 style={{
                                     fontFamily: 'MainFont-Bold',
                                     fontSize: 15,
-                                    
                                 }}
                             >
                                 Календарь
                             </Text>
                         </ButtonGrafic>
-                      
-                )}
-                {visible4 && (
-                   
-                    <ButtonGrafic onPress={GraficDebt} style = {{backgroundColor: '#3FDEAE'}}>
-                        <WalletBlack
-                            width={33}
-                            height={33}
-                        />
-                    <Text
-                        style={{
-                            fontFamily: 'MainFont-Bold',
-                            fontSize: 15,
-                            
+                    )}
+                    {visible4 && (
+                        <ButtonGrafic onPress={GraficDebt} style={{ backgroundColor: '#3FDEAE' }}>
+                            <WalletBlack width={33} height={33} />
+                            <Text
+                                style={{
+                                    fontFamily: 'MainFont-Bold',
+                                    fontSize: 15,
+                                }}
+                            >
+                                Долги
+                            </Text>
+                        </ButtonGrafic>
+                    )}
+                    <ButtonGrafic
+                        onPress={() => {
+                            Alert.alert('Данная функция будет добавлена в обновлениях');
                         }}
+                        style={{ backgroundColor: '#9966cc' }}
                     >
-                        Долги
-                    </Text>
-                </ButtonGrafic>
-                
-                )}
-                <ButtonGrafic onPress={() => {Alert.alert('Данная функция будет добавлена в обновлениях')}} style = {{backgroundColor: '#9966cc'}}>
-                    <Accounts
-                        width={33}
-                        height={33}
-                    />
-                    <Text
-                        style={{
-                            fontFamily: 'MainFont-Bold',
-                            fontSize: 15,
-                            
-                            
-                        }}
-                    >
-                        Счета
-                    </Text>
-                </ButtonGrafic>
-                
+                        <Accounts width={33} height={33} />
+                        <Text
+                            style={{
+                                fontFamily: 'MainFont-Bold',
+                                fontSize: 15,
+                            }}
+                        >
+                            Счета
+                        </Text>
+                    </ButtonGrafic>
                 </ContainerButton>
             </Scroll>
         </View>

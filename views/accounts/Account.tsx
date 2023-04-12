@@ -178,6 +178,7 @@ export default function Account(props: {
             newDat.accounts.push(dat);
             addItem('accounts', 'Account', dat);
         }
+        getItems(newDat.accounts);
         setState(newDat);
         setText(['', '']);
         setEditing({ editing: false, index: 0 });
@@ -210,6 +211,7 @@ export default function Account(props: {
                         const id_acc = newDat.accounts[index].id;
                         newDat.accounts.splice(index, 1);
                         await removeAccount(id_acc);
+                        getItems(newDat.accounts);
                         setState(newDat);
                         props.onModalHide && props.onModalHide();
                     },
@@ -248,6 +250,11 @@ export default function Account(props: {
         newState.accounts[touchItemIndex].sum -= Math.round(+sumEdit.replace(',', '.') * 100) / 100;
         newState.accounts.filter((item) => item.id == +pickerValue)[0].sum +=
             Math.round(+sumEdit.replace(',', '.') * 100) / 100;
+        newState.accounts[touchItemIndex].sum =
+            Math.round(newState.accounts[touchItemIndex].sum * 100) / 100;
+        newState.accounts.filter((item) => item.id == +pickerValue)[0].sum =
+            Math.round(newState.accounts.filter((item) => item.id == +pickerValue)[0].sum * 100) /
+            100;
         setState(newState);
         await setData({ fileName: 'Account', data: newState });
 
@@ -315,18 +322,20 @@ export default function Account(props: {
                             }}
                             style={{ position: 'absolute', left: 13, top: 13 }}
                         />
-                        <TransferSvg
-                            width={25}
-                            height={25}
-                            style={{ position: 'absolute', right: 13, top: 13 }}
-                            onPress={() => {
-                                if (touchItemIndex !== -1) {
-                                    getItems(state.accounts);
-                                    setModalWindow(true);
-                                    setVisible(false);
-                                }
-                            }}
-                        />
+                        {accs.length > 1 && (
+                            <TransferSvg
+                                width={25}
+                                height={25}
+                                style={{ position: 'absolute', right: 13, top: 13 }}
+                                onPress={() => {
+                                    if (touchItemIndex !== -1) {
+                                        getItems(state.accounts);
+                                        setModalWindow(true);
+                                        setVisible(false);
+                                    }
+                                }}
+                            />
+                        )}
                         <AlertTextContainer>
                             <AlertInView>
                                 <AlertMessage style={{ textDecorationLine: 'underline' }}>
@@ -354,7 +363,7 @@ export default function Account(props: {
                         </AlertTextContainer>
                         <AlertButtonCantainer>
                             <AlertButton
-                                style={{ width: '40%' }}
+                                style={{ width: '55%' }}
                                 onPress={() => {
                                     if (touchItemIndex !== -1) {
                                         openEditModal(touchItemIndex);

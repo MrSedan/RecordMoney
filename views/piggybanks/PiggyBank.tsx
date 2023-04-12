@@ -528,7 +528,9 @@ export default function PiggyBank() {
                                             До цели осталось
                                             <CardMoreInfo style={{ fontFamily: 'MainFont-Bold' }}>
                                                 {' '}
-                                                {abbrNum(+item.sum_max - +item.sum_cur)}{' '}
+                                                {Math.round(
+                                                    +abbrNum(+item.sum_max - +item.sum_cur) * 100,
+                                                ) / 100}{' '}
                                             </CardMoreInfo>
                                             руб
                                         </CardMoreInfo>

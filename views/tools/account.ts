@@ -52,6 +52,7 @@ export async function addMoney(
                 break;
             }
             item.sum += count;
+            item.sum = Math.round(item.sum * 100) / 100;
             await editItem('accounts', 'Account', index, item);
 
             if (historyAcc === null)
@@ -78,6 +79,21 @@ export async function addMoney(
                                         item.page === pageEvent && item.id_operation === id_operat,
                                 )
                             ].sum = +count;
+                            historyAcc.accHistory[
+                                historyAcc.accHistory.findIndex(
+                                    (item) =>
+                                        item.page === pageEvent && item.id_operation === id_operat,
+                                )
+                            ].sum =
+                                Math.round(
+                                    historyAcc.accHistory[
+                                        historyAcc.accHistory.findIndex(
+                                            (item) =>
+                                                item.page === pageEvent &&
+                                                item.id_operation === id_operat,
+                                        )
+                                    ].sum * 100,
+                                ) / 100;
                             historyAcc.accHistory[
                                 historyAcc.accHistory.findIndex(
                                     (item) =>
