@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "RecordMoney",
+        "name": "Record Money",
     "slug": "RecordMoney",
-    "version": "1.0.0",
+        "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -14,9 +14,7 @@
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+        "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true
     },
@@ -24,7 +22,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
-      }
+            },
+            "package": "com.pdrs.RecordMoney"
     },
     "web": {
       "favicon": "./assets/favicon.png"
