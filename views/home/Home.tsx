@@ -1430,7 +1430,7 @@ export default function Home() {
                             <Text style={styles.TextInDiagramsfirst}>Сумма счетов</Text>
                             <Text style={styles.TextInDiagramsSecond}>
                                 {history.accounts.length > 0 &&
-                                    +borderBillionMillionThousand(
+                                    borderBillionMillionThousand(
                                         Math.round(
                                             history.accounts.reduce(
                                                 (a, b) => a + Math.abs(b.sum),
