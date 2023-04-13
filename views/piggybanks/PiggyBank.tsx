@@ -419,7 +419,7 @@ export default function PiggyBank() {
                                     width: '66%',
                                     alignSelf: 'flex-end',
                                 }}
-                                dropDownDirection='TOP'
+                                dropDownDirection='BOTTOM'
                             />
                         </PickerBlock>
                     </View>
@@ -528,9 +528,11 @@ export default function PiggyBank() {
                                             До цели осталось
                                             <CardMoreInfo style={{ fontFamily: 'MainFont-Bold' }}>
                                                 {' '}
-                                                {Math.round(
-                                                    +abbrNum(+item.sum_max - +item.sum_cur) * 100,
-                                                ) / 100}{' '}
+                                                {abbrNum(
+                                                    Math.round(
+                                                        (+item.sum_max - +item.sum_cur) * 100,
+                                                    ) / 100,
+                                                )}{' '}
                                             </CardMoreInfo>
                                             руб
                                         </CardMoreInfo>
